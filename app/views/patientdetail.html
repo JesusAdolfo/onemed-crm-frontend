@@ -1,0 +1,219 @@
+<h3>
+    Prescriber
+    <small>detailed view</small>
+</h3>
+<div ng-controller="ModifyPatientFormValidationController as form" class="container-fluid">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-12 text-center" >
+                        <div class="row-fluid">
+                            <!--<div class="col-md-6 text-center mt">-->
+                                <!--<button ui-sref="app.newlocation({ id: '{{ target }}' })" type="button" class="btn btn-primary btn-lg">Add new location &nbsp;<em class="icon-location-pin"></em></button>-->
+                            <!--</div>-->
+                            <div class="col-md-12 text-center mt">
+                                <button ui-sref="app.newpatappointment({ id: '{{ target }}' })" type="button" class="btn btn-primary btn-lg">Add new appointment &nbsp;<em class="icon-clock"></em></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- START row-->
+    <div >
+        <div class="row">
+            <div class="col-md-12">
+                <form name="form.formValidate" ng-submit="form.submitNote(form.target)" novalidate="" class="form-validate form-horizontal">
+                    <!-- START panel-->
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <fieldset class="b0">
+                                <legend> <small>Ref # {{ form.person.date | date:'yyyyMMdd' }} - {{ form.person.birth | date:'yyyyMMdd'}}</small> : {{form.person.name}} {{form.person.lastname}} {{form.target}}</legend>
+                            </fieldset>
+                            <fieldset>
+                                <div class="col-md-2">
+                                    <span>Birth Date:</span><h4>{{form.person.birth | date:'yyyy-MM-dd'}}</h4>
+                                    <span>Address:</span><h4>{{form.person.address}} {{form.person.address2}}</h4>
+                                    <span>City/State:</span><h4>{{form.person.city}} {{form.person.state}}</h4>
+                                    <span>Zipcode:</span><h4>{{form.person.postal}}</h4>
+                                </div>
+                                <div class="col-md-2">
+                                    <span>Phone:</span><h4>{{form.person.phone}}</h4>
+                                    <div ng-if="form.person.fax">
+                                        <span>Alternate Phone:</span><h4>{{form.person.phone2}}</h4>
+                                    </div>
+                                    <!--<div ng-if="!form.person.fax">-->
+                                        <!--<span>Fax:</span><h4 class="text-danger">Fax not available</h4>-->
+                                    <!--</div>-->
+
+                                    <div ng-if="form.person.consultant">
+                                        <span>Consultant:</span>  <h4>{{form.person.consultant}} </h4>
+                                    </div>
+                                    <div ng-if="!form.person.consultant">
+                                        <span>Consultant:</span><h4 class="text-primary "> onemed </h4>
+                                    </div>
+
+                                </div>
+                                <div ng-if="form.person.location" class="col-md-2">
+                                    <span>Main Location:</span><h4><a target="_blank" href="http://maps.google.com/maps?q={{form.person.location}}">Directions <em class="icon-map"></em></a></h4>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <!--<form name="form.formValidate" ng-submit="form.submitNote(form.target)" novalidate="" class="form-validate form-horizontal">-->
+                                    <!-- START panel-->
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <fieldset class="b0 nopadding">
+                                                <legend>Notes for {{form.person.name}} {{form.person.lastname}} </legend>
+                                            </fieldset>
+                                            <fieldset class="nopadding">
+                                                <!--<ul class="list-group" ng-repeat="note in notes">-->
+                                                <div ng-repeat="note in form.person.notes" class="alert alert-warning alert-dismissible">
+                                                    <button type="button" class="close" ng-click="form.deleteNote(note._id, $index)" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <p> {{note.text}} </p>
+                                                    <p class="text-right"> <small> Created by {{note.creator}} ~ {{ note.created_at | date:'MMM d, y h:mm:ss a'}}</small> </p>
+                                                </div>
+                                                <!--</ul>-->
+                                            </fieldset>
+                                            <fieldset>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        <input type="text" name="name" placeholder="Write notes here" required="" ng-model="form.newNote.text" class="form-control" />
+                                                        <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                            <div class="panel-footer text-center">
+                                                <button type="submit"  ng-disabled="form.formValidate.$invalid" class="btn btn-warning">Save note &nbsp; <em class="fa fa-sticky-note-o"></em> </button>
+                                            </div>
+                                        </div>
+                                        <!-- END panel-->
+                                        <!--</form>-->
+                                    </div>
+
+                            </fieldset>
+                            <br><br>
+                            <div ng-if="form.person.appointments" ng-controller="AppointmentsDataTableController as appointment">
+                                <legend>Appointments</legend>
+                                <table datatable="ng" class="row-border hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Text</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Location</th>
+                                        <th>Consultant</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="app in appointment.appointments">
+                                        <!--<td>{{ map._id }}</td>-->
+                                        <td>{{ app.text }} </td>
+                                        <td> {{ app.date | date:'shortDate' }} </td>
+                                        <td> {{ app.time | date:'shortTime' }} </td>
+                                        <td> {{ app.location }} </td>
+                                        <td> {{ app.consultant }} </td>
+                                        <td>
+                                            <div>
+                                                <button type="button" ng-click="appointment.delete(app._id, $index)" class="btn btn-sm btn-danger">
+                                                    <em class="fa fa-trash-o"></em>
+                                                </button>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel-footer text-center">.
+
+                        </div>
+                    </div>
+                    <!-- END panel-->
+                </form>
+            </div>
+        </div>
+        <!-- END row-->
+    </div>
+</div>
+<script type="text/ng-template" id="withInlineController">
+    <div class="ngdialog-message">
+        <legend><h3 class="mt0"> {{locationName}} ({{locationCity}}, {{locationState}})</h3></legend>
+        <br><br>
+        <p>
+            <strong>
+                <em class="icon-home"></em> Address:
+            </strong>
+            {{locationAddress}}  {{locationAddress2}}
+            {{locationCity}}, {{locationState}}. {{locationPostal}}.
+        </p>
+        <p>
+            <strong>
+                <em class="icon-phone"></em> Phone:
+            </strong>
+            {{phone}} &nbsp;&nbsp;&nbsp;
+            <strong>
+                <em class="fa fa-fax"></em> Fax:
+            </strong>
+            {{fax}}
+        </p>
+        <p>
+            <strong><em class="icon-user"></em> Contact person: </strong>
+            {{contact}}({{contact_position}})  &nbsp;&nbsp;&nbsp; <Strong> <em class="icon-phone"></em> Phone: </Strong>{{contact_phone}}
+        </p>
+
+        <br>
+        <p class="text-right">
+            <small class="text-right">Created on: {{ date | date:'MMM d, y h:mm:ss a'}}</small>
+        </p>
+
+        <div ng-controller="LocationsDataTableController as form2">
+            <form name="form2.formValidate" ng-submit="form2.submitForm(locationId)" novalidate="" class="form-validate form-horizontal">
+                <!-- START panel-->
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <fieldset class="b0 nopadding">
+                            <legend>Note board </legend>
+                        </fieldset>
+                        <fieldset class="nopadding">
+                            <!--<ul class="list-group" ng-repeat="note in notes">-->
+                            <div ng-repeat="note in notes" class="alert alert-warning alert-dismissible">
+                                <button type="button" class="close" ng-click="form2.deleteNote(locationId, note._id, $index)" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <p> {{note.text}} </p>
+                                <p class="text-right"> <small> Created by {{note.creator}} ~ {{ note.created_at | date:'MMM d, y h:mm:ss a'}}</small> </p>
+                            </div>
+                            <!--</ul>-->
+                        </fieldset>
+                        <fieldset>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <input type="text" name="name" placeholder="Write notes here" required="" ng-model="form2.newNote.text" class="form-control" />
+                                    <span ng-show="form2.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="panel-footer text-center">
+                            <button type="submit"  ng-disabled="form2.form2Validate.$invalid" class="btn btn-warning">Save note &nbsp; <em class="fa fa-sticky-note-o"></em> </button>
+                        </div>
+                    </div>
+                    <!-- END panel-->
+                </div>
+            </form>
+        </div>
+
+
+
+    </div>
+
+    <div class="text-right">
+        <br>
+        <button type="button" ng-click="closeThisDialog()" class="btn btn-primary">Close</button>
+    </div>
+    </div>
+</script>

@@ -1,0 +1,44 @@
+[
+  {
+    "text": "Menu Heading",
+    "heading": "true",
+    "translate": "sidebar.heading.HEADER"
+  },
+  {
+    "text": "Dashboard",
+    "sref": "app.dashboard",
+    "icon": "fa fa-dashboard"
+  },
+  {
+    "text": "Prescribers",
+    "sref": "app.singleview",
+    "icon": "fa fa-user-md"
+  },
+  {
+    "text": "Patients",
+    "sref": "app.patients",
+    "icon": "icon-folder"
+  },
+  {
+    "text": "Consultants",
+    "sref": "app.salesmen",
+    "icon": "fa fa-briefcase"
+  },
+  {
+    "text": "Reports",
+    "sref": "app.reports",
+    "icon": "fa fa-bar-chart"
+  },
+  {
+    "text": "Menu",
+    "sref": "#",
+    "icon": "icon-folder",
+    "submenu": [
+      { "text": "Sub Menu",
+        "sref": "app.submenu",
+        "translate": "sidebar.nav.menu.SUBMENU"
+      }
+    ],
+    "translate": "sidebar.nav.menu.MENU"
+  }
+]
