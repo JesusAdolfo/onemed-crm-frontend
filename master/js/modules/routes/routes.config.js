@@ -19,7 +19,7 @@
         $locationProvider.html5Mode(false);
 
         // defaults to dashboard
-        $urlRouterProvider.otherwise('/app/singleview');
+        $urlRouterProvider.otherwise('/app/login');
 
         // 
         // Application Routes
@@ -31,101 +31,138 @@
               templateUrl: helper.basepath('app.html'),
               resolve: helper.resolveFor('modernizr', 'icons', 'datatables')
           })
-            .state('app.login', {
+            .state('app.l   ogin', {
                 url: '/login',
                 title: 'Login',
-                templateUrl: helper.basepath('login.html'),
+                templateUrl: helper.basepath('account/login.html'),
                 controller: 'LoginController',
-                controllerAs: 'vm',
-                resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert')
+                controllerAs: 'form',
+                resolve: helper.resolveFor('modernizr', 'icons', 'datatables', 'oitozero.ngSweetAlert')
             })
           .state('app.singleview', {
               url: '/singleview',
               title: 'Single View',
               templateUrl: helper.basepath('singleview.html'),
-              resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert')
+              resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert'),
+              authenticate: true
           })
           .state('app.submenu', {
               url: '/submenu',
               title: 'Submenu',
-              templateUrl: helper.basepath('submenu.html')
+              templateUrl: helper.basepath('submenu.html'),
+              authenticate: true
           })
             .state('app.dashboard', {
                 url: '/dashboard',
                 title: 'Dashboard',
                 templateUrl: helper.basepath('dashboard.html'),
-                resolve: helper.resolveFor('jquery-ui', 'jquery-ui-widgets', 'moment', 'fullcalendar', 'datatables')
+                resolve: helper.resolveFor('jquery-ui', 'jquery-ui-widgets', 'moment', 'fullcalendar', 'datatables'),
+                authenticate: true
             })
             .state('app.patients', {
                 url: '/patients',
                 title: 'Patients',
                 templateUrl: helper.basepath('patients.html'),
-                resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.salesmen', {
                 url: '/salesmen',
                 title: 'Salesmen',
-                templateUrl: helper.basepath('salesmen.html')
+                templateUrl: helper.basepath('salesmen.html'),
+                resolve: helper.resolveFor('datatables', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.reports', {
                 url: '/reports',
                 title: 'Reports',
-                templateUrl: helper.basepath('reports.html')
+                templateUrl: helper.basepath('reports.html'),
+                authenticate: true
+            })
+            .state('app.calendar', {
+                url: '/calendar',
+                title: 'Calendar',
+                templateUrl: helper.basepath('calendar.html'),
+                authenticate: true
             })
             .state('app.newdoc', {
                 url: '/newdoctor',
                 title: 'New Prescriber',
                 templateUrl: helper.basepath('newdoctor.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.moddoc', {
                 url: '/moddoctor/:id',
                 title: 'Modify Prescriber',
                 templateUrl: helper.basepath('modifydoctor.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.expanddoc', {
                 url: '/expanddoc/:id',
                 title: 'Prescriber Detail',
                 templateUrl: helper.basepath('prescriberdetail.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'ngDialog', 'oitozero.ngSweetAlert', 'datatables')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'ngDialog', 'oitozero.ngSweetAlert', 'datatables'),
+                authenticate: true
             })
             .state('app.newlocation', {
                 url: '/newlocation/:id',
                 title: 'New Location',
                 templateUrl: helper.basepath('newlocation.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.newappointment', {
                 url: '/newappointment/:id',
                 title: 'New Appointment',
                 templateUrl: helper.basepath('newappointment.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.newpat', {
                 url: '/newpatient',
                 title: 'New Patient',
                 templateUrl: helper.basepath('newpatient.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.modpat', {
                 url: '/modpat/:id',
                 title: 'Modify Patient',
                 templateUrl: helper.basepath('modifypatient.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
             .state('app.expandpat', {
                 url: '/expandpat/:id',
                 title: 'Patient Detail',
                 templateUrl: helper.basepath('patientdetail.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'ngDialog', 'oitozero.ngSweetAlert', 'datatables')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'ngDialog', 'oitozero.ngSweetAlert', 'datatables'),
+                authenticate: true
             })
             .state('app.newpatappointment', {
                 url: '/newpatappointment/:id',
                 title: 'New Patient Appointment',
                 templateUrl: helper.basepath('newpatappointment.html'),
-                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert')
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
             })
+            .state('app.newcond', {
+                url: '/newcond/:id',
+                title: 'New Condition',
+                templateUrl: helper.basepath('new-condition.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
+            .state('app.newsystem', {
+                url: '/newsystem/:id',
+                title: 'New System',
+                templateUrl: helper.basepath('new-system.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
+
 
 
 
@@ -146,6 +183,8 @@
           //   )
           // })
           ;
+
+        // $urlRouterProvider.otherwise("/login");
 
     } // routesConfig
 

@@ -28,17 +28,11 @@
     "text": "Reports",
     "sref": "app.reports",
     "icon": "fa fa-bar-chart"
-  },
+  }
+  ,
   {
-    "text": "Menu",
-    "sref": "#",
-    "icon": "icon-folder",
-    "submenu": [
-      { "text": "Sub Menu",
-        "sref": "app.submenu",
-        "translate": "sidebar.nav.menu.SUBMENU"
-      }
-    ],
-    "translate": "sidebar.nav.menu.MENU"
+    "text": "Calendar",
+    "sref": "app.calendar",
+    "icon": "icon-calendar"
   }
 ]

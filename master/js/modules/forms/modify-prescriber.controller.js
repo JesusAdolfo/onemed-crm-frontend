@@ -11,7 +11,7 @@
         .controller('ModifyFormValidationController', ModifyFormValidationController);
 
     angular.module('app.forms')
-        .factory('prescriberService', function ($resource) {
+        .factory('ModifyPrescriberService', function ($resource) {
             return $resource('http://localhost:9000/api/prescribers/:id', {
                 id: '@param1'
             }, {
@@ -27,7 +27,7 @@
                 update: {
                     method: 'PUT'
                 }
-            });
+            })
         })
         .factory('PrescriberDeleteNoteResource', function ($resource) {
             return $resource('http://localhost:9000/api/prescribers/delete-prescriber-notes/:personId', {
@@ -36,19 +36,26 @@
                 update: {
                     method: 'PUT'
                 }
-            });
+            })
         });
 
-    ModifyFormValidationController.$inject = ['$scope', '$stateParams', 'prescriberService', 'SweetAlert', '$state', 'PrescriberNoteResource', 'PrescriberDeleteNoteResource'];
+    ModifyFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'ModifyPrescriberService', 'SweetAlert', '$state', 'PrescriberNoteResource', 'PrescriberDeleteNoteResource', 'User', '$location', '$cookies'];
 
-    function ModifyFormValidationController($scope, $stateParams, prescriberService, SweetAlert, $state, PrescriberNoteResource, PrescriberDeleteNoteResource) {
+    function ModifyFormValidationController($scope, $resource, $stateParams, ModifyPrescriberService, SweetAlert, $state, PrescriberNoteResource, PrescriberDeleteNoteResource, User, $location, $cookies) {
         var vm = this;
         vm.$scope = $scope;
 
-        prescriberService.get({id: $stateParams.id})
+        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+
+
+        ModifyPrescriberService.get({id: $stateParams.id})
             .$promise
             .then(function (response) {
-                console.log(response);
                 vm.$scope.form.person = {
                     name: response.name,
                     middle: response.middle,
@@ -67,6 +74,20 @@
                     notes: response.notes,
                     appointments: response.appointments
                 };
+
+
+                User.get({id: vm.person.consultant})
+                    .$promise
+                    .then(function (person) {
+
+                        // in case the lastname is undefined
+                        if(person.lastname == "" || angular.isUndefined(person.lastname))
+                            vm.person.consultant = person.name;
+                        else
+                            vm.person.consultant = person.name +" "+ person.lastname;
+                    });
+
+
                 //in case one of the fields is 0
                 if (response.address2 == 0) {
                     vm.$scope.form.person.address2 = "";
@@ -90,6 +111,10 @@
 
             vm.$scope.target = $stateParams.id;
 
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
             vm.submitted = false;
             vm.validateInput = function (name, type) {
                 var input = vm.formValidate[name];
@@ -100,9 +125,9 @@
             vm.submitForm = function () {
                 vm.submitted = true;
                 if (vm.formValidate.$valid) {
-                    console.log('Trying to update ' + $stateParams.id);
+                    console.log('Trying to update the prescriber ' + $stateParams.id);
 
-                    prescriberService.update({id: $stateParams.id}, vm.person)
+                    ModifyPrescriberService.update({id: $stateParams.id}, vm.person)
                         .$promise
                         .then(function (response) {
                             SweetAlert.swal({
@@ -130,6 +155,12 @@
 
 
             vm.submitNote = function () {
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+
 
                 console.log("submit note", $stateParams.id);
                 vm.submitted = true;
@@ -138,7 +169,7 @@
 
                 if (vm.formValidate.$valid) {
                     console.log('Submitted note to prescriber!!');
-                    PrescriberNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text})
+                    PrescriberNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator })
                         .$promise
                         .then
                         (function (response) {
@@ -149,7 +180,7 @@
 
                             var note = {};
                             note.text = vm.newNote.text;
-                            note.creator = "Current user";
+                            note.creator = creator;
                             note.created_at = "Just now";
 
                             vm.person.notes.push(note);

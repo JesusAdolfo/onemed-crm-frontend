@@ -31,6 +31,7 @@
             'app.forms',
             'app.bootstrapui',
             'app.elements',
+            'app.charts',
             'custom'
         ]);
 })();

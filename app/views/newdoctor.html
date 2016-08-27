@@ -159,7 +159,7 @@
                         </fieldset>
                         <!--CONSULTANTS-->
                         <fieldset>
-                            <div ng-controller="TimepickerDemoCtrl" class="form-group">
+                            <div class="form-group">
                                 <label class="col-sm-2 control-label"> NPI # </label>
                                 <div class="col-sm-2">
                                     <input type="text"  placeholder="Numbers only" name="mpi" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newPrescriber.npi" class="form-control" />
@@ -170,12 +170,14 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant" ng-model="form.newPrescriber.consultant" width="'100%'" class="chosen-select input-md">
-                                            <option value=""></option>
-                                            <option>Ivan Arias</option>
-                                            <option>Jose Martinez</option>
-                                            <option>Maria Campos</option>
-                                            <option>Valentina Casas</option>
+                                        <select chosen=""
+                                                required=""
+                                                name="consultant"
+                                                ng-model="form.newPrescriber.consultant"
+                                                ng-options="consultant._id as (consultant.name +' '+ consultant.lastname) for consultant in form.consultants track by consultant._id"
+                                                width="'100%'"
+                                                class="chosen-select input-md">
+
                                         </select>
                                     </div>
                                     <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>

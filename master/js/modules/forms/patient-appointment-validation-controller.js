@@ -16,8 +16,8 @@
         .controller('PatientAppointmentFormValidationController', PatientAppointmentFormValidationController);
 
     angular.module('app.forms')
-        .factory('prescriberService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+        .factory('patientService', function($resource) {
+            return $resource('http://localhost:9000/api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -36,22 +36,23 @@
         });
 
 
-    PatientAppointmentFormValidationController.$inject = ['$scope', '$stateParams', 'SweetAlert', '$state', 'prescriberService', 'PatientAppointmentFormValidationController'];
+    PatientAppointmentFormValidationController.$inject = ['$scope', '$stateParams', 'SweetAlert', '$state', 'patientService', 'PatientAppointmentFormValidationController'];
 
 
-    function PatientAppointmentFormValidationController($scope, $stateParams, SweetAlert, $state, prescriberService, PatientAppointmentFormValidationController) {
+    function PatientAppointmentFormValidationController($scope, $stateParams, SweetAlert, $state, patientService, PatientAppointmentFormValidationController) {
         var vm = this;
         vm.$scope = $scope;
         vm.locations = [];
 
-        prescriberService.get({ id: $stateParams.id })
+        patientService.get({ id: $stateParams.id })
             .$promise
             .then(function(response){
                 console.log(response);
                 vm.$scope.form.title = {
                     name: response.name,
                     lastname: response.lastname,
-                    npi: response.npi
+                    date: response.date,
+                    birth: response.birth
                 };
                 vm.locations = response.locations;
                 console.log(vm.locations);
@@ -88,7 +89,7 @@
                             //success
                             SweetAlert.swal('Success!', 'New appointment created!', 'success');
 
-                            $state.go('app.expanddoc', {id: $stateParams.id});
+                            $state.go('app.expandpat', {id: $stateParams.id});
 
 
                         }, function(errResponse){

@@ -146,8 +146,8 @@
                                     <span ng-show="form.validateInput('state', 'required')" class="text-danger">This field is required</span>
                                 </div>
                                 <div class="col-sm-1">
-                                    <input type="text" name="zipcode" placeholder="Zipcode" required="" ng-model="form.newPatient.postal" class="form-control" />
-                                    <span ng-show="form.validateInput('zipcode', 'optional')" class="text-danger">This field is required</span>
+                                    <input type="text" name="zipcode" placeholder="Zipcode" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newPatient.postal" class="form-control" />
+                                    <span ng-show="form.validateInput('zipcode', 'pattern')" class="text-danger">This field is required</span>
                                 </div>
                                 <div class="col-sm-4">
                                     <small class="text-muted">Required</small>
@@ -192,19 +192,60 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Insurance</label>
                                 <div class="col-sm-3">
-                                    <input type="text" name="insuranceName" placeholder="Insurance name" required="" ng-model="form.newPatient.insuranceName" class="form-control" />
+                                    <input type="text" name="insuranceName" placeholder="Insurance name" ng-model="form.newPatient.insuranceName" class="form-control" />
                                     <span ng-show="form.validateInput('insuranceName', 'required')" class="text-danger">This field is required</span>
                                 </div>
-                                <div class="col-sm-2">
-                                    <input type="text" name="insuranceNumber" placeholder="Policy #" required="" ng-model="form.newPatient.insuranceNumber" class="form-control" />
+                                <div class="col-sm-3">
+                                    <input type="text" name="insurancePhone" placeholder="Phone #" ng-model="form.newPatient.insurancePhone" class="form-control" />
+                                    <span ng-show="form.validateInput('insurancePhone', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted">Optional</small>
+                                </div>
+                                <div class="clearfix"><br></div>
+                                <br>
+                                <label class="col-sm-2 control-label"></label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="insuranceNumber" placeholder="Policy #" ng-model="form.newPatient.insuranceNumber" class="form-control" />
                                     <span ng-show="form.validateInput('insuranceNumber', 'required')" class="text-danger">This field is required</span>
                                 </div>
-                                <div class="col-sm-1">
-                                    <input type="text" name="insuranceGroup" placeholder="Group #" required="" ng-model="form.newPatient.insuranceGroup" class="form-control" />
+                                <div class="col-sm-3">
+                                    <input type="text" name="insuranceGroup" placeholder="Group #" ng-model="form.newPatient.insuranceGroup" class="form-control" />
                                     <span ng-show="form.validateInput('insuranceGroup', 'required')" class="text-danger">This field is required</span>
                                 </div>
                                 <div class="col-sm-4">
-                                    <small class="text-muted">Required</small>
+                                    <small class="text-muted">Optional</small>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!--DME DATA-->
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">DME </label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="dmeName" placeholder="DME Company" ng-model="form.newPatient.dmeName" class="form-control" />
+                                    <span ng-show="form.validateInput('dmeName', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="text" name="dmeEmail" placeholder="DME Email" ng-model="form.newPatient.dmeEmail" class="form-control" />
+                                    <span ng-show="form.validateInput('dmeEmail', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted">Optional</small>
+                                </div>
+                                <div class="clearfix"><br></div>
+                                <br>
+                                <label class="col-sm-2 control-label"></label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="dmePerson" placeholder="DME Contact Person" ng-model="form.newPatient.dmePerson" class="form-control" />
+                                    <span ng-show="form.validateInput('dmePerson', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="text" name="dmePhone" placeholder="DME Phone" ng-model="form.newPatient.dmePhone" class="form-control" />
+                                    <span ng-show="form.validateInput('dmePhone', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted">Optional</small>
                                 </div>
                             </div>
                         </fieldset>
@@ -216,7 +257,13 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant" ng-model="form.newPatient.prescriber" width="'100%'" class="chosen-select input-md">
+                                        <select chosen="" required=""
+                                                name="consultant"
+                                                ng-model="form.newPatient.prescriber"
+                                                width="'100%'"
+                                                class="chosen-select input-md"
+                                                ng-options="(prescriber.name+' '+prescriber.lastname +' (NPI: '+prescriber.npi+')') for prescriber in form.prescribers track by prescriber._id"
+                                        >
                                             <option ng-repeat="prescriber in form.prescribers" value="{{prescriber._id}}"> {{prescriber.name}} {{prescriber.lastname}}  (NPI: {{prescriber.npi}})</option>
 
                                         </select>
@@ -228,12 +275,14 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant" ng-model="form.newPatient.consultant" width="'100%'" class="chosen-select input-md">
-                                            <option value=""></option>
-                                            <option>Ivan Arias</option>
-                                            <option>Jose Martinez</option>
-                                            <option>Maria Campos</option>
-                                            <option>Valentina Casas</option>
+                                        <select chosen=""
+                                                required=""
+                                                name="consultant"
+                                                ng-model="form.newPatient.consultant"
+                                                ng-options="(consultant.name +' '+ consultant.lastname) for consultant in form.consultants"
+                                                width="'100%'"
+                                                class="chosen-select input-md">
+
                                         </select>
                                     </div>
                                     <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
@@ -242,6 +291,19 @@
                                     <small class="text-muted">
                                         Required
                                     </small>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!--NOTES-->
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Notes </label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="notes2" placeholder="Other details about this patient" ng-model="form.newPatient.notes2" class="form-control" />
+                                    <span ng-show="form.validateInput('notes2', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted">Optional</small>
                                 </div>
                             </div>
                         </fieldset>

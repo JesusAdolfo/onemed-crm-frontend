@@ -49,9 +49,9 @@
         });
     });
 
-    LocationsDataTableController.$inject = ['$rootScope', '$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberUpdatedResource', 'NoteResource', 'DeleteNoteResource'];
+    LocationsDataTableController.$inject = ['$rootScope', '$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberUpdatedResource', 'NoteResource', 'DeleteNoteResource', 'User', '$location', '$cookies'];
 
-    function LocationsDataTableController($rootScope, $scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberUpdatedResource, NoteResource, DeleteNoteResource) {
+    function LocationsDataTableController($rootScope, $scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberUpdatedResource, NoteResource, DeleteNoteResource, User, $location, $cookies) {
         var vm = this;
         vm.$scope = $scope;
         activate();
@@ -60,6 +60,10 @@
 
         function activate() {
             vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
 
             PrescriberResource.get({ PersonId: $stateParams.id })
                 .$promise
@@ -140,6 +144,11 @@
 
             vm.submitForm = function (locationId) {
 
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
                 vm.submitted = true;
                 console.log("Agregar nota a " + locationId);
                 console.dir(vm.newNote);
@@ -147,7 +156,7 @@
 
                 if (vm.formValidate.$valid) {
                     console.log('Submitted!!');
-                    NoteResource.update({ personId: $stateParams.id }, {text: vm.newNote.text, locationId: locationId})
+                    NoteResource.update({ personId: $stateParams.id }, {text: vm.newNote.text, creator: creator, locationId: locationId})
                         .$promise
                         .then
                         (function(response) {
@@ -158,7 +167,7 @@
 
                             var note = {};
                             note.text = vm.newNote.text;
-                            note.creator = "Current user";
+                            note.creator = creator;
                             note.created_at  = "Just now";
 
                             $rootScope.notes.push(note);

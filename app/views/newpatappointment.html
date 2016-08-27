@@ -13,8 +13,10 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <fieldset class="b0">
-                            <legend>New Appointment for {{form.title.name}} {{form.title.lastname}} (NPI
-                                #{{form.title.npi}})
+                            <legend>New Appointment for {{form.title.name}} {{form.title.lastname}}
+                                <small>
+                                    (Ref #{{form.title.date | date:'yyyyMMdd'}}-{{form.title.birth | date:'yyyyMMdd'}})
+                                </small>
                             </legend>
                         </fieldset>
                         <fieldset>
@@ -24,6 +26,21 @@
                                     <input type="text" name="name" placeholder="Write notes here" required=""
                                            ng-model="form.newAppointment.text" class="form-control"/>
                                     <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted">
+                                    Required
+                                </small>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <label class="col-sm-2 control-label">Details </label>
+                            <div class="form-group col-sm-6">
+                                <div>
+                                    <input type="text" name="text2" placeholder="Optional notes here"
+                                           ng-model="form.newAppointment.text2" class="form-control"/>
+                                    <span ng-show="form.validateInput('text2', 'required')" class="text-danger">This field is required</span>
                                 </div>
                             </div>
                             <div class="col-sm-4">
@@ -63,48 +80,6 @@
                             </div>
                             <div class="col-sm-4">
                                 <small class="text-muted"> Required </small>
-                            </div>
-                        </fieldset>
-                        <fieldset>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label"> Location </label>
-                                <div class="col-sm-2">
-                                    <div class="input-group mb">
-                                        <span class="input-group-addon"></span>
-                                        <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant"
-                                                ng-model="form.newAppointment.location" width="'100%'"
-                                                class="chosen-select input-md">
-                                            <option ng-repeat="location in form.locations" value="{{location.name}}">
-                                                {{location.name}} - ( {{location.city}}, {{location.state}} )
-                                            </option>
-
-                                        </select>
-                                    </div>
-                                    <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
-                                </div>
-                                <label class="col-sm-1 control-label">Consultant</label>
-                                <div class="col-sm-3">
-                                    <div class="input-group mb">
-                                        <span class="input-group-addon"></span>
-                                        <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant"
-                                                ng-model="form.newAppointment.consultant" width="'100%'"
-                                                class="chosen-select input-md">
-                                            <option value=""></option>
-                                            <option>Ivan Arias</option>
-                                            <option>Jose Martinez</option>
-                                            <option>Maria Campos</option>
-                                            <option>Valentina Casas</option>
-                                        </select>
-                                    </div>
-                                    <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
-                                </div>
-                                <div class="col-sm-4">
-                                    <small class="text-muted">
-                                        Required
-                                    </small>
-                                </div>
                             </div>
                         </fieldset>
                     </div>

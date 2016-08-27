@@ -7,27 +7,26 @@
 (function() {
     'use strict';
 
-    angular.module('app.forms')
-        .factory('prescriberService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        });
-
     angular
         .module('app.forms')
         .controller('LocationFormValidationController', LocationFormValidationController);
 
-    function LocationFormValidationController($scope, $location, $stateParams, prescriberService, SweetAlert, $state) {
+    angular.module('app.forms')
+        .factory('newLocationPrescriberService', function($resource) {
+            return $resource('http://localhost:9000/api/prescribers/:id', {id: '@param1'},
+                {
+                update: {method: 'PUT'}
+            })
+        });
+
+    LocationFormValidationController.$inject = ['$scope', '$stateParams', 'newLocationPrescriberService', 'SweetAlert', '$state'];
+
+    function LocationFormValidationController($scope, $stateParams, newLocationPrescriberService, SweetAlert, $state) {
         var vm = this;
         vm.$scope = $scope;
         vm.locations = [];
 
-        prescriberService.get({ id: $stateParams.id })
+        newLocationPrescriberService.get({ id: $stateParams.id })
             .$promise
             .then(function(response){
                 console.log(response);
@@ -64,7 +63,7 @@
                     console.log(this.newLocation);
                     vm.locations.push(this.newLocation);
                     console.log(vm.locations);
-                    prescriberService.update({id: $stateParams.id}, {locations: vm.locations})
+                    newLocationPrescriberService.update({id: $stateParams.id}, {locations: vm.locations})
                         .$promise
                         .then(function (response) {
                             //success

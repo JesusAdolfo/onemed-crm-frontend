@@ -51,7 +51,8 @@
     "angular-chosen-localytics": "^1.4.0",
     "angular-ui-select": "^0.18.0",
     "jquery.inputmask": "^3.3.1",
-    "angular-jwt": "^0.0.9"
+    "angular-jwt": "^0.0.9",
+    "a0-angular-storage": "^0.0.15"
   },
   "resolutions": {
     "angular": "1.5.0",

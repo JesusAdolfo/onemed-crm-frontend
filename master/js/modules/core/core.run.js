@@ -5,10 +5,25 @@
         .module('app.core')
         .run(appRun);
 
+    angular
+        .module('app.core')
+        .factory('Auth', function(){
+            var user;
+
+            return{
+                setUser : function(aUser){
+                    user = aUser;
+                },
+                isLoggedIn : function(){
+                    return(user)? user : false;
+                }
+            }
+        });
+
     appRun.$inject = ['$rootScope', '$state', '$stateParams',  '$window', '$templateCache', 'Colors'];
     
     function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
-      
+
       // Set reference to access them from any scope
       $rootScope.$state = $state;
       $rootScope.$stateParams = $stateParams;

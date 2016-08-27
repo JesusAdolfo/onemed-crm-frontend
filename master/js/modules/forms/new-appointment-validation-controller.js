@@ -36,13 +36,19 @@
         });
 
 
-    AppointmentFormValidationController.$inject = ['$scope', '$stateParams', 'SweetAlert', '$state', 'prescriberService', 'AppointmentCreationService'];
+    AppointmentFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'SweetAlert', '$state', 'prescriberService', 'AppointmentCreationService'];
 
 
-    function AppointmentFormValidationController($scope, $stateParams, SweetAlert, $state, prescriberService, AppointmentCreationService) {
+    function AppointmentFormValidationController($scope, $resource, $stateParams, SweetAlert, $state, prescriberService, AppointmentCreationService) {
         var vm = this;
         vm.$scope = $scope;
         vm.locations = [];
+
+        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
 
         prescriberService.get({ id: $stateParams.id })
             .$promise
@@ -86,19 +92,23 @@
                         .$promise
                         .then(function (response) {
                             //success
-                            SweetAlert.swal('Success!', 'New appointment created!', 'success');
-
-                            $state.go('app.expanddoc', {id: $stateParams.id});
-
-
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'New appointment created!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.expanddoc', {id: $stateParams.id});
+                            });
                         }, function(errResponse){
                             //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while creating an appointment!', 'warning');
-
-                            console.error('error: Milwaukee we got a problem', errResponse);
+                            console.error('error: dakota we got a problem', errResponse);
                         });
                 } else {
-                    SweetAlert.swal('Error!', 'Something went wrong', 'warning');
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this location!', 'warning');
                     return false;
                 }
             };

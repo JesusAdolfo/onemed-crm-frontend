@@ -22,10 +22,19 @@
                     method: 'GET', isArray: true
                 }
             });
+        })
+        .factory('userService', function ($resource) {
+            return $resource('http://localhost:9000/api/users/all', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
         });
 
-    PatientFormValidationController.$inject = ['$scope', '$resource', '$state', 'SweetAlert', 'prescriberService'];
-    function PatientFormValidationController($scope, $resource, $state, SweetAlert, prescriberService ) {
+    PatientFormValidationController.$inject = ['$scope', '$resource', '$state', 'SweetAlert', 'prescriberService', 'userService'];
+    function PatientFormValidationController($scope, $resource, $state, SweetAlert, prescriberService, userService ) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -34,6 +43,14 @@
             vm.persons.count = persons.length;
 
         });
+
+        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+
 
         prescriberService.query()
             .$promise

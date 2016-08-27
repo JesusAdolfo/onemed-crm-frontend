@@ -24,7 +24,7 @@
                 }
             });
         })
-        .factory('AppointmentDeletionService', function($resource) {
+        .factory('PrescriberAppointmentDeletionService', function($resource) {
             return $resource('http://localhost:9000/api/prescribers/remove-app/:id', {
                 id: '@param1'
             }, {
@@ -34,9 +34,9 @@
             });
         });
 
-    AppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'AppointmentDeletionService'];
+    AppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberAppointmentDeletionService', 'User'];
 
-    function AppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, AppointmentDeletionService) {
+    function AppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberAppointmentDeletionService, User) {
         var vm = this;
         vm.$scope = $scope;
         activate();
@@ -50,8 +50,19 @@
                 .$promise
                 .then(function(response){
                     vm.appointments = response.appointments;
-
                     vm.prescriber = response;
+
+                    angular.forEach(response.appointments, function (value, index) {
+
+                        User.get({id: value.consultant})
+                            .$promise
+                            .then(function (person) {
+                                vm.appointments[index].consultantName = person.name + " " + person.lastname;
+                            });
+
+
+                    });
+
 
                 }, function(errResponse){
                     //fail
@@ -93,7 +104,7 @@
                 console.log("deleting the appointment");
                 vm.appointments.splice(index, 1);
 
-                AppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
+                PrescriberAppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
                     .$promise
                     .then
                     (function(response) {

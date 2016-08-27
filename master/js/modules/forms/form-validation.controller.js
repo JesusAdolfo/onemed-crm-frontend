@@ -15,6 +15,12 @@
         var vm = this;
         activate();
 
+        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
         ////////////////
 
         function activate() {

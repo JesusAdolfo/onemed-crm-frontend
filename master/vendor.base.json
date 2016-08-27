@@ -26,5 +26,6 @@
   "bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
   "bower_components/angular-loading-bar/build/loading-bar.js",
   "bower_components/jquery.browser/dist/jquery.browser.js",
-  "bower_components/angular-jwt/dist/angular-jwt.js"
+  "bower_components/angular-jwt/dist/angular-jwt.js",
+  "bower_components/a0-angular-storage/dist/angular-storage.js"
 ]

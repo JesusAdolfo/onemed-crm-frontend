@@ -3,24 +3,70 @@
     <small>detailed view</small>
 </h3>
 <div ng-controller="ModifyFormValidationController as form" class="container-fluid">
+
     <div class="row">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-xs-12 text-center" >
-                        <div class="row-fluid">
-                            <div class="col-md-6 text-center mt">
-                                <button ui-sref="app.newlocation({ id: '{{ target }}' })" type="button" class="btn btn-primary btn-lg">Add new location &nbsp;<em class="icon-location-pin"></em></button>
-                            </div>
-                            <div class="col-md-6 text-center mt">
-                                <button ui-sref="app.newappointment({ id: '{{ target }}' })" type="button" class="btn btn-primary btn-lg">Add new appointment &nbsp;<em class="icon-clock"></em></button>
+        <a href="" style="visibility: hidden;">
+            <div class="col-lg-3 col-sm-6"><!-- START widget-->
+                <div class="panel widget onemed-gray-bg">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center onemed-dark-gray-bg pv-lg"><em class="fa fa-file-o fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-lg">
+                            <div class="h4 mt0">
+                                Add new file
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+        </a>
+        <a ui-sref="app.newappointment({ id: '{{ target }}' })" href="">
+            <div class="col-lg-3 col-sm-6"><!-- START widget-->
+                <div class="panel widget onemed-green-bg">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center onemed-dark-green-bg pv-lg"><em
+                                class="fa fa-calendar-plus-o fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-lg">
+                            <div class="h4 mt0">Add new appointment</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a ui-sref="app.newlocation({ id: '{{ target }}' })" href="">
+            <div class="col-lg-3 col-md-6 col-sm-12"><!-- START widget-->
+                <div class="panel widget onemed-blue-bg">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center onemed-dark-blue-bg pv-lg"><em class="fa icon-location-pin fa-3x"
+                                                                                        aria-hidden="true"></em></div>
+                        <div class="col-xs-8 pv-lg">
+                            <div class="h4 mt0"> Add new location
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <div class="col-lg-3 col-md-6 col-sm-12"><!-- START date widget-->
+            <div class="panel widget">
+                <div class="row row-table">
+                    <div class="col-xs-4 text-center onemed-dark-green-bg pv-lg">
+                        <!-- See formats: https://docs.angularjs.org/api/ng/filter/date-->
+                        <now format="MMMM" class="text-sm">June</now>
+                        <br>
+                        <now format="d" class="h2 mt0">30</now>
+                    </div>
+                    <div class="col-xs-8 pv-lg">
+                        <now format="EEEE" class="text-uppercase">Thursday</now>
+                        <br>
+                        <now format="h:mm" class="h2 mt0">11:25</now>
+                        <now format="a" class="text-muted text-sm">AM</now>
+                    </div>
+                </div>
+            </div><!-- END date widget    -->
         </div>
+
     </div>
 
     <!-- START row-->
@@ -35,59 +81,99 @@
                                 <legend>NPI # {{form.person.npi}}: {{form.person.name}} {{form.person.lastname}} {{form.target}}</legend>
                             </fieldset>
                             <fieldset>
-                                <div class="col-md-2">
-                                    <span>Address:</span><h4>{{form.person.address}} {{form.person.address2}}</h4>
-                                    <span>City/State:</span><h4>{{form.person.city}} {{form.person.state}}</h4>
-                                    <span>Zipcode:</span><h4>{{form.person.postal}}</h4>
-                                </div>
-                                <div class="col-md-2">
-                                    <span>Phone:</span><h4>{{form.person.phone}}</h4>
-                                    <div ng-if="form.person.fax">
-                                        <span>Fax:</span><h4>{{form.person.fax}}</h4>
-                                    </div>
-                                    <div ng-if="!form.person.fax">
-                                        <span>Fax:</span><h4 class="text-danger">Fax not available</h4>
-                                    </div>
 
-                                    <div ng-if="form.person.consultant">
-                                        <span>Consultant:</span>  <h4>{{form.person.consultant}} </h4>
-                                    </div>
-                                    <div ng-if="!form.person.consultant">
-                                        <span>Consultant:</span><h4 class="text-primary "> onemed </h4>
-                                    </div>
+                                <div class="col-md-4">
 
-                                </div>
-                                <div ng-if="form.person.location" class="col-md-2">
-                                    <span>Main Location:</span><h4><a target="_blank" href="http://maps.google.com/maps?q={{form.person.location}}">Directions <em class="icon-map"></em></a></h4>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <legend>
+                                                <h3>
+                                                    {{form.person.name}} {{form.person.lastname}}
+                                                </h3>
+                                            </legend>
+                                        </div>
+                                        <fieldset class="nopadding">
+                                            <div class="col-md-6">
+                                                <span>Address:</span><h4>{{form.person.address}}</h4>
+                                                <span>City/State:</span><h4>{{form.person.city}} {{form.person.state}}</h4>
+                                                <span>Phone:</span><h4>{{form.person.phone}}</h4>
+                                                <div ng-if="form.person.fax">
+                                                    <span>Fax:</span><h4>{{form.person.fax}}</h4>
+                                                </div>
+                                                <div ng-if="!form.person.fax">
+                                                    <span>Fax:</span><h4> Not available </h4>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div ng-if="form.person.address2">
+                                                    <span>Address 2:</span><h4>{{form.person.address2}}</h4>
+                                                </div>
+                                                <div ng-if="!form.person.address2">
+                                                    <span>Address 2:</span><h4> Not available </h4>
+                                                </div>
+                                                <span>Zipcode:</span><h4>{{form.person.postal}}</h4>
+                                                <div ng-if="form.person.phone2">
+                                                    <span>Alternate Phone:</span><h4>{{form.person.phone2}}</h4>
+                                                </div>
+                                                <div ng-if="!form.person.phone2">
+                                                    <span>Alternate Phone:</span><h4> Not available </h4>
+                                                </div>
+                                                <div ng-if="form.person.consultant">
+                                                    <span>Consultant:</span>  <h4>{{form.person.consultant}} </h4>
+                                                </div>
+                                                <div ng-if="!form.person.consultant">
+                                                    <span>Consultant:</span><h4 class="text-primary "> onemed </h4>
+                                                </div>
+
+                                            </div>
+                                            <!--main location-->
+                                            <div ng-if="form.person.location" class="col-md-12">
+
+                                                <h4>Main Location: &nbsp;&nbsp;&nbsp;
+                                                    <span><a target="_blank" href="http://maps.google.com/maps?q={{form.person.location}}"> Click here <em class="icon-map"></em></a></span>
+                                                </h4>
+                                            </div>
+                                        </fieldset>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-4">
                                     <!--<form name="form.formValidate" ng-submit="form.submitNote(form.target)" novalidate="" class="form-validate form-horizontal">-->
                                         <!-- START panel-->
-                                        <div class="panel panel-default">
+                                        <div class="panel panel-default notes-box">
                                             <div class="panel-body">
                                                 <fieldset class="b0 nopadding">
-                                                    <legend>Notes for {{form.person.name}} {{form.person.lastname}} </legend>
+                                                    <legend>Notes </legend>
                                                 </fieldset>
-                                                <fieldset class="nopadding">
+                                                <fieldset class="notes-scroll nopadding">
                                                     <!--<ul class="list-group" ng-repeat="note in notes">-->
-                                                    <div ng-repeat="note in form.person.notes" class="alert alert-warning alert-dismissible">
+                                                    <div ng-repeat="note in form.person.notes | orderBy: '-created_at'"
+                                                         class="alert alert-warning alert-dismissible">
                                                         <button type="button" class="close" ng-click="form.deleteNote(note._id, $index)" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                                         <p> {{note.text}} </p>
-                                                        <p class="text-right"> <small> Created by {{note.creator}} ~ {{ note.created_at | date:'MMM d, y h:mm:ss a'}}</small> </p>
+                                                        <p class="text-right">
+                                                                <span style="font-size: 17px !important;"> by: {{note.creator}} ~ {{ note.created_at |
+                                                                    date:'MMM d, y h:mm:ss a'}}
+                                                                </span>
+                                                        </p>
                                                     </div>
                                                     <!--</ul>-->
                                                 </fieldset>
                                                 <fieldset>
                                                     <div class="form-group">
                                                         <div class="col-sm-12">
-                                                            <input type="text" name="name" placeholder="Write notes here" required="" ng-model="form.newNote.text" class="form-control" />
-                                                            <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                                                            <input type="text" name="name" placeholder="New note"
+                                                                   required="" ng-model="form.newNote.text"
+                                                                   class="form-control" />
                                                         </div>
                                                     </div>
                                                 </fieldset>
                                                 <div class="panel-footer text-center">
-                                                    <button type="submit"  ng-disabled="form.formValidate.$invalid" class="btn btn-warning">Save note &nbsp; <em class="fa fa-sticky-note-o"></em> </button>
+                                                    <button type="submit"  ng-disabled="form.formValidate.$invalid"
+                                                            class="btn onemed-gray-bg">Save note
+                                                        <em class="fa fa-sticky-note-o"></em> </button>
                                                 </div>
                                             </div>
                                             <!-- END panel-->
@@ -150,7 +236,7 @@
                                         <td> {{ app.date | date:'shortDate' }} </td>
                                         <td> {{ app.time | date:'shortTime' }} </td>
                                         <td> {{ app.location }} </td>
-                                        <td> {{ app.consultant }} </td>
+                                        <td> {{ app.consultantName }} </td>
                                         <td>
                                             <div>
                                                 <button type="button" ng-click="appointment.delete(app._id, $index)" class="btn btn-sm btn-danger">
@@ -209,17 +295,17 @@
         <div ng-controller="LocationsDataTableController as form2">
             <form name="form2.formValidate" ng-submit="form2.submitForm(locationId)" novalidate="" class="form-validate form-horizontal">
                 <!-- START panel-->
-                <div class="panel panel-default">
+                <div class="panel panel-default notes-box">
                     <div class="panel-body">
                         <fieldset class="b0 nopadding">
-                            <legend>Note board </legend>
+                            <legend>Notes </legend>
                         </fieldset>
-                        <fieldset class="nopadding">
+                        <fieldset class="notes-scroll nopadding">
                             <!--<ul class="list-group" ng-repeat="note in notes">-->
-                                <div ng-repeat="note in notes" class="alert alert-warning alert-dismissible">
+                                <div ng-repeat="note in notes | orderBy: '-created_at'" class="alert alert-warning alert-dismissible">
                                     <button type="button" class="close" ng-click="form2.deleteNote(locationId, note._id, $index)" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <p> {{note.text}} </p>
-                                    <p class="text-right"> <small> Created by {{note.creator}} ~ {{ note.created_at | date:'MMM d, y h:mm:ss a'}}</small> </p>
+                                    <p class="text-right"> <small>  by: {{note.creator}} ~ {{ note.created_at | date:'MMM d, y h:mm:ss a'}}</small> </p>
                                 </div>
                             <!--</ul>-->
                         </fieldset>
@@ -227,12 +313,11 @@
                             <div class="form-group">
                                 <div class="col-sm-12">
                                     <input type="text" name="name" placeholder="Write notes here" required="" ng-model="form2.newNote.text" class="form-control" />
-                                    <span ng-show="form2.validateInput('name', 'required')" class="text-danger">This field is required</span>
                                 </div>
                             </div>
                         </fieldset>
                         <div class="panel-footer text-center">
-                            <button type="submit"  ng-disabled="form2.form2Validate.$invalid" class="btn btn-warning">Save note &nbsp; <em class="fa fa-sticky-note-o"></em> </button>
+                            <button type="submit"  ng-disabled="form2.form2Validate.$invalid" class="btn onemed-gray-bg">Save note &nbsp; <em class="fa fa-sticky-note-o"></em> </button>
                         </div>
                     </div>
                     <!-- END panel-->

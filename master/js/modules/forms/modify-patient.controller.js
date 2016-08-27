@@ -29,15 +29,6 @@
                 }
             });
         })
-        .factory('userService', function ($resource) {
-            return $resource('http://localhost:9000/api/users/:id', {
-                id: '@param1'
-            }, {
-                query: {
-                    method: 'GET', isArray: true
-                }
-            });
-        })
         .factory('PatientNoteResource', function ($resource) {
             return $resource('http://localhost:9000/api/patients/add-notes/:personId', {
                 personId: '@param1'
@@ -47,8 +38,26 @@
                 }
             });
         })
-        .factory('PrescriberDeleteNoteResource', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/delete-prescriber-notes/:personId', {
+        .factory('PatientDeleteNoteResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-notes/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        })
+        .factory('DeleteCondResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-cond/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        })
+        .factory('DeleteSystemsResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-system/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -70,16 +79,24 @@
             }
         });
 
-    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', '$filter', 'PatientNoteResource', 'PrescriberDeleteNoteResource', 'prescriberService', 'userService'];
+    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource'];
 
-    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, $filter, PatientNoteResource, PrescriberDeleteNoteResource, prescriberService, userService) {
+    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource) {
         var vm = this;
         vm.$scope = $scope;
 
         prescriberService.query()
             .$promise
             .then(function (response) {
-                vm.prescribers = response;
+
+                vm.prescribers = [];
+                angular.forEach(response, function (value, index) {
+
+                    var singlePrescriber = value;
+
+                    singlePrescriber.name = value.name + " " + value.lastname +"  (NPI: "+ value.npi +")";
+                    vm.prescribers.push(singlePrescriber);
+                });
 
 
             }, function (errResponse) {
@@ -87,24 +104,31 @@
                 console.error('error: houston we got a problem', errResponse);
             });
 
-        userService.query()
-            .$promise
-            .then(function (response) {
-                vm.users = response;
+        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
 
+            vm.consultants = [];
+            angular.forEach(consultants, function (value, index) {
 
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
+                var singleConsultant = value;
+                if(angular.isUndefined(value.lastname))
+                    value.lastname = "";
+
+                singleConsultant.name = value.name + " " + value.lastname;
+                vm.consultants.push(singleConsultant);
             });
+
+
+            vm.consultants.count = consultants.length;
+
+        });
 
         patientService.get({id: $stateParams.id})
             .$promise
             .then(function (response) {
-                console.log(response);
                 vm.$scope.form.person = {
                     prescriber: response.prescriber,
                     name: response.name,
+                    conditions: response.conditions,
                     lastname: response.lastname,
                     address: response.address,
                     address2: response.address2,
@@ -120,24 +144,64 @@
                     insuranceName: response.insuranceName,
                     insuranceNumber: response.insuranceNumber,
                     insuranceGroup: response.insuranceGroup,
+                    insurancePhone: response.insurancePhone,
+                    dmeName: response.dmeName,
+                    dmeEmail: response.dmeEmail,
+                    dmePerson: response.dmePerson,
+                    dmePhone: response.dmePhone,
                     consultant: response.consultant,
                     notes: response.notes,
-                    appointments: response.appointments
+                    appointments: response.appointments,
+                    sales: response.sales,
+                    notes2: response.notes2
                 };
+
+                vm.sumSales = 0;
+                vm.numSales = 0;
+                angular.forEach(vm.person.sales, function (value) {
+                    vm.sumSales += value.amount;
+                    vm.numSales += 1;
+                });
+
+                vm.selectedConsultant = vm.person.consultant;
+                vm.selectedPrescriber = vm.person.prescriber;
+
+                prescriberService.get({ id: vm.person.prescriber })
+                    .$promise
+                    .then(function (response) {
+
+
+                        vm.prescriberName = response.name + " " + response.lastname + "  (NPI:" + response.npi + ")" ;
+                        vm.prescriberId = response._id;
+
+
+                    }, function (errResponse) {
+                        //fail
+                        console.error('error: houston we got a problem', errResponse);
+                    });
+
+
+                User.get({id: vm.person.consultant})
+                    .$promise
+                    .then(function (person) {
+
+                        // in case the lastname is undefined
+                        if(person.lastname == "" || angular.isUndefined(person.lastname))
+                            vm.person.consultant = person.name;
+                        else
+                            vm.person.consultant = person.name +" "+ person.lastname;
+                    });
 
                 vm.person.birth = new Date(vm.person.birth);
 
-                //
-                //console.log("test", vm.person.prescriber[0]);
                 vm.person.prescriber = vm.person.prescriber[0];
-                //console.log(vm.person.prescriber);
 
                 //in case one of the fields is 0
                 if (response.address2 == 0) {
                     vm.$scope.form.person.address2 = "";
                 }
                 if (response.email2 == 0) {
-                    vm.$scope.form.person.email = "";
+                    vm.$scope.form.person.email2 = "";
                 }
 
 
@@ -154,6 +218,14 @@
 
         function activate() {
 
+            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            vm.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3).notSortable()
+            ];
+
             vm.changeSelectedItem = function(current){
                 //console.log("select changed", current._id);
 
@@ -161,19 +233,26 @@
 
             vm.$scope.target = $stateParams.id;
 
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
             vm.submitted = false;
             vm.validateInput = function (name, type) {
                 var input = vm.formValidate[name];
                 return (input.$dirty || vm.submitted) && input.$error[type];
             };
 
+
             // Submit form
             vm.submitForm = function () {
+
                 vm.submitted = true;
                 if (vm.formValidate.$valid) {
                     console.log('Trying to update ' + $stateParams.id);
 
-                    console.log(vm.person);
+                    vm.person.consultant = vm.selectedConsultant;
+                    vm.person.prescriber = vm.selectedPrescriber;
 
                     patientService.update({id: $stateParams.id}, vm.person)
                         .$promise
@@ -191,18 +270,24 @@
                             });
                         }, function (errResponse) {
                             //fail
+                            SweetAlert.swal('Error!', 'Fill in the prescriber and consultant!', 'warning');
                             console.error('error in patient: wyoming we got a problem', errResponse);
                         });
 
                 } else {
                     console.log('Not valid!!');
-                    SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                    SweetAlert.swal('Error!', 'Something went wrong while deleting this entry!', 'warning');
                     return false;
                 }
             };
 
 
             vm.submitNote = function () {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
 
                 console.log("submit note", $stateParams.id);
                 vm.submitted = true;
@@ -211,18 +296,17 @@
 
                 if (vm.formValidate.$valid) {
                     console.log('Submitted to patient!!');
-                    PatientNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text})
+                    PatientNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator})
                         .$promise
                         .then
                         (function (response) {
                             //all good
-                            console.log(response);
 
                             SweetAlert.swal('Success!', 'Note added', 'success');
 
                             var note = {};
                             note.text = vm.newNote.text;
-                            note.creator = "Current user";
+                            note.creator = creator;
                             note.created_at = "Just now";
 
                             vm.person.notes.push(note);
@@ -247,7 +331,7 @@
 
             vm.deleteNote = function(noteId, index) {
                 SweetAlert.swal({
-                    title: 'Confirm deletion?',
+                    title: 'Confirm note deletion?',
                     text: 'Your will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
@@ -258,19 +342,17 @@
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        removePerson($stateParams.id, noteId, index);
+                        removeNote($stateParams.id, noteId, index);
                     }
                 });
             };
 
-            vm.removePerson = removePerson;
 
-            function removePerson(personId, noteId, index) {
+            function removeNote(personId, noteId, index) {
 
                 vm.person.notes.splice(index, 1);
-                console.log(vm.person.notes);
 
-                PrescriberDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
+                PatientDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
                     .$promise
                     .then
                     (function(response) {
@@ -280,7 +362,85 @@
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
                     }, function(errResponse){
                         //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this note!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+            vm.deleteCond = function(condId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm condition deletion?',
+                    text: 'Your will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeCond($stateParams.id, condId, index);
+                    }
+                });
+            };
+
+            function removeCond(personId, condId, index) {
+
+                vm.person.conditions.splice(index, 1);
+                console.log(vm.person.conditions);
+
+                DeleteCondResource.update({ personId: personId }, {condId: condId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this condition!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+
+            vm.deleteSystem = function(saleId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm note deletion?',
+                    text: 'Your will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeSystem($stateParams.id, saleId, index);
+                    }
+                });
+            };
+
+            function removeSystem(personId, saleId, index) {
+
+                vm.person.sales.splice(index, 1);
+                console.log(vm.person.sales);
+
+                DeleteSystemsResource.update({ personId: personId }, {saleId: saleId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this system!', 'warning');
                         console.error('error: Alaska we got a problem', errResponse);
                     });
 

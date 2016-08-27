@@ -6035,8 +6035,77 @@ h3 > .breadcrumb.pull-left,
   margin: 0 !important;
 }
 .alert-warning {
-  background-color: #fcf8e3 !important;
+  background-color: rgba(118, 144, 159, 0.27) !important;
   color: #444 !important;
+  margin-bottom: 2px;
+}
+.alert-danger {
+  background-color: #249BD3 !important;
+  color: #111 !important;
+  margin-bottom: 2px;
+}
+.onemed-blue-bg {
+  background-color: #249BD3 !important;
+  color: white !important;
+}
+.onemed-dark-blue-bg {
+  background-color: #1a7da7 !important;
+  color: white !important;
+}
+.onemed-gray-bg {
+  background-color: #677D8B !important;
+  color: white !important;
+}
+.onemed-dark-gray-bg {
+  background-color: #5a6b79 !important;
+  color: white !important;
+}
+.onemed-green-bg {
+  background-color: #73B877 !important;
+  color: white !important;
+}
+.onemed-dark-green-bg {
+  background-color: #66a56a !important;
+  color: white !important;
+}
+.widget {
+  height: 88px !important;
+  cursor: hand;
+}
+.topnavbar {
+  background-color: #249BD3 !important;
+  background-image: none;
+}
+.notes-box {
+  height: 470px;
+}
+.notes-box fieldset {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 0px;
+  border: none;
+}
+.notes-box .form-group {
+  padding-top: 10px;
+}
+.notes-scroll {
+  height: 300px;
+  overflow-x: auto;
+}
+.panel-footer {
+  background: none;
+  border: none;
+}
+.conditionbox h4 {
+  padding-top: 8px;
+  color: white;
+}
+#conditions-scroll {
+  height: 158px;
+  overflow: auto;
+}
+.btn-info {
+  background-color: #249BD3 !important;
 }
 .calendar-app .fc-button {
   color: #333333;

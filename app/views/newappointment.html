@@ -72,30 +72,29 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant"
+                                        <select chosen="" required="" name="location"
                                                 ng-model="form.newAppointment.location" width="'100%'"
+                                                ng-options="location.name +' ('+ location.city +', '+ location.state+')' as (location.name +' ('+ location.city +', '+ location.state+')') for location in form.locations track by location._id"
                                                 class="chosen-select input-md">
-                                            <option ng-repeat="location in form.locations" value="{{location.name}}">
-                                                {{location.name}} - ( {{location.city}}, {{location.state}} )
-                                            </option>
+
 
                                         </select>
                                     </div>
-                                    <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
+                                    <span ng-show="form.validateInput('location', 'required')" class="text-danger">This field is required</span>
                                 </div>
                                 <label class="col-sm-1 control-label">Consultant</label>
                                 <div class="col-sm-3">
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="consultant"
-                                                ng-model="form.newAppointment.consultant" width="'100%'"
+                                        <select chosen=""
+                                                required=""
+                                                name="consultant"
+                                                ng-model="form.newAppointment.consultant"
+                                                ng-options="consultant._id as (consultant.name +' '+ consultant.lastname) for consultant in form.consultants track by consultant._id"
+                                                width="'100%'"
                                                 class="chosen-select input-md">
-                                            <option value=""></option>
-                                            <option>Ivan Arias</option>
-                                            <option>Jose Martinez</option>
-                                            <option>Maria Campos</option>
-                                            <option>Valentina Casas</option>
+
                                         </select>
                                     </div>
                                     <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>

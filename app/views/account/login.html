@@ -1,0 +1,34 @@
+
+
+<div class="container">
+    <div class="col-md-3"></div>
+    <div class="col-lg-6">
+        <form name="form.loginForm"  ng-submit="form.submitForm()" novalidate="" class="form-validate">
+            <!-- START panel-->
+            <br><br><br>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title"><h2>Login</h2></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="control-label">Username *</label>
+                        <input type="text" placeholder="username" name="email" required="" ng-model="form.login.email" class="form-control" />
+                        <span ng-show="form.loginForm.validateInput('email', 'required')" class="text-danger">This field is required</span>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Password *</label>
+                        <input type="password" name="password" required="" ng-model="form.login.password" class="form-control" />
+                        <span ng-show="form.loginForm.password.$dirty &amp;&amp; form.loginForm.password.$error.required" class="text-danger">This field is required</span>
+                    </div>
+                    <div class="required">* Required fields</div>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" ng-disabled="form.loginForm.$invalid" class="btn btn-primary">Login</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3"></div>
+</div>

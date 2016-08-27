@@ -3,7 +3,7 @@
  * Angular Datatable controller
  =========================================================*/
 
-(function() {
+(function () {
     'use strict';
 
     angular
@@ -25,9 +25,9 @@
             });
         });
 
-    PatientsDataTableController.$inject = ['$scope', '$window', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'prescriberService'];
+    PatientsDataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'prescriberService'];
 
-    function PatientsDataTableController($scope, $window, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, prescriberService) {
+    function PatientsDataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, prescriberService) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -41,25 +41,33 @@
 
             $resource('http://localhost:9000/api/patients').query()
                 .$promise
-                .then(function(persons) {
+                .then(function (persons) {
+
+                    var appointmentSum = 0;
+                    var noteSum = 0;
 
 
-                angular.forEach(persons, function(value, index){
+                    angular.forEach(persons, function (value, index) {
 
-                    prescriberService.get({id: value.prescriber})
-                        .$promise
-                        .then(function (person) {
-                            vm.persons[index].prescriberName = person.name + " " + person.lastname ;
-                        });
+                        prescriberService.get({id: value.prescriber})
+                            .$promise
+                            .then(function (person) {
+                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
+                            });
+
+                        appointmentSum += Number(value.appointments.length);
+                        noteSum += Number(value.notes.length);
+
+                    });
+
+                    vm.persons = persons;
+                    vm.persons.count = persons.length;
+                    vm.appointmentSum = appointmentSum;
+                    vm.noteSum = noteSum;
 
                 });
 
-                vm.persons = persons;
-                vm.persons.count = persons.length;
-
-            });
-
-            vm.delete = function(id,index) {
+            vm.delete = function (id, index) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'Your will not be able to recover this record!',
@@ -70,10 +78,10 @@
                     cancelButtonText: 'Cancel',
                     closeOnConfirm: false,
                     closeOnCancel: true
-                }, function(isConfirm){
+                }, function (isConfirm) {
                     if (isConfirm) {
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id,index);
+                        removePerson(id, index);
                     }
                 });
             };
@@ -94,7 +102,7 @@
                 $resource('http://localhost:9000/api/patients/:id').delete({id: id})
                     .$promise
                     .then
-                    (function(response) {
+                    (function (response) {
                         vm.persons.splice(index, 1);
                     });
 
