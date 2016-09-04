@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('app.forms', [])
+        .module('app.forms', ['ngFileUpload'])
         .config(function($httpProvider) {
             $httpProvider.interceptors.push('authInterceptor');
         });

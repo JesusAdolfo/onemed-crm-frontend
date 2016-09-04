@@ -80,7 +80,7 @@
             vm.delete = function(locationId ,index) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -96,13 +96,19 @@
             };
 
 
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
+            // vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            // vm.dtColumnDefs = [
+            //     DTColumnDefBuilder.newColumnDef(0),
+            //     DTColumnDefBuilder.newColumnDef(1),
+            //     DTColumnDefBuilder.newColumnDef(2).notSortable()
+            // ];
+
+            vm.dtOptions = DTOptionsBuilder
+                    .newOptions()
+                .withDisplayLength(3)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [3], ["3"] ]);
+
 
             vm.removePerson = removePerson;
 
@@ -191,7 +197,7 @@
             vm.deleteNote = function (locationId ,noteId, index) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',

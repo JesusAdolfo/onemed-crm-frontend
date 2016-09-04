@@ -64,6 +64,15 @@
                     method: 'PUT'
                 }
             });
+        })
+        .factory('DeleteFileResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-file/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
         });
 
 
@@ -79,9 +88,9 @@
             }
         });
 
-    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource'];
+    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
 
-    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource) {
+    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -153,7 +162,8 @@
                     notes: response.notes,
                     appointments: response.appointments,
                     sales: response.sales,
-                    notes2: response.notes2
+                    notes2: response.notes2,
+                    files: response.files
                 };
 
                 vm.sumSales = 0;
@@ -225,6 +235,13 @@
                 DTColumnDefBuilder.newColumnDef(2),
                 DTColumnDefBuilder.newColumnDef(3).notSortable()
             ];
+
+            vm.systemDtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(4)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [4], ["4"] ]);
+
 
             vm.changeSelectedItem = function(current){
                 //console.log("select changed", current._id);
@@ -332,7 +349,7 @@
             vm.deleteNote = function(noteId, index) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -371,7 +388,7 @@
             vm.deleteCond = function(condId, index) {
                 SweetAlert.swal({
                     title: 'Confirm condition deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -411,7 +428,7 @@
             vm.deleteSystem = function(saleId, index) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -445,6 +462,46 @@
                     });
 
             }
+
+
+            vm.deleteFile = function(fileId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm file deletion?',
+                    text: 'Your will not be able to recover this file!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeFile($stateParams.id, fileId, index);
+                    }
+                });
+            };
+
+            function removeFile(personId, fileId, index) {
+
+                vm.person.files.splice(index, 1);
+                console.log(vm.person.files);
+
+                DeleteFileResource.update({ personId: personId }, {fileId: fileId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this file!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
         }
 
         function activate2() {

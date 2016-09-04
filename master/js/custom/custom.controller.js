@@ -31,11 +31,20 @@
     //         });
     //     });
 
+    angular.module('app.forms')
+        .factory('userStatsResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/stats/:action/:id', {}, {
 
-    UserController.$inject = ['$rootScope', '$scope', '$cookies', '$state', '$location', 'User'];
+                getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
+
+            });
+        });
 
 
-    function UserController($rootScope, $scope, $cookies, $state, $location, User) {
+    UserController.$inject = ['$rootScope', '$scope', '$cookies', '$state', '$location', 'User', 'userStatsResource'];
+
+
+    function UserController($rootScope, $scope, $cookies, $state, $location, User, userStatsResource) {
 
         var vm = this;
         vm.$scope = $scope;
@@ -58,13 +67,79 @@
         });
 
 
+        var userData = {};
+
+
+        User.get({})
+            .$promise
+            .then
+            (function (successResponse) {
+                    // success callback
+                    userData = successResponse;
+                    vm.userData = successResponse;
+
+                   $rootScope.loggedUserId = userData._id;
+
+                    userStatsResource.getStats({ id: userData._id })
+                        .$promise
+                        .then(function (response) {
+
+
+                            console.log(response);
+
+                            $rootScope.money = response[0].total;
+                            $rootScope.sales = response[0].qty;
+
+
+
+                        }, function (errResponse) {
+                            //fail
+                            console.error('error: houston we got a problem', errResponse);
+                        });
+
+                },
+                function (errorResponse) {
+                    // failure callback
+                    userData = "nada";
+                    console.log(errorResponse);
+                });
+
+        // if ($cookies.get('token') && $location.path() !== 'app/login') {
+        //     async.waterfall([
+        //         function(callback) {
+        //
+        //
+        //
+        //             console.log("primer paso");
+        //             callback(null, "probando", userData);
+        //         },
+        //         function(arg1, arg2, callback) {
+        //
+        //             console.log("segundo paso", arg1);
+        //             console.log(arg1._id);
+        //             console.log(arg1.name);
+        //             console.log(arg1['name']);
+        //
+        //             callback(null, arg1);
+        //         }
+        //     ], function (err, result) {
+        //
+        //         console.log("final", result);
+        //
+        //     });
+        // }
 
 
 
 
-        if ($cookies.get('token') && $location.path() !== 'app/login') {
-            vm.currentUser = User.get();
-        }
+
+
+
+
+
+
+
+
         activate();
 
         ////////////////

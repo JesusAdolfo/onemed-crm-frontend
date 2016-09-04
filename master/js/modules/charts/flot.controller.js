@@ -10,8 +10,32 @@
         .module('app.charts')
         .controller('FlotChartController', FlotChartController);
 
-    FlotChartController.$inject = ['$scope', 'ChartData', '$timeout'];
-    function FlotChartController($scope, ChartData, $timeout) {
+
+    angular.module('app.tables')
+        .factory('topThreeResource', function ($resource) {
+            return $resource('http://localhost:9000/api/patients/graphs/:action/:id', {}, {
+
+                getTopThree: { method: 'GET', params: { action: "top-three" }, isArray: true },
+                getSalesByMonth: { method: 'GET', params: { id: '@param1', action: "sales-month" }, isArray: true },
+                getPatientStatus: { method: 'GET', params: { id: '@param1', action: "patient-status" }, isArray: true }
+
+            });
+        })
+        .factory('graphConsultantResource', function ($resource) {
+            return $resource('http://localhost:9000/api/users/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                },
+                get: {
+                    method: 'GET', isArray: false
+                }
+            });
+        });
+
+    FlotChartController.$inject = ['$rootScope', '$scope', 'ChartData', '$timeout', '$resource', 'topThreeResource', 'graphConsultantResource', 'User'];
+    function FlotChartController($rootScope, $scope, ChartData, $timeout, $resource, topThreeResource, graphConsultantResource, User) {
         var vm = this;
 
         activate();
@@ -20,227 +44,531 @@
 
         function activate() {
 
+            $resource('http://localhost:9000/api/patients').query()
+                .$promise
+                .then(function (persons) {
+
+                    var appointmentSum = 0;
+                    var noteSum = 0;
+
+
+                    vm.donutData = [
+                        {
+                            "label": "MANUAL MVP-700 SYSTEM",
+                            "color": "#4acab4",
+                            "data": 0
+                        }, {
+                            "label": "INTRODUCTORY BATTERY SYSTEM",
+                            "color": "#ffea88",
+                            "data": 0
+                        }, {
+                            "label": "BATTERY STANDARD SYSTEM",
+                            "color": "#ff8153",
+                            "data": 0
+                        }, {
+                            "label": "DELUXE BATTERY SYSTEM",
+                            "color": "#878bb6",
+                            "data": 0
+                        }, {
+                            "label": "FLEXIBLE URETEROSCOPE",
+                            "color": "#b2d767",
+                            "data": 0
+                        }
+                    ];
+                    angular.forEach(persons, function (value, index) {
+
+                        if(value.sales.length > 0){
+                            angular.forEach(value.sales, function (valor, indice) {
+
+                                switch(valor.description){
+                                    case "MANUAL MVP-700 SYSTEM":
+                                        vm.donutData[0].data += 1;
+                                        break;
+                                    case "INTRODUCTORY BATTERY SYSTEM":
+                                        vm.donutData[1].data += 1;
+                                        break;
+                                    case "BATTERY STANDARD SYSTEM":
+                                        vm.donutData[2].data += 1;
+                                        break;
+                                    case "DELUXE BATTERY SYSTEM":
+                                        vm.donutData[3].data += 1;
+                                        break;
+                                    case "FLEXIBLE URETEROSCOPE":
+                                        vm.donutData[4].data += 1;
+                                        break;
+                                    default:
+                                        console.log("error creating graph");
+                                }
+                            })
+                        }
+
+
+
+
+                    });
+
+                    vm.persons = persons;
+
+
+
+                });
+
+
             // BAR
             // -----------------------------------
-            vm.barData = ChartData.load('server/chart/bar.json');
-            vm.barOptions = {
-                series: {
-                    bars: {
-                        align: 'center',
-                        lineWidth: 0,
-                        show: true,
-                        barWidth: 0.6,
-                        fill: 0.9
-                    }
+
+
+            async.waterfall([
+                function(callback) {
+
+                    //first step
+                    // vm.barData = ChartData.load('server/chart/bar.json');
+                    vm.barData = [];
+
+                    var userData = {};
+                    User.get({})
+                        .$promise
+                        .then
+                        (function (successResponse) {
+                                // success callback
+                                userData = successResponse;
+                                vm.userData = successResponse;
+
+
+
+                                topThreeResource.getSalesByMonth({id: userData._id})
+                                    .$promise
+                                    .then(function (response) {
+
+                                        var datos = [];
+                                        var meses = {
+                                            1 : "Jan",
+                                            2 : "Feb",
+                                            3 : "Mar",
+                                            4 : "Apr",
+                                            5 : "May",
+                                            6 : "Jun",
+                                            7 : "Jul",
+                                            8 : "Aug",
+                                            9 : "Sep",
+                                            10 : "Oct",
+                                            11 : "Nov",
+                                            12 : "Dec"
+                                        };
+                                        for (var i=1; i <= 12; i++){
+                                            datos[i] = [meses[i], 0];
+                                        }
+
+                                        angular.forEach(response, function (value, index) {
+
+
+                                            switch(value._id){
+                                                case 1:
+                                                    datos[1] = ["Jan", value.data];
+                                                    break;
+                                                case 2:
+                                                    datos[2] = ["Feb", value.data];
+                                                    break;
+                                                case 3:
+                                                    datos[3] = ["Mar", value.data];
+                                                    break;
+                                                case 4:
+                                                    datos[4] = ["Apr", value.data];
+                                                    break;
+                                                case 5:
+                                                    datos[5] = ["May", value.data];
+                                                    break;
+                                                case 6:
+                                                    datos[6] = ["Jun", value.data];
+                                                    break;
+                                                case 7:
+                                                    datos[7] = ["Jul", value.data];
+                                                    break;
+                                                case 8:
+                                                    datos[8] = ["Aug", value.data];
+                                                    break;
+                                                case 9:
+                                                    datos[9] = ["Sep", value.data];
+                                                    break;
+                                                case 10:
+                                                    datos[10] = ["Oct", value.data];
+                                                    break;
+                                                case 11:
+                                                    datos[11] = ["Nov", value.data];
+                                                    break;
+                                                case 12:
+                                                    datos[12] = ["Dec", value.data];
+                                                    break;
+                                                default:
+                                                    alert("error loading bar chart");
+                                            }
+
+                                            // datos.label = "Sales in USD";
+                                            // datos.color = "#adadad";
+
+                                            var zero = [{
+                                                "label": "Sales in USD",
+                                                "color": "#249BD3",
+                                                "data": datos
+                                            }];
+
+                                            // console.log("mes- ", value._id);
+                                            // console.log("data- ", value.data);
+
+
+                                            //console.log("final datos", datos);
+
+                                            vm.barData = zero;
+
+
+                                        });
+
+
+
+
+                                    }, function (errResponse) {
+                                        //fail
+                                        console.error('error: houston we got a problem', errResponse);
+                                    });
+
+
+
+                            },
+                            function (errorResponse) {
+                                // failure callback
+                                userData = "nada";
+                                console.log(errorResponse);
+                            });
+
+
+
+
+                    callback(null, vm.barData, 'two');
                 },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
+                function(arg1, arg2, callback) {
+                    // second step
+                    vm.barOptions = {
+                        series: {
+                            bars: {
+                                align: 'center',
+                                lineWidth: 0,
+                                show: true,
+                                barWidth: 0.6,
+                                fill: 0.9
+                            }
+                        },
+                        grid: {
+                            borderColor: '#eee',
+                            borderWidth: 1,
+                            hoverable: true,
+                            backgroundColor: '#fcfcfc'
+                        },
+                        tooltip: true,
+                        tooltipOpts: {
+                            content: function (label, x, y) { return x + ' : ' + y; }
+                        },
+                        xaxis: {
+                            tickColor: '#fcfcfc',
+                            mode: 'categories'
+                        },
+                        yaxis: {
+                            position: ($scope.app.layout.isRTL ? 'right' : 'left'),
+                            tickColor: '#eee'
+                        },
+                        shadowSize: 0
+                    };
+
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+
+            });
+
+
+
 
             // BAR STACKED
             // -----------------------------------
-            vm.barStackeData = ChartData.load('server/chart/barstacked.json');
-            vm.barStackedOptions = {
-                series: {
-                    stack: true,
-                    bars: {
-                        align: 'center',
-                        lineWidth: 0,
-                        show: true,
-                        barWidth: 0.6,
-                        fill: 0.9
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    max: 200, // optional: use it for a clear represetation
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
 
-            // SPLINE
-            // -----------------------------------
-            vm.splineData = ChartData.load('server/chart/spline.json');
-            vm.splineOptions = {
-                series: {
-                    lines: {
-                        show: false
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    },
-                    splines: {
-                        show: true,
-                        tension: 0.4,
-                        lineWidth: 1,
-                        fill: 0.5
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    max: 150, // optional: use it for a clear represetation
-                    tickColor: '#eee',
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickFormatter: function (v) {
-                        return v/* + ' visitors'*/;
-                    }
-                },
-                shadowSize: 0
-            };
+            async.waterfall([
+                function(callback) {
 
-            // AREA
-            // -----------------------------------
-            vm.areaData = ChartData.load('server/chart/area.json');
-            vm.areaOptions = {
-                series: {
-                    lines: {
-                        show: true,
-                        fill: 0.8
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    tickColor: '#eee',
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickFormatter: function (v) {
-                        return v + ' visitors';
-                    }
-                },
-                shadowSize: 0
-            };
+                    //first step
+                    //vm.barStackeData = ChartData.load('server/chart/barstacked.json');
+                    vm.barStackeData = [];
 
-            // LINE
-            // -----------------------------------
-            vm.lineData = ChartData.load('server/chart/line.json');
-            vm.lineOptions = {
-                series: {
-                    lines: {
-                        show: true,
-                        fill: 0.01
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    }
+                    var userData = {};
+                    User.get({})
+                        .$promise
+                        .then
+                        (function (successResponse) {
+                                // success callback
+                                userData = successResponse;
+                                vm.userData2 = successResponse;
+
+                                topThreeResource.getPatientStatus({id: userData._id})
+                                    .$promise
+                                    .then(function (response) {
+
+                                        var datos = [];
+
+                                        var meses = {
+                                            1 : "Jan",
+                                            2 : "Feb",
+                                            3 : "Mar",
+                                            4 : "Apr",
+                                            5 : "May",
+                                            6 : "Jun",
+                                            7 : "Jul",
+                                            8 : "Aug",
+                                            9 : "Sep",
+                                            10 : "Oct",
+                                            11 : "Nov",
+                                            12 : "Dec"
+                                        };
+                                        for (var i=1; i <= 12; i++){
+                                            datos[i] = [meses[i], 0];
+                                        }
+
+                                        angular.forEach(response, function (value, index) {
+
+
+                                            switch(value._id){
+                                                case 1:
+                                                    datos[1] = ["Jan", value.data];
+                                                    break;
+                                                case 2:
+                                                    datos[2] = ["Feb", value.data];
+                                                    break;
+                                                case 3:
+                                                    datos[3] = ["Mar", value.data];
+                                                    break;
+                                                case 4:
+                                                    datos[4] = ["Apr", value.data];
+                                                    break;
+                                                case 5:
+                                                    datos[5] = ["May", value.data];
+                                                    break;
+                                                case 6:
+                                                    datos[6] = ["Jun", value.data];
+                                                    break;
+                                                case 7:
+                                                    datos[7] = ["Jul", value.data];
+                                                    break;
+                                                case 8:
+                                                    datos[8] = ["Aug", value.data];
+                                                    break;
+                                                case 9:
+                                                    datos[9] = ["Sep", value.data];
+                                                    break;
+                                                case 10:
+                                                    datos[10] = ["Oct", value.data];
+                                                    break;
+                                                case 11:
+                                                    datos[11] = ["Nov", value.data];
+                                                    break;
+                                                case 12:
+                                                    datos[12] = ["Dec", value.data];
+                                                    break;
+                                                default:
+                                                    alert("error loading bar chart");
+                                            }
+
+                                            // datos.label = "Sales in USD";
+                                            // datos.color = "#adadad";
+
+                                            var zero = [{
+                                                "label": "Pending follow-ups",
+                                                "color": "#ff8153",
+                                                "data": datos
+                                            }];
+
+                                            // console.log("mes- ", value._id);
+                                            // console.log("data- ", value.data);
+
+
+                                            //console.log("final datos", datos);
+
+                                            vm.barStackeData = zero;
+
+
+                                        });
+
+
+
+
+                                    }, function (errResponse) {
+                                        //fail
+                                        console.error('error: genova we got a problem', errResponse);
+                                    });
+
+
+
+
+
+
+                            },
+                            function (errorResponse) {
+                                // failure callback
+                                userData = "nada";
+                                console.log(errorResponse);
+                            });
+
+
+
+
+
+
+                    callback(null, vm.barStackeData, 'two');
                 },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#eee',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
+                function(arg1, arg2, callback) {
+                    // second step
+                    vm.barStackedOptions = {
+                        series: {
+                            stack: true,
+                            bars: {
+                                align: 'center',
+                                lineWidth: 0,
+                                show: true,
+                                barWidth: 0.6,
+                                fill: 0.9
+                            }
+                        },
+                        grid: {
+                            borderColor: '#eee',
+                            borderWidth: 1,
+                            hoverable: true,
+                            backgroundColor: '#fcfcfc'
+                        },
+                        tooltip: true,
+                        tooltipOpts: {
+                            content: function (label, x, y) { return x + ' : ' + y; }
+                        },
+                        xaxis: {
+                            tickColor: '#fcfcfc',
+                            mode: 'categories'
+                        },
+                        yaxis: {
+                            min: 0,
+                            max: 200, // optional: use it for a clear represetation
+                            position: ($scope.app.layout.isRTL ? 'right' : 'left'),
+                            tickColor: '#eee'
+                        },
+                        shadowSize: 0
+                    };
+
+
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+
+            });
+
+
+
+
+
 
             // PIE
             // -----------------------------------
-            vm.pieData = [{
-                "label": "jQuery",
-                "color": "#4acab4",
-                "data": 30
-            }, {
-                "label": "CSS",
-                "color": "#ffea88",
-                "data": 40
-            }, {
-                "label": "LESS",
-                "color": "#ff8153",
-                "data": 90
-            }, {
-                "label": "SASS",
-                "color": "#878bb6",
-                "data": 75
-            }, {
-                "label": "Jade",
-                "color": "#b2d767",
-                "data": 120
-            }];
+
             // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
             // ChartData.load('server/chart/pie.json');
 
-            vm.pieOptions = {
+
+
+
+            async.waterfall([
+                function(callback) {
+                    vm.pieData = [];
+                    topThreeResource.getTopThree({})
+                        .$promise
+                        .then(function (response) {
+
+
+                            vm.pieData = response;
+
+
+                            // for (var i=0;i<vm.pieData.length;i++){
+                            //     vm.pieData[i].label = vm.pieData[i].label.name;
+                            // }
+                            angular.forEach(response, function (value, index) {
+
+
+
+
+                                if(angular.isUndefined(value.label[0].lastname))
+                                    vm.pieData[index].label = value.label[0].name
+                                else
+                                    vm.pieData[index].label = value.label[0].name +" "+ value.label[0].lastname;
+
+                            });
+
+
+                        }, function (errResponse) {
+                            //fail
+                            console.error('error: houston we got a problem', errResponse);
+                        });
+                    callback(null, vm.pieData, 'two');
+                },
+                function(arg1, arg2, callback) {
+                    // arg1 now equals 'one' and arg2 now equals 'two'
+                    vm.pieOptions = {
+                        series: {
+                            pie: {
+                                show: true,
+                                radius: 1,
+                                innerRadius: 0,
+                                label: {
+                                    show: true,
+                                    radius: 0.8,
+                                    formatter: function (label, series) {
+                                        return '<div class="flot-pie-label">' +
+                                            //label + ' : ' +
+                                            Math.round(series.data[0][1]) + '$ -- ' +  label +  '</div>';
+                                    },
+                                    background: {
+                                        opacity: 0.8,
+                                        color: '#222'
+                                    }
+                                }
+                            },
+
+                        },
+                        grid: {
+                            hoverable: true
+                        }
+                    };
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+            });
+
+
+
+
+
+
+
+
+            // DONUT
+            // -----------------------------------
+
+            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
+            // ChartData.load('server/chart/donut.json');
+
+            vm.donutOptions = {
                 series: {
                     pie: {
                         show: true,
-                        innerRadius: 0,
+                        radius: 1,
+                        innerRadius: 0.6, // This makes the donut shape
                         label: {
                             show: true,
                             radius: 0.8,
@@ -255,104 +583,13 @@
                                 color: '#222'
                             }
                         }
-                    }
-                }
-            };
-
-            // DONUT
-            // -----------------------------------
-            vm.donutData = [ { "color" : "#39C558",
-                "data" : 60,
-                "label" : "Coffee"
-            },
-                { "color" : "#00b4ff",
-                    "data" : 90,
-                    "label" : "CSS"
-                },
-                { "color" : "#FFBE41",
-                    "data" : 50,
-                    "label" : "LESS"
-                },
-                { "color" : "#ff3e43",
-                    "data" : 80,
-                    "label" : "Jade"
-                },
-                { "color" : "#937fc7",
-                    "data" : 116,
-                    "label" : "AngularJS"
-                }
-            ];
-            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
-            // ChartData.load('server/chart/donut.json');
-
-            vm.donutOptions = {
-                series: {
-                    pie: {
-                        show: true,
-                        innerRadius: 0.5 // This makes the donut shape
-                    }
-                }
-            };
-
-            // REALTIME
-            // -----------------------------------
-            vm.realTimeOptions = {
-                series: {
-                    lines: { show: true, fill: true, fillColor:  { colors: ['#a0e0f3', '#23b7e5'] } },
-                    shadowSize: 0 // Drawing is faster without shadows
+                    },
                 },
                 grid: {
-                    show:false,
-                    borderWidth: 0,
-                    minBorderMargin: 20,
-                    labelMargin: 10
-                },
-                xaxis: {
-                    tickFormatter: function() {
-                        return '';
-                    }
-                },
-                yaxis: {
-                    min: 0,
-                    max: 110
-                },
-                legend: {
-                    show: true
-                },
-                colors: ['#23b7e5']
+                    hoverable: true
+                }
             };
 
-            // Generate random data for realtime demo
-            var data = [], totalPoints = 300;
-
-            update();
-
-            function getRandomData() {
-                if (data.length > 0)
-                    data = data.slice(1);
-                // Do a random walk
-                while (data.length < totalPoints) {
-                    var prev = data.length > 0 ? data[data.length - 1] : 50,
-                        y = prev + Math.random() * 10 - 5;
-                    if (y < 0) {
-                        y = 0;
-                    } else if (y > 100) {
-                        y = 100;
-                    }
-                    data.push(y);
-                }
-                // Zip the generated y values with the x values
-                var res = [];
-                for (var i = 0; i < data.length; ++i) {
-                    res.push([i, data[i]]);
-                }
-                return [res];
-            }
-            function update() {
-                vm.realTimeData = getRandomData();
-                $timeout(update, 30);
-            }
-            // end random data generation
 
 
             // PANEL REFRESH EVENTS

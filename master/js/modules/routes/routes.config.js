@@ -31,7 +31,7 @@
               templateUrl: helper.basepath('app.html'),
               resolve: helper.resolveFor('modernizr', 'icons', 'datatables')
           })
-            .state('app.l   ogin', {
+            .state('app.login', {
                 url: '/login',
                 title: 'Login',
                 templateUrl: helper.basepath('account/login.html'),
@@ -56,7 +56,7 @@
                 url: '/dashboard',
                 title: 'Dashboard',
                 templateUrl: helper.basepath('dashboard.html'),
-                resolve: helper.resolveFor('jquery-ui', 'jquery-ui-widgets', 'moment', 'fullcalendar', 'datatables'),
+                resolve: helper.resolveFor('oitozero.ngSweetAlert', 'datatables', 'flot-chart','flot-chart-plugins'),
                 authenticate: true
             })
             .state('app.patients', {
@@ -77,6 +77,7 @@
                 url: '/reports',
                 title: 'Reports',
                 templateUrl: helper.basepath('reports.html'),
+                resolve: helper.resolveFor('flot-chart','flot-chart-plugins'),
                 authenticate: true
             })
             .state('app.calendar', {
@@ -148,6 +149,13 @@
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
                 authenticate: true
             })
+            .state('app.followup', {
+                url: '/followup/:id',
+                title: 'New Follow Up',
+                templateUrl: helper.basepath('followup.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
             .state('app.newcond', {
                 url: '/newcond/:id',
                 title: 'New Condition',
@@ -160,6 +168,13 @@
                 title: 'New System',
                 templateUrl: helper.basepath('new-system.html'),
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
+            .state('app.newfile', {
+                url: '/newfile/:id',
+                title: 'New System',
+                templateUrl: helper.basepath('new-file.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
                 authenticate: true
             })
 

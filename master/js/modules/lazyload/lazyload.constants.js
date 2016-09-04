@@ -25,7 +25,14 @@
                                     'vendor/fullcalendar/dist/fullcalendar.css'],
               'gcal':               ['vendor/fullcalendar/dist/gcal.js'],
               'inputmask':          ['vendor/jquery.inputmask/dist/jquery.inputmask.bundle.js'],
-              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js']
+              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js'],
+              'flot-chart':         ['vendor/flot/jquery.flot.js'],
+              'flot-chart-plugins': ['vendor/flot.tooltip/js/jquery.flot.tooltip.min.js',
+                  'vendor/flot/jquery.flot.resize.js',
+                  'vendor/flot/jquery.flot.pie.js',
+                  'vendor/flot/jquery.flot.time.js',
+                  'vendor/flot/jquery.flot.categories.js',
+                  'vendor/flot-spline/js/jquery.flot.spline.min.js'],
           },
           // Angular based script (use the right module name)
           modules: [
@@ -48,7 +55,10 @@
                   'vendor/ngSweetAlert/SweetAlert.js']},
               {name: 'ngDialog',                  files: ['vendor/ng-dialog/js/ngDialog.min.js',
                   'vendor/ng-dialog/css/ngDialog.min.css',
-                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] }
+                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] },
+              {name: 'angular-upload',
+                  files: ['vendor/angular-file-upload/dist/angular-file-upload.min.js']
+              }
           ]
         })
         ;

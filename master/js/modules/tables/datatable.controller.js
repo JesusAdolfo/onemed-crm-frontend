@@ -10,9 +10,19 @@
         .module('app.tables')
         .controller('DataTableController', DataTableController);
 
-    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User'];
+    angular.module('app.tables')
+        .factory('prescriberTableResource', function ($resource) {
+            return $resource('http://localhost:9000/api/prescribers/list/:action/:id', {}, {
 
-    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User) {
+                getSomePrescribers: { method: 'GET', params: { id: '@param1', action: "get-prescribers"}, isArray: true },
+                getAllPrescribers: { method: 'GET', params: { id: '@param1', action: "get-all-prescribers"}, isArray: true }
+
+            });
+        });
+
+    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User', 'prescriberTableResource'];
+
+    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User, prescriberTableResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -23,47 +33,123 @@
         function activate() {
 
             // Ajax
-
-            $resource('http://localhost:9000/api/prescribers').query()
+            var userData = {};
+            User.get({})
                 .$promise
-                .then(function (persons) {
-                    vm.persons = persons;
-                    vm.persons.count = persons.length;
+                .then
+                (function (successResponse) {
+                        // success callback
+                        userData = successResponse;
+                        vm.userData = successResponse;
 
-                    var locationSum = 0;
-                    var appointmentSum = 0;
 
-                    angular.forEach(vm.persons, function (item, index) {
-                        // console.log(item.locations);
-                        // console.log(item.locations.length);
-                        User.get({id: item.consultant})
-                            .$promise
-                            .then(function (person) {
+                        if(vm.userData.role == 'user'){
+                            console.log("it is NOT an admin -");
+                            prescriberTableResource.getSomePrescribers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
 
-                                // in case the lastname is undefined
-                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                    vm.persons[index].consultantName = person.name;
-                                else
-                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                            });
+                                    var locationSum = 0;
+                                    var appointmentSum = 0;
 
-                        locationSum += Number(item.locations.length);
-                        appointmentSum += Number(item.appointments.length);
+                                    angular.forEach(vm.persons, function (item, index) {
+                                        // console.log(item.locations);
+                                        // console.log(item.locations.length);
+                                        User.get({id: item.consultant})
+                                            .$promise
+                                            .then(function (person) {
+
+                                                // in case the lastname is undefined
+                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
+                                                    vm.persons[index].consultantName = person.name;
+                                                else
+                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
+                                            });
+
+                                        locationSum += Number(item.locations.length);
+                                        appointmentSum += Number(item.appointments.length);
+                                    });
+
+                                    // console.log("Total locations", locationSum);
+                                    // console.log("Total appointments", appointmentSum);
+
+                                    vm.locationSum = locationSum;
+                                    vm.appointmentSum = appointmentSum;
+
+                                });
+
+
+
+                        }else if (vm.userData.role == 'admin'){
+                            console.log("it is an admin");
+                            prescriberTableResource.getAllPrescribers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
+
+                                    var locationSum = 0;
+                                    var appointmentSum = 0;
+
+                                    angular.forEach(vm.persons, function (item, index) {
+                                        // console.log(item.locations);
+                                        // console.log(item.locations.length);
+                                        User.get({id: item.consultant})
+                                            .$promise
+                                            .then(function (person) {
+
+                                                // in case the lastname is undefined
+                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
+                                                    vm.persons[index].consultantName = person.name;
+                                                else
+                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
+                                            });
+
+                                        locationSum += Number(item.locations.length);
+                                        appointmentSum += Number(item.appointments.length);
+                                    });
+
+                                    // console.log("Total locations", locationSum);
+                                    // console.log("Total appointments", appointmentSum);
+
+                                    vm.locationSum = locationSum;
+                                    vm.appointmentSum = appointmentSum;
+
+                                });
+
+                        }
+
+                        // userStatsResource.getStats({ id: userData._id })
+                        //     .$promise
+                        //     .then(function (response) {
+                        //
+                        //
+                        //         console.log(response);
+                        //
+                        //
+                        //
+                        //
+                        //     }, function (errResponse) {
+                        //         //fail
+                        //         console.error('error: houston we got a problem', errResponse);
+                        //     });
+
+                    },
+                    function (errorResponse) {
+                        // failure callback
+                        userData = "nada";
+                        console.log(errorResponse);
                     });
 
-                    // console.log("Total locations", locationSum);
-                    // console.log("Total appointments", appointmentSum);
 
-                    vm.locationSum = locationSum;
-                    vm.appointmentSum = appointmentSum;
-
-                });
 
 
             vm.delete = function (id, index) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',

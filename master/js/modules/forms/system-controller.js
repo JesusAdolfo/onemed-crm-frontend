@@ -35,9 +35,9 @@
 
 
 
-    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize'];
+    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize', 'DTOptionsBuilder'];
 
-    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize) {
+    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize, DTOptionsBuilder) {
         var vm = this;
         vm.$scope = $scope;
 

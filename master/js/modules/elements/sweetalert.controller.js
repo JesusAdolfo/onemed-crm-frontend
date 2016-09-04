@@ -47,7 +47,7 @@
             vm.demo5 = function() {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
