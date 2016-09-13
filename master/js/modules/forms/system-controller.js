@@ -15,7 +15,7 @@
 
     angular.module('app.forms')
         .factory('systemPatientService', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/:id', {
+            return $resource(globalUri + 'api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -24,7 +24,7 @@
             });
         })
         .factory('SystemsResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/add-system/:personId', {
+            return $resource(globalUri + 'api/patients/add-system/:personId', {
                 personId: '@param1'
             }, {
                 update: {

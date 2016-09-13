@@ -12,7 +12,7 @@
 
     angular.module('app.forms')
         .factory('patientService', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/:id', {
+            return $resource(globalUri + 'api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -21,7 +21,7 @@
             });
         })
         .factory('prescriberService', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 query: {
@@ -30,7 +30,7 @@
             });
         })
         .factory('PatientNoteResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/add-notes/:personId', {
+            return $resource(globalUri + 'api/patients/add-notes/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -39,7 +39,7 @@
             });
         })
         .factory('PatientDeleteNoteResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/delete-notes/:personId', {
+            return $resource(globalUri + 'api/patients/delete-notes/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -48,7 +48,7 @@
             });
         })
         .factory('DeleteCondResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/delete-cond/:personId', {
+            return $resource(globalUri + 'api/patients/delete-cond/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -57,7 +57,7 @@
             });
         })
         .factory('DeleteSystemsResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/delete-system/:personId', {
+            return $resource(globalUri + 'api/patients/delete-system/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -66,7 +66,7 @@
             });
         })
         .factory('DeleteFileResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/delete-file/:personId', {
+            return $resource(globalUri + 'api/patients/delete-file/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -113,7 +113,7 @@
                 console.error('error: houston we got a problem', errResponse);
             });
 
-        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
 
             vm.consultants = [];
             angular.forEach(consultants, function (value, index) {

@@ -12,8 +12,8 @@
       // Global Settings
       // -----------------------------------
       $rootScope.app = {
-        name: 'Angle',
-        description: 'Angular Bootstrap Admin Template',
+        name: 'onemed',
+        description: 'crm',
         year: ((new Date()).getFullYear()),
         layout: {
           isFixed: true,
@@ -30,7 +30,8 @@
         hiddenFooter: false,
         offsidebarOpen: false,
         asideToggled: false,
-        viewAnimation: 'ng-fadeInUp'
+        viewAnimation: 'ng-fadeInUp',
+        uri: 'http://localhost:9000'
       };
 
       // Setup the layout mode

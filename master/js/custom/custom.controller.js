@@ -13,7 +13,7 @@
     // angular
     //     .module('app.forms')
     //     .factory('UserService', function ($resource) {
-    //         return $resource('http://localhost:9000/api/users/:id/:controller', {
+    //         return $resource(globalUri + 'api/users/:id/:controller', {
     //             id: '@_id'
     //         }, {
     //             changePassword: {
@@ -33,7 +33,7 @@
 
     angular.module('app.forms')
         .factory('userStatsResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/stats/:action/:id', {}, {
+            return $resource(globalUri + 'api/patients/stats/:action/:id', {}, {
 
                 getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
 

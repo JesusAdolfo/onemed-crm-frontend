@@ -15,7 +15,7 @@
         .controller('PatientFormValidationController', PatientFormValidationController);
     angular.module('app.forms')
         .factory('prescriberService', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 query: {
@@ -24,7 +24,7 @@
             });
         })
         .factory('userService', function ($resource) {
-            return $resource('http://localhost:9000/api/users/all', {
+            return $resource(globalUri + 'api/users/all', {
                 id: '@param1'
             }, {
                 update: {
@@ -38,13 +38,13 @@
         var vm = this;
         vm.$scope = $scope;
 
-        $resource('http://localhost:9000/api/prescribers').query().$promise.then(function(persons) {
+        $resource(globalUri + 'api/prescribers').query().$promise.then(function(persons) {
             vm.persons = persons;
             vm.persons.count = persons.length;
 
         });
 
-        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
             vm.consultants = consultants;
             vm.consultants.count = consultants.length;
 
@@ -82,7 +82,7 @@
                 if (vm.formValidate.$valid) {
                     console.log('Submitted!!');
                     console.log(this.newPatient);
-                    $resource('http://localhost:9000/api/patients').save(this.newPatient)
+                    $resource(globalUri + 'api/patients').save(this.newPatient)
                         .$promise
                         .then(function(data){
                             SweetAlert.swal({

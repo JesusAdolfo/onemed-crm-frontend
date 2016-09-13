@@ -1,12 +1,14 @@
-(function (){
+(function ($rootScope){
     'use strict';
+
+    console.log(globalUri);
 
     angular.module('app.forms')
         .controller('LoginController', LoginController);
 
     angular.module('app.forms')
         .factory('userService', function ($resource) {
-            return $resource('http://localhost:9000/api/users/login', {
+            return $resource(globalUri + 'api/users/login', {
                 id: '@param1'
             }, {
                 update: {
@@ -15,8 +17,9 @@
             });
         });
 
-    function UserResource($resource) {
-        return $resource('http://localhost:9000/api/users/:id/:controller', {
+    function UserResource($resource, $rootScope) {
+
+        return $resource(globalUri + 'api/users/:id/:controller', {
             id: '@_id'
         }, {
             changePassword: {
@@ -71,7 +74,7 @@
 
                 if (vm.loginForm.$valid) {
                     console.log("Trying to log in....");
-                    $http.post('http://localhost:9000/auth/local', { email: email, password: password})
+                    $http.post(globalUri + 'auth/local', { email: email, password: password})
                         .then
                         (function(res) {
                             console.log("res =", res);

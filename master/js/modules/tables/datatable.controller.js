@@ -12,7 +12,7 @@
 
     angular.module('app.tables')
         .factory('prescriberTableResource', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/list/:action/:id', {}, {
+            return $resource(globalUri + 'api/prescribers/list/:action/:id', {}, {
 
                 getSomePrescribers: { method: 'GET', params: { id: '@param1', action: "get-prescribers"}, isArray: true },
                 getAllPrescribers: { method: 'GET', params: { id: '@param1', action: "get-all-prescribers"}, isArray: true }
@@ -181,7 +181,7 @@
                 console.log(index);
                 console.log(vm.persons);
 
-                $resource('http://localhost:9000/api/prescribers/:id').delete({id: id})
+                $resource(globalUri + 'api/prescribers/:id').delete({id: id})
                     .$promise
                     .then
                     (function (response) {

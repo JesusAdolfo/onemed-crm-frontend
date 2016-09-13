@@ -16,7 +16,7 @@
 
     angular.module('app.tables')
         .factory('userService', function ($resource) {
-            return $resource('http://localhost:9000/api/users/all', {
+            return $resource(globalUri + 'api/users/all', {
                 id: '@param1'
             }, {
                 query: {
@@ -83,7 +83,7 @@
 
             function removePerson(id, index) {
 
-                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
+                $resource(globalUri + 'api/patients/:id').delete({id: id})
                     .$promise
                     .then
                     (function(response) {

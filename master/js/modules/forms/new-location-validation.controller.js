@@ -13,7 +13,7 @@
 
     angular.module('app.forms')
         .factory('newLocationPrescriberService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {id: '@param1'},
+            return $resource(globalUri + 'api/prescribers/:id', {id: '@param1'},
                 {
                 update: {method: 'PUT'}
             })

@@ -17,7 +17,7 @@
 
     angular.module('app.forms')
         .factory('prescriberService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -26,7 +26,7 @@
             });
         })
         .factory('AppointmentCreationService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/add-app/:id', {
+            return $resource(globalUri + 'api/prescribers/add-app/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -44,7 +44,7 @@
         vm.$scope = $scope;
         vm.locations = [];
 
-        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
             vm.consultants = consultants;
             vm.consultants.count = consultants.length;
 

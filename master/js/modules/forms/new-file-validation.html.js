@@ -15,7 +15,7 @@
 
     angular.module('app.forms')
         .factory('FilesPatientService', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/:id', {
+            return $resource(globalUri + 'api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -24,7 +24,7 @@
             });
         })
         .factory('FileResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/add-file/:personId', {
+            return $resource(globalUri + 'api/patients/add-file/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -85,7 +85,7 @@
 
             vm.uploadPic = function(file) {
                 file.upload = Upload.upload({
-                    url: 'http://localhost:9000/api/patients/uploads/'+ $stateParams.id,
+                    url: globalUri + 'api/patients/uploads/'+ $stateParams.id,
                     method: 'PUT',
                     data: {description: vm.description, file: file},
                 });

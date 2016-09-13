@@ -12,7 +12,7 @@
 
     angular.module('app.forms')
         .factory('ModifyPrescriberService', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -21,7 +21,7 @@
             });
         })
         .factory('PrescriberNoteResource', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/add-notes/:personId', {
+            return $resource(globalUri + 'api/prescribers/add-notes/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -30,7 +30,7 @@
             })
         })
         .factory('PrescriberDeleteNoteResource', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/delete-prescriber-notes/:personId', {
+            return $resource(globalUri + 'api/prescribers/delete-prescriber-notes/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -45,7 +45,7 @@
         var vm = this;
         vm.$scope = $scope;
 
-        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
             vm.consultants = consultants;
             vm.consultants.count = consultants.length;
 

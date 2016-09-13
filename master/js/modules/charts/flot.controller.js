@@ -13,7 +13,7 @@
 
     angular.module('app.tables')
         .factory('topThreeResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/graphs/:action/:id', {}, {
+            return $resource(globalUri + 'api/patients/graphs/:action/:id', {}, {
 
                 getTopThree: { method: 'GET', params: { action: "top-three" }, isArray: true },
                 getSalesByMonth: { method: 'GET', params: { id: '@param1', action: "sales-month" }, isArray: true },
@@ -22,7 +22,7 @@
             });
         })
         .factory('graphConsultantResource', function ($resource) {
-            return $resource('http://localhost:9000/api/users/:id', {
+            return $resource(globalUri + 'api/users/:id', {
                 id: '@param1'
             }, {
                 query: {
@@ -44,7 +44,7 @@
 
         function activate() {
 
-            $resource('http://localhost:9000/api/patients').query()
+            $resource(globalUri + 'api/patients').query()
                 .$promise
                 .then(function (persons) {
 

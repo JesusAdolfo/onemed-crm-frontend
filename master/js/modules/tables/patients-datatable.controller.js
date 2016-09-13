@@ -13,7 +13,7 @@
 
     angular.module('app.tables')
         .factory('prescriberService', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 query: {
@@ -25,7 +25,7 @@
             });
         })
         .factory('patientsTableResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/list/:action/:id', {}, {
+            return $resource(globalUri + 'api/patients/list/:action/:id', {}, {
 
                 getSomeUsers: { method: 'GET', params: { id: '@param1', action: "get-users"}, isArray: true },
                 getAllUsers: { method: 'GET', params: { id: '@param1', action: "get-all-users"}, isArray: true }
@@ -184,7 +184,7 @@
 
             function removePerson(id, index) {
 
-                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
+                $resource(globalUri + 'api/patients/:id').delete({id: id})
                     .$promise
                     .then
                     (function (response) {

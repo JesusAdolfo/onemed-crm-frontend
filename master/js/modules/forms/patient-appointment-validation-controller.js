@@ -17,7 +17,7 @@
 
     angular.module('app.forms')
         .factory('patientService', function($resource) {
-            return $resource('http://localhost:9000/api/patients/:id', {
+            return $resource(globalUri + 'api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -26,7 +26,7 @@
             });
         })
         .factory('PatientAppointmentFormValidationController', function($resource) {
-            return $resource('http://localhost:9000/api/patients/add-app/:id', {
+            return $resource(globalUri + 'api/patients/add-app/:id', {
                 id: '@param1'
             }, {
                 update: {

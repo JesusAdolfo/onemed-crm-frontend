@@ -16,7 +16,7 @@
 
     angular.module('app.tables')
         .factory('PrescriberResource', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
+            return $resource(globalUri + 'api/prescribers/:PersonId', {
                 PersonId: '@param1'
             }, {
                 update: {
@@ -25,7 +25,7 @@
             });
         })
         .factory('PrescriberAppointmentDeletionService', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/remove-app/:id', {
+            return $resource(globalUri + 'api/prescribers/remove-app/:id', {
                 id: '@param1'
             }, {
                 update: {

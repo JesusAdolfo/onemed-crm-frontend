@@ -13,7 +13,7 @@
 
     angular.module('app.tables')
         .factory('PrescriberResource', function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
+            return $resource(globalUri + 'api/prescribers/:PersonId', {
                 PersonId: '@param1'
             }, {
                 update: {
@@ -22,7 +22,7 @@
             });
         })
     .factory('PrescriberUpdatedResource', function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/update-locations/:personId', {
+        return $resource(globalUri + 'api/prescribers/update-locations/:personId', {
             personId: '@param1'
         }, {
             update: {
@@ -31,7 +31,7 @@
         });
     })
     .factory('NoteResource', function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/update-notes/:personId', {
+        return $resource(globalUri + 'api/prescribers/update-notes/:personId', {
             personId: '@param1'
         }, {
             update: {
@@ -40,7 +40,7 @@
         });
     })
     .factory('DeleteNoteResource', function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/delete-notes/:personId', {
+        return $resource(globalUri + 'api/prescribers/delete-notes/:personId', {
             personId: '@param1'
         }, {
             update: {

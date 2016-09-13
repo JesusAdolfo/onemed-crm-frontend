@@ -15,7 +15,7 @@
         var vm = this;
         activate();
 
-        $resource('http://localhost:9000/api/users/all').query().$promise.then(function(consultants) {
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
             vm.consultants = consultants;
             vm.consultants.count = consultants.length;
 
@@ -37,7 +37,7 @@
                 if (vm.formValidate.$valid) {
                     console.log('Submitted!!');
                     console.log(this.newPrescriber);
-                    $resource('http://localhost:9000/api/prescribers').save(this.newPrescriber)
+                    $resource(globalUri + 'api/prescribers').save(this.newPrescriber)
                         .$promise
                         .then(function(data){
                             SweetAlert.swal({

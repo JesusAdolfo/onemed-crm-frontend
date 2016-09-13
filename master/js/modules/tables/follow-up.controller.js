@@ -13,7 +13,7 @@
 
     angular.module('app.tables')
         .factory('FollowUpPrescriberService', function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
+            return $resource(globalUri + 'api/prescribers/:id', {
                 id: '@param1'
             }, {
                 query: {
@@ -25,7 +25,7 @@
             });
         })
         .factory('DeleteFollowUp', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/delete-followup/:personId', {
+            return $resource(globalUri + 'api/patients/delete-followup/:personId', {
                 personId: '@param1'
             }, {
                 update: {
@@ -48,7 +48,7 @@
 
             // Ajax
 
-            $resource('http://localhost:9000/api/patients').query()
+            $resource(globalUri + 'api/patients').query()
                 .$promise
                 .then(function (persons) {
 

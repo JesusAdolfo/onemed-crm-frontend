@@ -15,7 +15,7 @@
 
     angular.module('app.forms')
         .factory('patientService', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/:id', {
+            return $resource(globalUri + 'api/patients/:id', {
                 id: '@param1'
             }, {
                 update: {
@@ -24,7 +24,7 @@
             });
         })
         .factory('ConditionResource', function ($resource) {
-            return $resource('http://localhost:9000/api/patients/add-cond/:personId', {
+            return $resource(globalUri + 'api/patients/add-cond/:personId', {
                 personId: '@param1'
             }, {
                 update: {
