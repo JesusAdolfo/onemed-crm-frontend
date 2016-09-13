@@ -32,7 +32,7 @@
                 </div>
                 <div class="col-xs-8 pv-lg">
                     <div class="h2 mt0">{{table.persons.count}}</div>
-                    <div class="text-uppercase">Pacients</div>
+                    <div class="text-uppercase">Patients</div>
                 </div>
             </div>
         </div>
@@ -85,7 +85,7 @@
 <div class="row">
     <!-- ngRepeat + ngResource-->
     <div class="panel panel-default">
-        <div class="panel-heading">Doctors</div>
+        <div class="panel-heading">Patients</div>
         <div class="panel-body">
             <div ng-controller="PatientsDataTableController as table1">
                 <table datatable="ng" class="row-border hover">
@@ -103,7 +103,7 @@
                     <tbody>
                     <tr ng-repeat="person in table1.persons">
                         <td>{{ person.date | date:'yyyyMMdd' }} - {{ person.birth | date:'yyyyMMdd'}} </td>
-                        <td>{{ person.name }} {{ person.middle }} {{ person.lastname }}</td>
+                        <td>{{ person.name }} {{ person.lastname }}</td>
                         <td> {{person.city}}, {{ person.state }} </td>
                         <td> {{person.phone}} </td>
                         <td> {{person.email}} </td>

@@ -116,14 +116,14 @@
 
             // BAR
             // -----------------------------------
-
+            vm.barData = [];
 
             async.waterfall([
                 function(callback) {
 
+
                     //first step
                     // vm.barData = ChartData.load('server/chart/bar.json');
-                    vm.barData = [];
 
                     var userData = {};
                     User.get({})
@@ -160,7 +160,6 @@
                                         }
 
                                         angular.forEach(response, function (value, index) {
-
 
                                             switch(value._id){
                                                 case 1:
@@ -206,19 +205,13 @@
                                             // datos.label = "Sales in USD";
                                             // datos.color = "#adadad";
 
-                                            var zero = [{
+                                            var legend = [{
                                                 "label": "Sales in USD",
                                                 "color": "#249BD3",
                                                 "data": datos
                                             }];
 
-                                            // console.log("mes- ", value._id);
-                                            // console.log("data- ", value.data);
-
-
-                                            //console.log("final datos", datos);
-
-                                            vm.barData = zero;
+                                            vm.barData = legend;
 
 
                                         });
@@ -251,10 +244,10 @@
                         series: {
                             bars: {
                                 align: 'center',
-                                lineWidth: 0,
+                                lineWidth: 0.5,
                                 show: true,
                                 barWidth: 0.6,
-                                fill: 0.9
+                                fill: 0.5
                             }
                         },
                         grid: {
@@ -263,7 +256,7 @@
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: true,
+                        tooltip: false,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -296,7 +289,7 @@
                 function(callback) {
 
                     //first step
-                    //vm.barStackeData = ChartData.load('server/chart/barstacked.json');
+                    // vm.barStackeData = ChartData.load('server/chart/barstacked.json');
                     vm.barStackeData = [];
 
                     var userData = {};
@@ -385,11 +378,6 @@
                                                 "data": datos
                                             }];
 
-                                            // console.log("mes- ", value._id);
-                                            // console.log("data- ", value.data);
-
-
-                                            //console.log("final datos", datos);
 
                                             vm.barStackeData = zero;
 
@@ -442,7 +430,7 @@
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: true,
+                        tooltip: false,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -529,7 +517,7 @@
                                     formatter: function (label, series) {
                                         return '<div class="flot-pie-label">' +
                                             //label + ' : ' +
-                                            Math.round(series.data[0][1]) + '$ -- ' +  label +  '</div>';
+                                            series.data[0][1] + '$ -- ' +  label +  '</div>';
                                     },
                                     background: {
                                         opacity: 0.8,
@@ -575,8 +563,11 @@
                             formatter: function (label, series) {
                                 return '<div class="flot-pie-label">' +
                                     //label + ' : ' +
-                                    Math.round(series.percent) +
+                                    label +
+                                    '</br>' +
+                                    series.percent +
                                     '%</div>';
+
                             },
                             background: {
                                 opacity: 0.8,

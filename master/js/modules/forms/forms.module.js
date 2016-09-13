@@ -29,7 +29,7 @@
             responseError(response) {
                 if (response.status === 401) {
                     (state || (state = $injector.get('$state')))
-                        .go('app.login');
+                        .go('account.login');
                     // remove any stale tokens
                     $cookies.remove('token');
                 }

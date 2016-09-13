@@ -47,13 +47,13 @@
     'use strict';
 
     angular
-        .module('app.colors', []);
+        .module('app.charts', []);
 })();
 (function() {
     'use strict';
 
     angular
-        .module('app.charts', []);
+        .module('app.colors', []);
 })();
 (function() {
     'use strict';
@@ -90,25 +90,7 @@
     'use strict';
 
     angular
-        .module('app.lazyload', []);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar', []);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.navsearch', []);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.forms', [])
+        .module('app.forms', ['ngFileUpload'])
         .config(["$httpProvider", function($httpProvider) {
             $httpProvider.interceptors.push('authInterceptor');
         }]);
@@ -135,7 +117,7 @@
             responseError(response) {
                 if (response.status === 401) {
                     (state || (state = $injector.get('$state')))
-                        .go('app.login');
+                        .go('account.login');
                     // remove any stale tokens
                     $cookies.remove('token');
                 }
@@ -147,6 +129,24 @@
 
     angular.module('app.forms')
         .factory('authInterceptor', authInterceptor);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.lazyload', []);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar', []);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.navsearch', []);
 })();
 (function() {
     'use strict';
@@ -174,12 +174,6 @@
     'use strict';
 
     angular
-        .module('app.sidebar', []);
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('app.tables', []);
 })();
 
@@ -187,7 +181,7 @@
     'use strict';
 
     angular
-        .module('app.translate', []);
+        .module('app.sidebar', []);
 })();
 (function() {
     'use strict';
@@ -198,6 +192,12 @@
           ]);
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate', []);
+})();
 /**=========================================================
  * Module: demo-datepicker.js
  * Provides a simple demo for bootstrap datepicker
@@ -311,6 +311,779 @@
         }
     }
 })();
+/**
+ * Created by Adolfo on 8/28/2016.
+ */
+(function() {
+    'use strict';
+
+    angular
+        .module('app.charts')
+        .service('ChartData', ChartData);
+
+    ChartData.$inject = ['$resource'];
+    function ChartData($resource) {
+        this.load = load;
+
+        ////////////////
+
+        var opts = {
+            get: { method: 'GET', isArray: true }
+        };
+        function load(source) {
+            return $resource(source, {}, opts).get();
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: flot-chart.js
+ * Setup options and data for flot chart directive
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.charts')
+        .controller('FlotChartController', FlotChartController);
+
+
+    angular.module('app.tables')
+        .factory('topThreeResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/graphs/:action/:id', {}, {
+
+                getTopThree: { method: 'GET', params: { action: "top-three" }, isArray: true },
+                getSalesByMonth: { method: 'GET', params: { id: '@param1', action: "sales-month" }, isArray: true },
+                getPatientStatus: { method: 'GET', params: { id: '@param1', action: "patient-status" }, isArray: true }
+
+            });
+        }])
+        .factory('graphConsultantResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/users/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                },
+                get: {
+                    method: 'GET', isArray: false
+                }
+            });
+        }]);
+
+    FlotChartController.$inject = ['$rootScope', '$scope', 'ChartData', '$timeout', '$resource', 'topThreeResource', 'graphConsultantResource', 'User'];
+    function FlotChartController($rootScope, $scope, ChartData, $timeout, $resource, topThreeResource, graphConsultantResource, User) {
+        var vm = this;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            $resource('http://localhost:9000/api/patients').query()
+                .$promise
+                .then(function (persons) {
+
+                    var appointmentSum = 0;
+                    var noteSum = 0;
+
+
+                    vm.donutData = [
+                        {
+                            "label": "MANUAL MVP-700 SYSTEM",
+                            "color": "#4acab4",
+                            "data": 0
+                        }, {
+                            "label": "INTRODUCTORY BATTERY SYSTEM",
+                            "color": "#ffea88",
+                            "data": 0
+                        }, {
+                            "label": "BATTERY STANDARD SYSTEM",
+                            "color": "#ff8153",
+                            "data": 0
+                        }, {
+                            "label": "DELUXE BATTERY SYSTEM",
+                            "color": "#878bb6",
+                            "data": 0
+                        }, {
+                            "label": "FLEXIBLE URETEROSCOPE",
+                            "color": "#b2d767",
+                            "data": 0
+                        }
+                    ];
+                    angular.forEach(persons, function (value, index) {
+
+                        if(value.sales.length > 0){
+                            angular.forEach(value.sales, function (valor, indice) {
+
+                                switch(valor.description){
+                                    case "MANUAL MVP-700 SYSTEM":
+                                        vm.donutData[0].data += 1;
+                                        break;
+                                    case "INTRODUCTORY BATTERY SYSTEM":
+                                        vm.donutData[1].data += 1;
+                                        break;
+                                    case "BATTERY STANDARD SYSTEM":
+                                        vm.donutData[2].data += 1;
+                                        break;
+                                    case "DELUXE BATTERY SYSTEM":
+                                        vm.donutData[3].data += 1;
+                                        break;
+                                    case "FLEXIBLE URETEROSCOPE":
+                                        vm.donutData[4].data += 1;
+                                        break;
+                                    default:
+                                        console.log("error creating graph");
+                                }
+                            })
+                        }
+
+
+
+
+                    });
+
+                    vm.persons = persons;
+
+
+
+                });
+
+
+            // BAR
+            // -----------------------------------
+            vm.barData = [];
+
+            async.waterfall([
+                function(callback) {
+
+
+                    //first step
+                    // vm.barData = ChartData.load('server/chart/bar.json');
+
+                    var userData = {};
+                    User.get({})
+                        .$promise
+                        .then
+                        (function (successResponse) {
+                                // success callback
+                                userData = successResponse;
+                                vm.userData = successResponse;
+
+
+
+                                topThreeResource.getSalesByMonth({id: userData._id})
+                                    .$promise
+                                    .then(function (response) {
+
+                                        var datos = [];
+                                        var meses = {
+                                            1 : "Jan",
+                                            2 : "Feb",
+                                            3 : "Mar",
+                                            4 : "Apr",
+                                            5 : "May",
+                                            6 : "Jun",
+                                            7 : "Jul",
+                                            8 : "Aug",
+                                            9 : "Sep",
+                                            10 : "Oct",
+                                            11 : "Nov",
+                                            12 : "Dec"
+                                        };
+                                        for (var i=1; i <= 12; i++){
+                                            datos[i] = [meses[i], 0];
+                                        }
+
+                                        angular.forEach(response, function (value, index) {
+
+                                            switch(value._id){
+                                                case 1:
+                                                    datos[1] = ["Jan", value.data];
+                                                    break;
+                                                case 2:
+                                                    datos[2] = ["Feb", value.data];
+                                                    break;
+                                                case 3:
+                                                    datos[3] = ["Mar", value.data];
+                                                    break;
+                                                case 4:
+                                                    datos[4] = ["Apr", value.data];
+                                                    break;
+                                                case 5:
+                                                    datos[5] = ["May", value.data];
+                                                    break;
+                                                case 6:
+                                                    datos[6] = ["Jun", value.data];
+                                                    break;
+                                                case 7:
+                                                    datos[7] = ["Jul", value.data];
+                                                    break;
+                                                case 8:
+                                                    datos[8] = ["Aug", value.data];
+                                                    break;
+                                                case 9:
+                                                    datos[9] = ["Sep", value.data];
+                                                    break;
+                                                case 10:
+                                                    datos[10] = ["Oct", value.data];
+                                                    break;
+                                                case 11:
+                                                    datos[11] = ["Nov", value.data];
+                                                    break;
+                                                case 12:
+                                                    datos[12] = ["Dec", value.data];
+                                                    break;
+                                                default:
+                                                    alert("error loading bar chart");
+                                            }
+
+                                            // datos.label = "Sales in USD";
+                                            // datos.color = "#adadad";
+
+                                            var legend = [{
+                                                "label": "Sales in USD",
+                                                "color": "#249BD3",
+                                                "data": datos
+                                            }];
+
+                                            vm.barData = legend;
+
+
+                                        });
+
+
+
+
+                                    }, function (errResponse) {
+                                        //fail
+                                        console.error('error: houston we got a problem', errResponse);
+                                    });
+
+
+
+                            },
+                            function (errorResponse) {
+                                // failure callback
+                                userData = "nada";
+                                console.log(errorResponse);
+                            });
+
+
+
+
+                    callback(null, vm.barData, 'two');
+                },
+                function(arg1, arg2, callback) {
+                    // second step
+                    vm.barOptions = {
+                        series: {
+                            bars: {
+                                align: 'center',
+                                lineWidth: 0.5,
+                                show: true,
+                                barWidth: 0.6,
+                                fill: 0.5
+                            }
+                        },
+                        grid: {
+                            borderColor: '#eee',
+                            borderWidth: 1,
+                            hoverable: true,
+                            backgroundColor: '#fcfcfc'
+                        },
+                        tooltip: false,
+                        tooltipOpts: {
+                            content: function (label, x, y) { return x + ' : ' + y; }
+                        },
+                        xaxis: {
+                            tickColor: '#fcfcfc',
+                            mode: 'categories'
+                        },
+                        yaxis: {
+                            position: ($scope.app.layout.isRTL ? 'right' : 'left'),
+                            tickColor: '#eee'
+                        },
+                        shadowSize: 0
+                    };
+
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+
+            });
+
+
+
+
+            // BAR STACKED
+            // -----------------------------------
+
+            async.waterfall([
+                function(callback) {
+
+                    //first step
+                    // vm.barStackeData = ChartData.load('server/chart/barstacked.json');
+                    vm.barStackeData = [];
+
+                    var userData = {};
+                    User.get({})
+                        .$promise
+                        .then
+                        (function (successResponse) {
+                                // success callback
+                                userData = successResponse;
+                                vm.userData2 = successResponse;
+
+                                topThreeResource.getPatientStatus({id: userData._id})
+                                    .$promise
+                                    .then(function (response) {
+
+                                        var datos = [];
+
+                                        var meses = {
+                                            1 : "Jan",
+                                            2 : "Feb",
+                                            3 : "Mar",
+                                            4 : "Apr",
+                                            5 : "May",
+                                            6 : "Jun",
+                                            7 : "Jul",
+                                            8 : "Aug",
+                                            9 : "Sep",
+                                            10 : "Oct",
+                                            11 : "Nov",
+                                            12 : "Dec"
+                                        };
+                                        for (var i=1; i <= 12; i++){
+                                            datos[i] = [meses[i], 0];
+                                        }
+
+                                        angular.forEach(response, function (value, index) {
+
+
+                                            switch(value._id){
+                                                case 1:
+                                                    datos[1] = ["Jan", value.data];
+                                                    break;
+                                                case 2:
+                                                    datos[2] = ["Feb", value.data];
+                                                    break;
+                                                case 3:
+                                                    datos[3] = ["Mar", value.data];
+                                                    break;
+                                                case 4:
+                                                    datos[4] = ["Apr", value.data];
+                                                    break;
+                                                case 5:
+                                                    datos[5] = ["May", value.data];
+                                                    break;
+                                                case 6:
+                                                    datos[6] = ["Jun", value.data];
+                                                    break;
+                                                case 7:
+                                                    datos[7] = ["Jul", value.data];
+                                                    break;
+                                                case 8:
+                                                    datos[8] = ["Aug", value.data];
+                                                    break;
+                                                case 9:
+                                                    datos[9] = ["Sep", value.data];
+                                                    break;
+                                                case 10:
+                                                    datos[10] = ["Oct", value.data];
+                                                    break;
+                                                case 11:
+                                                    datos[11] = ["Nov", value.data];
+                                                    break;
+                                                case 12:
+                                                    datos[12] = ["Dec", value.data];
+                                                    break;
+                                                default:
+                                                    alert("error loading bar chart");
+                                            }
+
+                                            // datos.label = "Sales in USD";
+                                            // datos.color = "#adadad";
+
+                                            var zero = [{
+                                                "label": "Pending follow-ups",
+                                                "color": "#ff8153",
+                                                "data": datos
+                                            }];
+
+
+                                            vm.barStackeData = zero;
+
+
+                                        });
+
+
+
+
+                                    }, function (errResponse) {
+                                        //fail
+                                        console.error('error: genova we got a problem', errResponse);
+                                    });
+
+
+
+
+
+
+                            },
+                            function (errorResponse) {
+                                // failure callback
+                                userData = "nada";
+                                console.log(errorResponse);
+                            });
+
+
+
+
+
+
+                    callback(null, vm.barStackeData, 'two');
+                },
+                function(arg1, arg2, callback) {
+                    // second step
+                    vm.barStackedOptions = {
+                        series: {
+                            stack: true,
+                            bars: {
+                                align: 'center',
+                                lineWidth: 0,
+                                show: true,
+                                barWidth: 0.6,
+                                fill: 0.9
+                            }
+                        },
+                        grid: {
+                            borderColor: '#eee',
+                            borderWidth: 1,
+                            hoverable: true,
+                            backgroundColor: '#fcfcfc'
+                        },
+                        tooltip: false,
+                        tooltipOpts: {
+                            content: function (label, x, y) { return x + ' : ' + y; }
+                        },
+                        xaxis: {
+                            tickColor: '#fcfcfc',
+                            mode: 'categories'
+                        },
+                        yaxis: {
+                            min: 0,
+                            max: 200, // optional: use it for a clear represetation
+                            position: ($scope.app.layout.isRTL ? 'right' : 'left'),
+                            tickColor: '#eee'
+                        },
+                        shadowSize: 0
+                    };
+
+
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+
+            });
+
+
+
+
+
+
+            // PIE
+            // -----------------------------------
+
+            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
+            // ChartData.load('server/chart/pie.json');
+
+
+
+
+            async.waterfall([
+                function(callback) {
+                    vm.pieData = [];
+                    topThreeResource.getTopThree({})
+                        .$promise
+                        .then(function (response) {
+
+
+                            vm.pieData = response;
+
+
+                            // for (var i=0;i<vm.pieData.length;i++){
+                            //     vm.pieData[i].label = vm.pieData[i].label.name;
+                            // }
+                            angular.forEach(response, function (value, index) {
+
+
+
+
+                                if(angular.isUndefined(value.label[0].lastname))
+                                    vm.pieData[index].label = value.label[0].name
+                                else
+                                    vm.pieData[index].label = value.label[0].name +" "+ value.label[0].lastname;
+
+                            });
+
+
+                        }, function (errResponse) {
+                            //fail
+                            console.error('error: houston we got a problem', errResponse);
+                        });
+                    callback(null, vm.pieData, 'two');
+                },
+                function(arg1, arg2, callback) {
+                    // arg1 now equals 'one' and arg2 now equals 'two'
+                    vm.pieOptions = {
+                        series: {
+                            pie: {
+                                show: true,
+                                radius: 1,
+                                innerRadius: 0,
+                                label: {
+                                    show: true,
+                                    radius: 0.8,
+                                    formatter: function (label, series) {
+                                        return '<div class="flot-pie-label">' +
+                                            //label + ' : ' +
+                                            series.data[0][1] + '$ -- ' +  label +  '</div>';
+                                    },
+                                    background: {
+                                        opacity: 0.8,
+                                        color: '#222'
+                                    }
+                                }
+                            },
+
+                        },
+                        grid: {
+                            hoverable: true
+                        }
+                    };
+                    callback(null, arg1);
+                }
+            ], function (err, result) {
+                //final step of the waterfall
+
+            });
+
+
+
+
+
+
+
+
+            // DONUT
+            // -----------------------------------
+
+            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
+            // ChartData.load('server/chart/donut.json');
+
+            vm.donutOptions = {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.6, // This makes the donut shape
+                        label: {
+                            show: true,
+                            radius: 0.8,
+                            formatter: function (label, series) {
+                                return '<div class="flot-pie-label">' +
+                                    //label + ' : ' +
+                                    label +
+                                    '</br>' +
+                                    series.percent +
+                                    '%</div>';
+
+                            },
+                            background: {
+                                opacity: 0.8,
+                                color: '#222'
+                            }
+                        }
+                    },
+                },
+                grid: {
+                    hoverable: true
+                }
+            };
+
+
+
+            // PANEL REFRESH EVENTS
+            // -----------------------------------
+
+            $scope.$on('panel-refresh', function(event, id) {
+
+                console.log('Simulating chart refresh during 3s on #'+id);
+
+                // Instead of timeout you can request a chart data
+                $timeout(function(){
+
+                    // directive listen for to remove the spinner
+                    // after we end up to perform own operations
+                    $scope.$broadcast('removeSpinner', id);
+
+                    console.log('Refreshed #' + id);
+
+                }, 3000);
+
+            });
+
+
+            // PANEL DISMISS EVENTS
+            // -----------------------------------
+
+            // Before remove panel
+            $scope.$on('panel-remove', function(event, id, deferred){
+
+                console.log('Panel #' + id + ' removing');
+
+                // Here is obligatory to call the resolve() if we pretend to remove the panel finally
+                // Not calling resolve() will NOT remove the panel
+                // It's up to your app to decide if panel should be removed or not
+                deferred.resolve();
+
+            });
+
+            // Panel removed ( only if above was resolved() )
+            $scope.$on('panel-removed', function(event, id){
+
+                console.log('Panel #' + id + ' removed');
+
+            });
+
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/28/2016.
+ */
+/**=========================================================
+ * Module: flot.js
+ * Initializes the Flot chart plugin and handles data refresh
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.charts')
+        .directive('flot', flot);
+
+    flot.$inject = ['$http', '$timeout'];
+    function flot ($http, $timeout) {
+
+        var directive = {
+            restrict: 'EA',
+            template: '<div></div>',
+            scope: {
+                dataset: '=?',
+                options: '=',
+                series: '=',
+                callback: '=',
+                src: '='
+            },
+            link: link
+        };
+        return directive;
+
+        function link(scope, element, attrs) {
+            var height, plot, plotArea, width;
+            var heightDefault = 220;
+
+            plot = null;
+
+            width = attrs.width || '100%';
+            height = attrs.height || heightDefault;
+
+            plotArea = $(element.children()[0]);
+            plotArea.css({
+                width: width,
+                height: height
+            });
+
+            function init() {
+                var plotObj;
+                if(!scope.dataset || !scope.options) return;
+                plotObj = $.plot(plotArea, scope.dataset, scope.options);
+                scope.$emit('plotReady', plotObj);
+                if (scope.callback) {
+                    scope.callback(plotObj, scope);
+                }
+
+                return plotObj;
+            }
+
+            function onDatasetChanged(dataset) {
+                if (plot) {
+                    plot.setData(dataset);
+                    plot.setupGrid();
+                    return plot.draw();
+                } else {
+                    plot = init();
+                    onSerieToggled(scope.series);
+                    return plot;
+                }
+            }
+            scope.$watchCollection('dataset', onDatasetChanged, true);
+
+            function onSerieToggled (series) {
+                if( !plot || !series ) return;
+                var someData = plot.getData();
+                for(var sName in series) {
+                    angular.forEach(series[sName], toggleFor(sName));
+                }
+
+                plot.setData(someData);
+                plot.draw();
+
+                function toggleFor(sName) {
+                    return function (s, i){
+                        if(someData[i] && someData[i][sName])
+                            someData[i][sName].show = s;
+                    };
+                }
+            }
+            scope.$watch('series', onSerieToggled, true);
+
+            function onSrcChanged(src) {
+
+                if( src ) {
+
+                    $http.get(src)
+                        .success(function (data) {
+
+                            $timeout(function(){
+                                scope.dataset = data;
+                            });
+
+                        }).error(function(){
+                        $.error('Flot chart: Bad request.');
+                    });
+
+                }
+            }
+            scope.$watch('src', onSrcChanged);
+
+        }
+    }
+
+
+})();
+
 (function() {
     'use strict';
 
@@ -359,410 +1132,6 @@
         }
     }
 
-})();
-
-/**=========================================================
- * Module: flot-chart.js
- * Setup options and data for flot chart directive
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.charts')
-        .controller('FlotChartController', FlotChartController);
-
-    FlotChartController.$inject = ['$scope', 'ChartData', '$timeout'];
-    function FlotChartController($scope, ChartData, $timeout) {
-        var vm = this;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            // BAR
-            // -----------------------------------
-            vm.barData = ChartData.load('server/chart/bar.json');
-            vm.barOptions = {
-                series: {
-                    bars: {
-                        align: 'center',
-                        lineWidth: 0,
-                        show: true,
-                        barWidth: 0.6,
-                        fill: 0.9
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
-
-            // BAR STACKED
-            // -----------------------------------
-            vm.barStackeData = ChartData.load('server/chart/barstacked.json');
-            vm.barStackedOptions = {
-                series: {
-                    stack: true,
-                    bars: {
-                        align: 'center',
-                        lineWidth: 0,
-                        show: true,
-                        barWidth: 0.6,
-                        fill: 0.9
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    max: 200, // optional: use it for a clear represetation
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
-
-            // SPLINE
-            // -----------------------------------
-            vm.splineData = ChartData.load('server/chart/spline.json');
-            vm.splineOptions = {
-                series: {
-                    lines: {
-                        show: false
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    },
-                    splines: {
-                        show: true,
-                        tension: 0.4,
-                        lineWidth: 1,
-                        fill: 0.5
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    max: 150, // optional: use it for a clear represetation
-                    tickColor: '#eee',
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickFormatter: function (v) {
-                        return v/* + ' visitors'*/;
-                    }
-                },
-                shadowSize: 0
-            };
-
-            // AREA
-            // -----------------------------------
-            vm.areaData = ChartData.load('server/chart/area.json');
-            vm.areaOptions = {
-                series: {
-                    lines: {
-                        show: true,
-                        fill: 0.8
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#fcfcfc',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    min: 0,
-                    tickColor: '#eee',
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickFormatter: function (v) {
-                        return v + ' visitors';
-                    }
-                },
-                shadowSize: 0
-            };
-
-            // LINE
-            // -----------------------------------
-            vm.lineData = ChartData.load('server/chart/line.json');
-            vm.lineOptions = {
-                series: {
-                    lines: {
-                        show: true,
-                        fill: 0.01
-                    },
-                    points: {
-                        show: true,
-                        radius: 4
-                    }
-                },
-                grid: {
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    hoverable: true,
-                    backgroundColor: '#fcfcfc'
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    content: function (label, x, y) { return x + ' : ' + y; }
-                },
-                xaxis: {
-                    tickColor: '#eee',
-                    mode: 'categories'
-                },
-                yaxis: {
-                    position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                    tickColor: '#eee'
-                },
-                shadowSize: 0
-            };
-
-            // PIE
-            // -----------------------------------
-            vm.pieData = [{
-                "label": "jQuery",
-                "color": "#4acab4",
-                "data": 30
-            }, {
-                "label": "CSS",
-                "color": "#ffea88",
-                "data": 40
-            }, {
-                "label": "LESS",
-                "color": "#ff8153",
-                "data": 90
-            }, {
-                "label": "SASS",
-                "color": "#878bb6",
-                "data": 75
-            }, {
-                "label": "Jade",
-                "color": "#b2d767",
-                "data": 120
-            }];
-            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
-            // ChartData.load('server/chart/pie.json');
-
-            vm.pieOptions = {
-                series: {
-                    pie: {
-                        show: true,
-                        innerRadius: 0,
-                        label: {
-                            show: true,
-                            radius: 0.8,
-                            formatter: function (label, series) {
-                                return '<div class="flot-pie-label">' +
-                                    //label + ' : ' +
-                                    Math.round(series.percent) +
-                                    '%</div>';
-                            },
-                            background: {
-                                opacity: 0.8,
-                                color: '#222'
-                            }
-                        }
-                    }
-                }
-            };
-
-            // DONUT
-            // -----------------------------------
-            vm.donutData = [ { "color" : "#39C558",
-                "data" : 60,
-                "label" : "Coffee"
-            },
-                { "color" : "#00b4ff",
-                    "data" : 90,
-                    "label" : "CSS"
-                },
-                { "color" : "#FFBE41",
-                    "data" : 50,
-                    "label" : "LESS"
-                },
-                { "color" : "#ff3e43",
-                    "data" : 80,
-                    "label" : "Jade"
-                },
-                { "color" : "#937fc7",
-                    "data" : 116,
-                    "label" : "AngularJS"
-                }
-            ];
-            // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
-            // ChartData.load('server/chart/donut.json');
-
-            vm.donutOptions = {
-                series: {
-                    pie: {
-                        show: true,
-                        innerRadius: 0.5 // This makes the donut shape
-                    }
-                }
-            };
-
-            // REALTIME
-            // -----------------------------------
-            vm.realTimeOptions = {
-                series: {
-                    lines: { show: true, fill: true, fillColor:  { colors: ['#a0e0f3', '#23b7e5'] } },
-                    shadowSize: 0 // Drawing is faster without shadows
-                },
-                grid: {
-                    show:false,
-                    borderWidth: 0,
-                    minBorderMargin: 20,
-                    labelMargin: 10
-                },
-                xaxis: {
-                    tickFormatter: function() {
-                        return '';
-                    }
-                },
-                yaxis: {
-                    min: 0,
-                    max: 110
-                },
-                legend: {
-                    show: true
-                },
-                colors: ['#23b7e5']
-            };
-
-            // Generate random data for realtime demo
-            var data = [], totalPoints = 300;
-
-            update();
-
-            function getRandomData() {
-                if (data.length > 0)
-                    data = data.slice(1);
-                // Do a random walk
-                while (data.length < totalPoints) {
-                    var prev = data.length > 0 ? data[data.length - 1] : 50,
-                        y = prev + Math.random() * 10 - 5;
-                    if (y < 0) {
-                        y = 0;
-                    } else if (y > 100) {
-                        y = 100;
-                    }
-                    data.push(y);
-                }
-                // Zip the generated y values with the x values
-                var res = [];
-                for (var i = 0; i < data.length; ++i) {
-                    res.push([i, data[i]]);
-                }
-                return [res];
-            }
-            function update() {
-                vm.realTimeData = getRandomData();
-                $timeout(update, 30);
-            }
-            // end random data generation
-
-
-            // PANEL REFRESH EVENTS
-            // -----------------------------------
-
-            $scope.$on('panel-refresh', function(event, id) {
-
-                console.log('Simulating chart refresh during 3s on #'+id);
-
-                // Instead of timeout you can request a chart data
-                $timeout(function(){
-
-                    // directive listen for to remove the spinner
-                    // after we end up to perform own operations
-                    $scope.$broadcast('removeSpinner', id);
-
-                    console.log('Refreshed #' + id);
-
-                }, 3000);
-
-            });
-
-
-            // PANEL DISMISS EVENTS
-            // -----------------------------------
-
-            // Before remove panel
-            $scope.$on('panel-remove', function(event, id, deferred){
-
-                console.log('Panel #' + id + ' removing');
-
-                // Here is obligatory to call the resolve() if we pretend to remove the panel finally
-                // Not calling resolve() will NOT remove the panel
-                // It's up to your app to decide if panel should be removed or not
-                deferred.resolve();
-
-            });
-
-            // Panel removed ( only if above was resolved() )
-            $scope.$on('panel-removed', function(event, id){
-
-                console.log('Panel #' + id + ' removed');
-
-            });
-
-        }
-    }
 })();
 
 (function() {
@@ -1122,7 +1491,7 @@
             vm.demo5 = function() {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -1765,235 +2134,6 @@
     }
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.lazyload')
-        .config(lazyloadConfig);
-
-    lazyloadConfig.$inject = ['$ocLazyLoadProvider', 'APP_REQUIRES'];
-    function lazyloadConfig($ocLazyLoadProvider, APP_REQUIRES){
-
-      // Lazy Load modules configuration
-      $ocLazyLoadProvider.config({
-        debug: false,
-        events: true,
-        modules: APP_REQUIRES.modules
-      });
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.lazyload')
-        .constant('APP_REQUIRES', {
-          // jQuery based and standalone scripts
-          scripts: {
-            'modernizr':          ['vendor/modernizr/modernizr.custom.js'],
-            'icons':              ['vendor/fontawesome/css/font-awesome.min.css',
-                                   'vendor/simple-line-icons/css/simple-line-icons.css'],
-              // jquery core and widgets
-              'jquery-ui':          ['vendor/jquery-ui/ui/core.js',
-                  'vendor/jquery-ui/ui/widget.js'],
-              // loads only jquery required modules and touch support
-              'jquery-ui-widgets':  ['vendor/jquery-ui/ui/core.js',
-                  'vendor/jquery-ui/ui/widget.js',
-                  'vendor/jquery-ui/ui/mouse.js',
-                  'vendor/jquery-ui/ui/draggable.js',
-                  'vendor/jquery-ui/ui/droppable.js',
-                  'vendor/jquery-ui/ui/sortable.js',
-                  'vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js'],
-              'moment' :            ['vendor/moment/min/moment-with-locales.min.js'],
-              'fullcalendar':       ['vendor/fullcalendar/dist/fullcalendar.min.js',
-                                    'vendor/fullcalendar/dist/fullcalendar.css'],
-              'gcal':               ['vendor/fullcalendar/dist/gcal.js'],
-              'inputmask':          ['vendor/jquery.inputmask/dist/jquery.inputmask.bundle.js'],
-              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js']
-          },
-          // Angular based script (use the right module name)
-          modules: [
-              {name: 'ui.map', files: [
-                  'vendor/angular-ui-map/ui-map.js']},
-             {name: 'datatables', files: [
-                 'vendor/datatables/media/css/jquery.dataTables.css',
-                 'vendor/datatables/media/js/jquery.dataTables.js',
-                 'vendor/angular-datatables/dist/angular-datatables.js'], serie: true},
-              {name: 'localytics.directives', files: [
-                  'vendor/chosen/chosen.jquery.js',
-                  'vendor/chosen/chosen.css',
-                  'vendor/angular-chosen-localytics/dist/angular-chosen.min.js'],
-                  serie: true},
-              {name: 'ui.select',files:
-                  ['vendor/angular-ui-select/dist/select.min.js',
-                  'vendor/angular-ui-select/dist/select.min.css']},
-              {name: 'oitozero.ngSweetAlert',     files: ['vendor/sweetalert/dist/sweetalert.css',
-                  'vendor/sweetalert/dist/sweetalert.min.js',
-                  'vendor/ngSweetAlert/SweetAlert.js']},
-              {name: 'ngDialog',                  files: ['vendor/ng-dialog/js/ngDialog.min.js',
-                  'vendor/ng-dialog/css/ngDialog.min.css',
-                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] }
-          ]
-        })
-        ;
-
-})();
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .config(loadingbarConfig)
-        ;
-    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
-    function loadingbarConfig(cfpLoadingBarProvider){
-      cfpLoadingBarProvider.includeBar = true;
-      cfpLoadingBarProvider.includeSpinner = false;
-      cfpLoadingBarProvider.latencyThreshold = 500;
-      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .run(loadingbarRun)
-        ;
-    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
-    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
-
-      // Loading bar transition
-      // ----------------------------------- 
-      var thBar;
-      $rootScope.$on('$stateChangeStart', function() {
-          if($('.wrapper > section').length) // check if bar container exists
-            thBar = $timeout(function() {
-              cfpLoadingBar.start();
-            }, 0); // sets a latency Threshold
-      });
-      $rootScope.$on('$stateChangeSuccess', function(event) {
-          event.targetScope.$watch('$viewContentLoaded', function () {
-            $timeout.cancel(thBar);
-            cfpLoadingBar.complete();
-          });
-      });
-
-    }
-
-})();
-/**=========================================================
- * Module: navbar-search.js
- * Navbar search toggler * Auto dismiss on ESC key
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.navsearch')
-        .directive('searchOpen', searchOpen)
-        .directive('searchDismiss', searchDismiss);
-
-    //
-    // directives definition
-    // 
-    
-    function searchOpen () {
-        var directive = {
-            controller: searchOpenController,
-            restrict: 'A'
-        };
-        return directive;
-
-    }
-
-    function searchDismiss () {
-        var directive = {
-            controller: searchDismissController,
-            restrict: 'A'
-        };
-        return directive;
-        
-    }
-
-    //
-    // Contrller definition
-    // 
-    
-    searchOpenController.$inject = ['$scope', '$element', 'NavSearch'];
-    function searchOpenController ($scope, $element, NavSearch) {
-      $element
-        .on('click', function (e) { e.stopPropagation(); })
-        .on('click', NavSearch.toggle);
-    }
-
-    searchDismissController.$inject = ['$scope', '$element', 'NavSearch'];
-    function searchDismissController ($scope, $element, NavSearch) {
-      
-      var inputSelector = '.navbar-form input[type="text"]';
-
-      $(inputSelector)
-        .on('click', function (e) { e.stopPropagation(); })
-        .on('keyup', function(e) {
-          if (e.keyCode === 27) // ESC
-            NavSearch.dismiss();
-        });
-        
-      // click anywhere closes the search
-      $(document).on('click', NavSearch.dismiss);
-      // dismissable options
-      $element
-        .on('click', function (e) { e.stopPropagation(); })
-        .on('click', NavSearch.dismiss);
-    }
-
-})();
-
-
-/**=========================================================
- * Module: nav-search.js
- * Services to share navbar search functions
- =========================================================*/
- 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.navsearch')
-        .service('NavSearch', NavSearch);
-
-    function NavSearch() {
-        this.toggle = toggle;
-        this.dismiss = dismiss;
-
-        ////////////////
-
-        var navbarFormSelector = 'form.navbar-form';
-
-        function toggle() {
-          var navbarForm = $(navbarFormSelector);
-
-          navbarForm.toggleClass('open');
-          
-          var isOpen = navbarForm.hasClass('open');
-          
-          navbarForm.find('input')[isOpen ? 'focus' : 'blur']();
-        }
-
-        function dismiss() {
-          $(navbarFormSelector)
-            .removeClass('open') // Close control
-            .find('input[type="text"]').blur() // remove focus
-            .val('') // Empty input
-            ;
-        }        
-    }
-})();
-
 /**
  * Created by Adolfo on 8/17/2016.
  */
@@ -2126,6 +2266,157 @@
 
             };
 
+        }
+
+
+    }
+})();
+
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('FollowUpController', FollowUpController);
+
+    angular.module('app.forms')
+        .factory('FollowUpPatientService', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('FollowUpResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/add-followup/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+
+    FollowUpController.$inject = ['$scope', '$stateParams', 'FollowUpPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FollowUpResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
+
+    function FollowUpController($scope, $stateParams, FollowUpPatientService, SweetAlert, $state, $filter, $resource, FollowUpResource, User, $location, $cookies, $timeout, Upload) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        FollowUpPatientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+        activate2();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('adding follow up...');
+                    console.log(vm.newFollowUp);
+                    FollowUpResource.update({personId: $stateParams.id}, {followUp: vm.newFollowUp})
+                        .$promise
+                        .then(function (response) {
+                            //success
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'New appointment created!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.expandpat', {id: $stateParams.id});
+                            });
+                        }, function(errResponse){
+                            //fail
+                            console.error('error: dakota we got a problem', errResponse);
+                        });
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this follow up!', 'warning');
+                    return false;
+                }
+            };
+
+
+
+        }
+
+        function activate2() {
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            vm.toggleMin = function() {
+                vm.minDate = vm.minDate ? null : new Date();
+            };
+            vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            vm.initDate = new Date('2019-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[0];
         }
 
 
@@ -2370,6 +2661,15 @@
                     method: 'PUT'
                 }
             });
+        }])
+        .factory('DeleteFileResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-file/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
         }]);
 
 
@@ -2385,9 +2685,9 @@
             }
         });
 
-    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource'];
+    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
 
-    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource) {
+    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -2459,7 +2759,8 @@
                     notes: response.notes,
                     appointments: response.appointments,
                     sales: response.sales,
-                    notes2: response.notes2
+                    notes2: response.notes2,
+                    files: response.files
                 };
 
                 vm.sumSales = 0;
@@ -2531,6 +2832,13 @@
                 DTColumnDefBuilder.newColumnDef(2),
                 DTColumnDefBuilder.newColumnDef(3).notSortable()
             ];
+
+            vm.systemDtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(4)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [4], ["4"] ]);
+
 
             vm.changeSelectedItem = function(current){
                 //console.log("select changed", current._id);
@@ -2638,7 +2946,7 @@
             vm.deleteNote = function(noteId, index) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -2677,7 +2985,7 @@
             vm.deleteCond = function(condId, index) {
                 SweetAlert.swal({
                     title: 'Confirm condition deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -2717,7 +3025,7 @@
             vm.deleteSystem = function(saleId, index) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -2751,6 +3059,46 @@
                     });
 
             }
+
+
+            vm.deleteFile = function(fileId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm file deletion?',
+                    text: 'Your will not be able to recover this file!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeFile($stateParams.id, fileId, index);
+                    }
+                });
+            };
+
+            function removeFile(personId, fileId, index) {
+
+                vm.person.files.splice(index, 1);
+                console.log(vm.person.files);
+
+                DeleteFileResource.update({ personId: personId }, {fileId: fileId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this file!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
         }
 
         function activate2() {
@@ -3005,7 +3353,7 @@
             vm.deleteNote = function(noteId, index) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
+                    text: 'You will not be able to recover this record!',
                     type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DD6B55',
@@ -3234,6 +3582,184 @@
                 vm.mytime = null;
             };
         }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('FilesController', FilesController);
+
+    angular.module('app.forms')
+        .factory('FilesPatientService', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('FileResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/add-file/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .directive("fileread", [function () {
+            return {
+                scope: {
+                    fileread: "="
+                },
+                link: function (scope, element, attributes) {
+                    element.bind("change", function (changeEvent) {
+                        var reader = new FileReader();
+                        reader.onload = function (loadEvent) {
+                            scope.$apply(function () {
+                                scope.fileread = loadEvent.target.result;
+                            });
+                        }
+                        reader.readAsDataURL(changeEvent.target.files[0]);
+                    });
+                }
+            }
+        }]);
+
+
+
+    FilesController.$inject = ['$scope', '$stateParams', 'FilesPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FileResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
+
+    function FilesController($scope, $stateParams, FilesPatientService, SweetAlert, $state, $filter, $resource, FileResource, User, $location, $cookies, $timeout, Upload) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        FilesPatientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.uploadPic = function(file) {
+                file.upload = Upload.upload({
+                    url: 'http://localhost:9000/api/patients/uploads/'+ $stateParams.id,
+                    method: 'PUT',
+                    data: {description: vm.description, file: file},
+                });
+
+                file.upload.then(function (response) {
+                    $timeout(function () {
+                        file.result = response.data;
+                    });
+                }, function (response) {
+                    if (response.status > 0){
+                        vm.errorMsg = response.status + ': ' + response.data;
+
+                    }
+
+
+                }, function (evt) {
+                    // Math.min is to fix IE which reports 200% sometimes
+                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    SweetAlert.swal('Success!', 'File added', 'success');
+                    $state.go('app.expandpat', {id: $stateParams.id});
+                });
+            };
+
+            vm.changeSelectedItem = function(current){
+                // console.log("select changed");
+
+            };
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            vm.submitted = false;
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+
+
+
+            vm.submitFile = function () {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                console.log("submit cond", $stateParams.id);
+                vm.submitted = true;
+                // console.dir(vm.newNote);
+                
+                
+
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted new file!!');
+                    console.dir(vm.newFile);
+                    FileResource.update({personId: $stateParams.id}, {description: vm.newFile.description, file: vm.newFile.testFile})
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'File added', 'success');
+                            $state.go('app.expandpat', {id: $stateParams.id});
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a file!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+        }
+
+
     }
 })();
 
@@ -3700,9 +4226,9 @@
 
 
 
-    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize'];
+    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize', 'DTOptionsBuilder'];
 
-    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize) {
+    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize, DTOptionsBuilder) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -3883,6 +4409,245 @@
     }
 })();
 
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.lazyload')
+        .config(lazyloadConfig);
+
+    lazyloadConfig.$inject = ['$ocLazyLoadProvider', 'APP_REQUIRES'];
+    function lazyloadConfig($ocLazyLoadProvider, APP_REQUIRES){
+
+      // Lazy Load modules configuration
+      $ocLazyLoadProvider.config({
+        debug: false,
+        events: true,
+        modules: APP_REQUIRES.modules
+      });
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.lazyload')
+        .constant('APP_REQUIRES', {
+          // jQuery based and standalone scripts
+          scripts: {
+            'modernizr':          ['vendor/modernizr/modernizr.custom.js'],
+            'icons':              ['vendor/fontawesome/css/font-awesome.min.css',
+                                   'vendor/simple-line-icons/css/simple-line-icons.css'],
+              // jquery core and widgets
+              'jquery-ui':          ['vendor/jquery-ui/ui/core.js',
+                  'vendor/jquery-ui/ui/widget.js'],
+              // loads only jquery required modules and touch support
+              'jquery-ui-widgets':  ['vendor/jquery-ui/ui/core.js',
+                  'vendor/jquery-ui/ui/widget.js',
+                  'vendor/jquery-ui/ui/mouse.js',
+                  'vendor/jquery-ui/ui/draggable.js',
+                  'vendor/jquery-ui/ui/droppable.js',
+                  'vendor/jquery-ui/ui/sortable.js',
+                  'vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js'],
+              'moment' :            ['vendor/moment/min/moment-with-locales.min.js'],
+              'fullcalendar':       ['vendor/fullcalendar/dist/fullcalendar.min.js',
+                                    'vendor/fullcalendar/dist/fullcalendar.css'],
+              'gcal':               ['vendor/fullcalendar/dist/gcal.js'],
+              'inputmask':          ['vendor/jquery.inputmask/dist/jquery.inputmask.bundle.js'],
+              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js'],
+              'flot-chart':         ['vendor/flot/jquery.flot.js'],
+              'flot-chart-plugins': ['vendor/flot.tooltip/js/jquery.flot.tooltip.min.js',
+                  'vendor/flot/jquery.flot.resize.js',
+                  'vendor/flot/jquery.flot.pie.js',
+                  'vendor/flot/jquery.flot.time.js',
+                  'vendor/flot/jquery.flot.categories.js',
+                  'vendor/flot-spline/js/jquery.flot.spline.min.js'],
+          },
+          // Angular based script (use the right module name)
+          modules: [
+              {name: 'ui.map', files: [
+                  'vendor/angular-ui-map/ui-map.js']},
+             {name: 'datatables', files: [
+                 'vendor/datatables/media/css/jquery.dataTables.css',
+                 'vendor/datatables/media/js/jquery.dataTables.js',
+                 'vendor/angular-datatables/dist/angular-datatables.js'], serie: true},
+              {name: 'localytics.directives', files: [
+                  'vendor/chosen/chosen.jquery.js',
+                  'vendor/chosen/chosen.css',
+                  'vendor/angular-chosen-localytics/dist/angular-chosen.min.js'],
+                  serie: true},
+              {name: 'ui.select',files:
+                  ['vendor/angular-ui-select/dist/select.min.js',
+                  'vendor/angular-ui-select/dist/select.min.css']},
+              {name: 'oitozero.ngSweetAlert',     files: ['vendor/sweetalert/dist/sweetalert.css',
+                  'vendor/sweetalert/dist/sweetalert.min.js',
+                  'vendor/ngSweetAlert/SweetAlert.js']},
+              {name: 'ngDialog',                  files: ['vendor/ng-dialog/js/ngDialog.min.js',
+                  'vendor/ng-dialog/css/ngDialog.min.css',
+                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] },
+              {name: 'angular-upload',
+                  files: ['vendor/angular-file-upload/dist/angular-file-upload.min.js']
+              }
+          ]
+        })
+        ;
+
+})();
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar')
+        .config(loadingbarConfig)
+        ;
+    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
+    function loadingbarConfig(cfpLoadingBarProvider){
+      cfpLoadingBarProvider.includeBar = true;
+      cfpLoadingBarProvider.includeSpinner = false;
+      cfpLoadingBarProvider.latencyThreshold = 500;
+      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar')
+        .run(loadingbarRun)
+        ;
+    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
+    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
+
+      // Loading bar transition
+      // ----------------------------------- 
+      var thBar;
+      $rootScope.$on('$stateChangeStart', function() {
+          if($('.wrapper > section').length) // check if bar container exists
+            thBar = $timeout(function() {
+              cfpLoadingBar.start();
+            }, 0); // sets a latency Threshold
+      });
+      $rootScope.$on('$stateChangeSuccess', function(event) {
+          event.targetScope.$watch('$viewContentLoaded', function () {
+            $timeout.cancel(thBar);
+            cfpLoadingBar.complete();
+          });
+      });
+
+    }
+
+})();
+/**=========================================================
+ * Module: navbar-search.js
+ * Navbar search toggler * Auto dismiss on ESC key
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.navsearch')
+        .directive('searchOpen', searchOpen)
+        .directive('searchDismiss', searchDismiss);
+
+    //
+    // directives definition
+    // 
+    
+    function searchOpen () {
+        var directive = {
+            controller: searchOpenController,
+            restrict: 'A'
+        };
+        return directive;
+
+    }
+
+    function searchDismiss () {
+        var directive = {
+            controller: searchDismissController,
+            restrict: 'A'
+        };
+        return directive;
+        
+    }
+
+    //
+    // Contrller definition
+    // 
+    
+    searchOpenController.$inject = ['$scope', '$element', 'NavSearch'];
+    function searchOpenController ($scope, $element, NavSearch) {
+      $element
+        .on('click', function (e) { e.stopPropagation(); })
+        .on('click', NavSearch.toggle);
+    }
+
+    searchDismissController.$inject = ['$scope', '$element', 'NavSearch'];
+    function searchDismissController ($scope, $element, NavSearch) {
+      
+      var inputSelector = '.navbar-form input[type="text"]';
+
+      $(inputSelector)
+        .on('click', function (e) { e.stopPropagation(); })
+        .on('keyup', function(e) {
+          if (e.keyCode === 27) // ESC
+            NavSearch.dismiss();
+        });
+        
+      // click anywhere closes the search
+      $(document).on('click', NavSearch.dismiss);
+      // dismissable options
+      $element
+        .on('click', function (e) { e.stopPropagation(); })
+        .on('click', NavSearch.dismiss);
+    }
+
+})();
+
+
+/**=========================================================
+ * Module: nav-search.js
+ * Services to share navbar search functions
+ =========================================================*/
+ 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.navsearch')
+        .service('NavSearch', NavSearch);
+
+    function NavSearch() {
+        this.toggle = toggle;
+        this.dismiss = dismiss;
+
+        ////////////////
+
+        var navbarFormSelector = 'form.navbar-form';
+
+        function toggle() {
+          var navbarForm = $(navbarFormSelector);
+
+          navbarForm.toggleClass('open');
+          
+          var isOpen = navbarForm.hasClass('open');
+          
+          navbarForm.find('input')[isOpen ? 'focus' : 'blur']();
+        }
+
+        function dismiss() {
+          $(navbarFormSelector)
+            .removeClass('open') // Close control
+            .find('input[type="text"]').blur() // remove focus
+            .val('') // Empty input
+            ;
+        }        
+    }
+})();
 
 (function() {
     'use strict';
@@ -4094,7 +4859,12 @@
               templateUrl: helper.basepath('app.html'),
               resolve: helper.resolveFor('modernizr', 'icons', 'datatables')
           })
-            .state('app.l   ogin', {
+            .state('account', {
+                url: '/account',
+                abstract: true,
+                templateUrl: helper.basepath('account/app.html')
+            })
+            .state('account.login', {
                 url: '/login',
                 title: 'Login',
                 templateUrl: helper.basepath('account/login.html'),
@@ -4119,7 +4889,7 @@
                 url: '/dashboard',
                 title: 'Dashboard',
                 templateUrl: helper.basepath('dashboard.html'),
-                resolve: helper.resolveFor('jquery-ui', 'jquery-ui-widgets', 'moment', 'fullcalendar', 'datatables'),
+                resolve: helper.resolveFor('oitozero.ngSweetAlert', 'datatables', 'flot-chart','flot-chart-plugins'),
                 authenticate: true
             })
             .state('app.patients', {
@@ -4140,6 +4910,7 @@
                 url: '/reports',
                 title: 'Reports',
                 templateUrl: helper.basepath('reports.html'),
+                resolve: helper.resolveFor('flot-chart','flot-chart-plugins'),
                 authenticate: true
             })
             .state('app.calendar', {
@@ -4211,6 +4982,13 @@
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
                 authenticate: true
             })
+            .state('app.followup', {
+                url: '/followup/:id',
+                title: 'New Follow Up',
+                templateUrl: helper.basepath('followup.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
             .state('app.newcond', {
                 url: '/newcond/:id',
                 title: 'New Condition',
@@ -4223,6 +5001,13 @@
                 title: 'New System',
                 templateUrl: helper.basepath('new-system.html'),
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert'),
+                authenticate: true
+            })
+            .state('app.newfile', {
+                url: '/newfile/:id',
+                title: 'New System',
+                templateUrl: helper.basepath('new-file.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
                 authenticate: true
             })
 
@@ -4310,6 +5095,1142 @@
 
     }
 
+})();
+
+/**
+ * Created by Adolfo on 8/8/2016.
+ */
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('AppointmentsDataTableController', AppointmentsDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('PrescriberResource', ["$resource", function($resource) {
+            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
+                PersonId: '@param1'
+            }, {
+                update: {
+                    method:'PUT', params: {PersonId: '@param1'}
+                }
+            });
+        }])
+        .factory('PrescriberAppointmentDeletionService', ["$resource", function($resource) {
+            return $resource('http://localhost:9000/api/prescribers/remove-app/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+    AppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberAppointmentDeletionService', 'User'];
+
+    function AppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberAppointmentDeletionService, User) {
+        var vm = this;
+        vm.$scope = $scope;
+        activate();
+
+        ////////////////
+
+        function activate() {
+            vm.$scope.target = $stateParams.id;
+
+            PrescriberResource.get({ PersonId: $stateParams.id })
+                .$promise
+                .then(function(response){
+                    vm.appointments = response.appointments;
+                    vm.prescriber = response;
+
+                    angular.forEach(response.appointments, function (value, index) {
+
+                        User.get({id: value.consultant})
+                            .$promise
+                            .then(function (person) {
+                                vm.appointments[index].consultantName = person.name + " " + person.lastname;
+                            });
+
+
+                    });
+
+
+                }, function(errResponse){
+                    //fail
+                    console.error('error: houston we got a problem', errResponse);
+                });
+
+            vm.delete = function(appointmentId ,index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removePerson($stateParams.id, appointmentId, index);
+                    }
+                });
+            };
+
+            vm.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(3)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [3], ["3"] ]);
+
+
+            vm.removePerson = removePerson;
+
+            function removePerson(personId, appointmentId, index) {
+
+                //Removes the location from the Angular DOM
+                console.log("deleting the appointment");
+                vm.appointments.splice(index, 1);
+
+                PrescriberAppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('ConsultantsDataTableController', ConsultantsDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('userService', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/users/all', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                },
+                get: {
+                    method: 'GET', isArray: false
+                }
+            });
+        }]);
+
+    ConsultantsDataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'userService'];
+
+    function ConsultantsDataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, userService) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            // Ajax
+
+            userService.query()
+                .$promise
+                .then(function(persons) {
+
+                    vm.persons = persons;
+                    vm.persons.count = persons.length;
+
+                });
+
+            vm.delete = function(id,index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                        removePerson(id,index);
+                    }
+                });
+            };
+
+
+            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            vm.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3).notSortable()
+            ];
+
+            vm.removePerson = removePerson;
+
+            function removePerson(id, index) {
+
+                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
+                    .$promise
+                    .then
+                    (function(response) {
+                        vm.persons.splice(index, 1);
+                    });
+
+            }
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('DataTableController', DataTableController);
+
+    angular.module('app.tables')
+        .factory('prescriberTableResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/prescribers/list/:action/:id', {}, {
+
+                getSomePrescribers: { method: 'GET', params: { id: '@param1', action: "get-prescribers"}, isArray: true },
+                getAllPrescribers: { method: 'GET', params: { id: '@param1', action: "get-all-prescribers"}, isArray: true }
+
+            });
+        }]);
+
+    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User', 'prescriberTableResource'];
+
+    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User, prescriberTableResource) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            // Ajax
+            var userData = {};
+            User.get({})
+                .$promise
+                .then
+                (function (successResponse) {
+                        // success callback
+                        userData = successResponse;
+                        vm.userData = successResponse;
+
+
+                        if(vm.userData.role == 'user'){
+                            console.log("it is NOT an admin -");
+                            prescriberTableResource.getSomePrescribers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
+
+                                    var locationSum = 0;
+                                    var appointmentSum = 0;
+
+                                    angular.forEach(vm.persons, function (item, index) {
+                                        // console.log(item.locations);
+                                        // console.log(item.locations.length);
+                                        User.get({id: item.consultant})
+                                            .$promise
+                                            .then(function (person) {
+
+                                                // in case the lastname is undefined
+                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
+                                                    vm.persons[index].consultantName = person.name;
+                                                else
+                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
+                                            });
+
+                                        locationSum += Number(item.locations.length);
+                                        appointmentSum += Number(item.appointments.length);
+                                    });
+
+                                    // console.log("Total locations", locationSum);
+                                    // console.log("Total appointments", appointmentSum);
+
+                                    vm.locationSum = locationSum;
+                                    vm.appointmentSum = appointmentSum;
+
+                                });
+
+
+
+                        }else if (vm.userData.role == 'admin'){
+                            console.log("it is an admin");
+                            prescriberTableResource.getAllPrescribers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
+
+                                    var locationSum = 0;
+                                    var appointmentSum = 0;
+
+                                    angular.forEach(vm.persons, function (item, index) {
+                                        // console.log(item.locations);
+                                        // console.log(item.locations.length);
+                                        User.get({id: item.consultant})
+                                            .$promise
+                                            .then(function (person) {
+
+                                                // in case the lastname is undefined
+                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
+                                                    vm.persons[index].consultantName = person.name;
+                                                else
+                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
+                                            });
+
+                                        locationSum += Number(item.locations.length);
+                                        appointmentSum += Number(item.appointments.length);
+                                    });
+
+                                    // console.log("Total locations", locationSum);
+                                    // console.log("Total appointments", appointmentSum);
+
+                                    vm.locationSum = locationSum;
+                                    vm.appointmentSum = appointmentSum;
+
+                                });
+
+                        }
+
+                        // userStatsResource.getStats({ id: userData._id })
+                        //     .$promise
+                        //     .then(function (response) {
+                        //
+                        //
+                        //         console.log(response);
+                        //
+                        //
+                        //
+                        //
+                        //     }, function (errResponse) {
+                        //         //fail
+                        //         console.error('error: houston we got a problem', errResponse);
+                        //     });
+
+                    },
+                    function (errorResponse) {
+                        // failure callback
+                        userData = "nada";
+                        console.log(errorResponse);
+                    });
+
+
+
+
+            vm.delete = function (id, index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                        removePerson(id, index);
+                    }
+                });
+            };
+
+
+            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            vm.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3).notSortable()
+            ];
+
+            vm.removePerson = removePerson;
+
+            function removePerson(id, index) {
+                console.log(id);
+                console.log(index);
+                console.log(vm.persons);
+
+                $resource('http://localhost:9000/api/prescribers/:id').delete({id: id})
+                    .$promise
+                    .then
+                    (function (response) {
+                        console.log(response);
+                        vm.persons.splice(index, 1);
+                    });
+
+            }
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('PatientsFollowDataTableController', PatientsFollowDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('FollowUpPrescriberService', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                },
+                get: {
+                    method: 'GET', isArray: false
+                }
+            });
+        }])
+        .factory('DeleteFollowUp', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/delete-followup/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+    PatientsFollowDataTableController.$inject = ['$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'FollowUpPrescriberService', 'DeleteFollowUp', '$stateParams'];
+
+    function PatientsFollowDataTableController($rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, FollowUpPrescriberService, DeleteFollowUp, $stateParams) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            // Ajax
+
+            $resource('http://localhost:9000/api/patients').query()
+                .$promise
+                .then(function (persons) {
+
+                    var appointmentSum = 0;
+                    var noteSum = 0;
+
+
+                    angular.forEach(persons, function (value, index) {
+
+                        FollowUpPrescriberService.get({id: value.prescriber})
+                            .$promise
+                            .then(function (person) {
+                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
+                            });
+
+                        vm.appointmentSum += Number(value.appointments.length);
+                        noteSum += Number(value.notes.length);
+
+                    });
+
+                    vm.followUps = [];
+                    angular.forEach(persons, function (value, index) {
+
+                        var patientName = value.name + " " + value.lastname;
+                        var patiendId = value._id;
+
+
+                        if(value.followUp.length > 0){
+
+                            angular.forEach(value.followUp, function (valor, indice) {
+
+                                console.log(value.followUp);
+
+                                var newObject = {
+                                    patientId: patiendId,
+                                    name: patientName,
+                                    text: value.followUp[indice].text,
+                                    date: value.followUp[indice].date,
+                                    status: value.followUp[indice].status
+                                };
+                                vm.followUps.push(newObject);
+
+                            });
+
+
+                            //console.log(value.followUp);
+
+                        }
+
+
+                    });
+
+                    vm.persons = persons;
+                    vm.persons.count = persons.length;
+                    $rootScope.followUpSum = vm.followUps.length;
+                    vm.noteSum = noteSum;
+
+                });
+
+            vm.deleteFollowUps = function (patientId, followUpId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm follow up deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                        removeFollowUp(patientId, followUpId, index);
+                    }
+                });
+            };
+
+
+            vm.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(5)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [5], ["5"] ]);
+
+
+            function removeFollowUp(personId, followUpId, index) {
+
+                vm.followUps.splice(index, 1);
+
+                console.log($stateParams.id);
+
+                DeleteFollowUp.update({ personId: personId }, {followUpId: followUpId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        //console.log(response);
+                        $rootScope.followUpSum -= 1;
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this follow up!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('LocationsDataTableController', LocationsDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('PrescriberResource', ["$resource", function($resource) {
+            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
+                PersonId: '@param1'
+            }, {
+                update: {
+                    method:'PUT', params: {PersonId: '@param1'}
+                }
+            });
+        }])
+    .factory('PrescriberUpdatedResource', ["$resource", function($resource) {
+        return $resource('http://localhost:9000/api/prescribers/update-locations/:personId', {
+            personId: '@param1'
+        }, {
+            update: {
+                method:'PUT'
+            }
+        });
+    }])
+    .factory('NoteResource', ["$resource", function($resource) {
+        return $resource('http://localhost:9000/api/prescribers/update-notes/:personId', {
+            personId: '@param1'
+        }, {
+            update: {
+                method:'PUT'
+            }
+        });
+    }])
+    .factory('DeleteNoteResource', ["$resource", function($resource) {
+        return $resource('http://localhost:9000/api/prescribers/delete-notes/:personId', {
+            personId: '@param1'
+        }, {
+            update: {
+                method:'PUT'
+            }
+        });
+    }]);
+
+    LocationsDataTableController.$inject = ['$rootScope', '$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberUpdatedResource', 'NoteResource', 'DeleteNoteResource', 'User', '$location', '$cookies'];
+
+    function LocationsDataTableController($rootScope, $scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberUpdatedResource, NoteResource, DeleteNoteResource, User, $location, $cookies) {
+        var vm = this;
+        vm.$scope = $scope;
+        activate();
+
+        ////////////////
+
+        function activate() {
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            PrescriberResource.get({ PersonId: $stateParams.id })
+                .$promise
+                .then(function(response){
+                    vm.locations = response.locations;
+
+                    vm.prescriber = response;
+
+                }, function(errResponse){
+                    //fail
+                    console.error('error: houston we got a problem', errResponse);
+                });
+
+            vm.delete = function(locationId ,index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removePerson($stateParams.id, locationId, index);
+                    }
+                });
+            };
+
+
+            // vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            // vm.dtColumnDefs = [
+            //     DTColumnDefBuilder.newColumnDef(0),
+            //     DTColumnDefBuilder.newColumnDef(1),
+            //     DTColumnDefBuilder.newColumnDef(2).notSortable()
+            // ];
+
+            vm.dtOptions = DTOptionsBuilder
+                    .newOptions()
+                .withDisplayLength(3)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [3], ["3"] ]);
+
+
+            vm.removePerson = removePerson;
+
+            function removePerson(personId, locationId, index) {
+
+                //Removes the location from the Angular DOM
+                vm.locations.splice(index, 1);
+                console.log(vm.locations);
+                vm.prescriber.locations = vm.locations;
+                console.log(vm.prescriber);
+
+                PrescriberUpdatedResource.update({ personId: personId }, {locationId: locationId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+            function closeDialog() {
+                console.log("The dialog was closed");
+            }
+
+
+            //
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            vm.submitForm = function (locationId) {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                vm.submitted = true;
+                console.log("Agregar nota a " + locationId);
+                console.dir(vm.newNote);
+                console.log(vm.newNote.text);
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted!!');
+                    NoteResource.update({ personId: $stateParams.id }, {text: vm.newNote.text, creator: creator, locationId: locationId})
+                        .$promise
+                        .then
+                        (function(response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'Note added', 'success');
+
+                            var note = {};
+                            note.text = vm.newNote.text;
+                            note.creator = creator;
+                            note.created_at  = "Just now";
+
+                            $rootScope.notes.push(note);
+
+
+                            vm.newNote = {};
+                            vm.formValidate.$setPristine();
+                            vm.formValidate.$setUntouched();
+
+                        }, function(errResponse){
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+            };
+
+            vm.deleteNote = function (locationId ,noteId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        console.log("delete dat note son");
+                        console.log("index", index);
+
+
+
+                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: noteId})
+                            .$promise
+                            .then
+                            (function(response) {
+                                //all good
+                                console.log(response);
+
+                                SweetAlert.swal('Success!', 'Note deleted', 'success');
+                                $rootScope.notes.splice(index, 1);
+                            }, function(errResponse){
+                                //fail
+                                SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
+                                console.error('error: Alaska we got a problem', errResponse);
+                            });
+
+                        SweetAlert.swal('Success!', 'Note added', 'success');
+                    }
+                });
+
+            }
+
+
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/8/2016.
+ */
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('PatientAppointmentsDataTableController', PatientAppointmentsDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('PatientResource', ["$resource", function($resource) {
+            return $resource('http://localhost:9000/api/patients/:PersonId', {
+                PersonId: '@param1'
+            }, {
+                update: {
+                    method:'PUT', params: {PersonId: '@param1'}
+                }
+            });
+        }])
+        .factory('AppointmentDeletionService', ["$resource", function($resource) {
+            return $resource('http://localhost:9000/api/patients/remove-app/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+    PatientAppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PatientResource', 'AppointmentDeletionService'];
+
+    function PatientAppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PatientResource, AppointmentDeletionService) {
+        var vm = this;
+        vm.$scope = $scope;
+        activate();
+
+        ////////////////
+
+        function activate() {
+            vm.$scope.target = $stateParams.id;
+
+            PatientResource.get({ PersonId: $stateParams.id })
+                .$promise
+                .then(function(response){
+                    vm.appointments = response.appointments;
+
+                    vm.prescriber = response;
+
+                }, function(errResponse){
+                    //fail
+                    console.error('error: houston we got a problem', errResponse);
+                });
+
+            vm.delete = function(appointmentId ,index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removePerson($stateParams.id, appointmentId, index);
+                    }
+                });
+            };
+
+
+            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            vm.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3).notSortable()
+            ];
+
+            vm.removePerson = removePerson;
+
+            function removePerson(personId, appointmentId, index) {
+
+                //Removes the location from the Angular DOM
+                console.log("deleting the appointment");
+                vm.appointments.splice(index, 1);
+
+                AppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.tables')
+        .controller('PatientsDataTableController', PatientsDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('prescriberService', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                },
+                get: {
+                    method: 'GET', isArray: false
+                }
+            });
+        }])
+        .factory('patientsTableResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/list/:action/:id', {}, {
+
+                getSomeUsers: { method: 'GET', params: { id: '@param1', action: "get-users"}, isArray: true },
+                getAllUsers: { method: 'GET', params: { id: '@param1', action: "get-all-users"}, isArray: true }
+
+            });
+        }]);
+
+    PatientsDataTableController.$inject = ['User', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'prescriberService', 'patientsTableResource'];
+
+    function PatientsDataTableController(User, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, prescriberService, patientsTableResource) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            // Ajax
+            var userData = {};
+            User.get({})
+                .$promise
+                .then
+                (function (successResponse) {
+                        // success callback
+                        userData = successResponse;
+                        vm.userData = successResponse;
+
+
+                        if(vm.userData.role == 'user'){
+                            console.log("it is NOT an admin");
+
+
+                            patientsTableResource.getSomeUsers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+
+                                    var appointmentSum = 0;
+                                    var noteSum = 0;
+
+
+                                    angular.forEach(persons, function (value, index) {
+
+                                        prescriberService.get({id: value.prescriber})
+                                            .$promise
+                                            .then(function (person) {
+                                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
+                                            });
+
+                                        appointmentSum += Number(value.appointments.length);
+                                        noteSum += Number(value.notes.length);
+
+                                    });
+
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
+                                    vm.appointmentSum = appointmentSum;
+                                    vm.noteSum = noteSum;
+
+                                });
+
+
+                        }else if (vm.userData.role == 'admin'){
+                            console.log("it is an admin");
+                            patientsTableResource.getAllUsers({ id: userData._id })
+                                .$promise
+                                .then(function (persons) {
+
+                                    var appointmentSum = 0;
+                                    var noteSum = 0;
+
+
+                                    angular.forEach(persons, function (value, index) {
+
+                                        prescriberService.get({id: value.prescriber})
+                                            .$promise
+                                            .then(function (person) {
+                                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
+                                            });
+
+                                        appointmentSum += Number(value.appointments.length);
+                                        noteSum += Number(value.notes.length);
+
+                                    });
+
+                                    vm.persons = persons;
+                                    vm.persons.count = persons.length;
+                                    vm.appointmentSum = appointmentSum;
+                                    vm.noteSum = noteSum;
+
+                                });
+                        }
+
+                        // userStatsResource.getStats({ id: userData._id })
+                        //     .$promise
+                        //     .then(function (response) {
+                        //
+                        //
+                        //         console.log(response);
+                        //
+                        //
+                        //
+                        //
+                        //     }, function (errResponse) {
+                        //         //fail
+                        //         console.error('error: houston we got a problem', errResponse);
+                        //     });
+
+                    },
+                    function (errorResponse) {
+                        // failure callback
+                        userData = "nada";
+                        console.log(errorResponse);
+                    });
+
+
+
+            vm.delete = function (id, index) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                        removePerson(id, index);
+                    }
+                });
+            };
+
+
+            // vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            // vm.dtColumnDefs = [
+            //     DTColumnDefBuilder.newColumnDef(0),
+            //     DTColumnDefBuilder.newColumnDef(1),
+            //     DTColumnDefBuilder.newColumnDef(2),
+            //     DTColumnDefBuilder.newColumnDef(3).notSortable()
+            // ];
+
+            vm.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(5)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [5], ["5"] ]);
+
+
+
+            vm.removePerson = removePerson;
+
+            function removePerson(id, index) {
+
+                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
+                    .$promise
+                    .then
+                    (function (response) {
+                        vm.persons.splice(index, 1);
+                    });
+
+            }
+
+        }
+    }
 })();
 
 /**=========================================================
@@ -4667,868 +6588,6 @@
     }
 })();
 
-/**
- * Created by Adolfo on 8/8/2016.
- */
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('AppointmentsDataTableController', AppointmentsDataTableController);
-
-
-    angular.module('app.tables')
-        .factory('PrescriberResource', ["$resource", function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
-                PersonId: '@param1'
-            }, {
-                update: {
-                    method:'PUT', params: {PersonId: '@param1'}
-                }
-            });
-        }])
-        .factory('PrescriberAppointmentDeletionService', ["$resource", function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/remove-app/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-    AppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberAppointmentDeletionService', 'User'];
-
-    function AppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberAppointmentDeletionService, User) {
-        var vm = this;
-        vm.$scope = $scope;
-        activate();
-
-        ////////////////
-
-        function activate() {
-            vm.$scope.target = $stateParams.id;
-
-            PrescriberResource.get({ PersonId: $stateParams.id })
-                .$promise
-                .then(function(response){
-                    vm.appointments = response.appointments;
-                    vm.prescriber = response;
-
-                    angular.forEach(response.appointments, function (value, index) {
-
-                        User.get({id: value.consultant})
-                            .$promise
-                            .then(function (person) {
-                                vm.appointments[index].consultantName = person.name + " " + person.lastname;
-                            });
-
-
-                    });
-
-
-                }, function(errResponse){
-                    //fail
-                    console.error('error: houston we got a problem', errResponse);
-                });
-
-            vm.delete = function(appointmentId ,index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removePerson($stateParams.id, appointmentId, index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(personId, appointmentId, index) {
-
-                //Removes the location from the Angular DOM
-                console.log("deleting the appointment");
-                vm.appointments.splice(index, 1);
-
-                PrescriberAppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/17/2016.
- */
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('ConsultantsDataTableController', ConsultantsDataTableController);
-
-
-    angular.module('app.tables')
-        .factory('userService', ["$resource", function ($resource) {
-            return $resource('http://localhost:9000/api/users/all', {
-                id: '@param1'
-            }, {
-                query: {
-                    method: 'GET', isArray: true
-                },
-                get: {
-                    method: 'GET', isArray: false
-                }
-            });
-        }]);
-
-    ConsultantsDataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'userService'];
-
-    function ConsultantsDataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, userService) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            // Ajax
-
-            userService.query()
-                .$promise
-                .then(function(persons) {
-
-                    vm.persons = persons;
-                    vm.persons.count = persons.length;
-
-                });
-
-            vm.delete = function(id,index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id,index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(id, index) {
-
-                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
-                    .$promise
-                    .then
-                    (function(response) {
-                        vm.persons.splice(index, 1);
-                    });
-
-            }
-
-        }
-    }
-})();
-
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('DataTableController', DataTableController);
-
-    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User'];
-
-    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            // Ajax
-
-            $resource('http://localhost:9000/api/prescribers').query()
-                .$promise
-                .then(function (persons) {
-                    vm.persons = persons;
-                    vm.persons.count = persons.length;
-
-                    var locationSum = 0;
-                    var appointmentSum = 0;
-
-                    angular.forEach(vm.persons, function (item, index) {
-                        // console.log(item.locations);
-                        // console.log(item.locations.length);
-                        User.get({id: item.consultant})
-                            .$promise
-                            .then(function (person) {
-
-                                // in case the lastname is undefined
-                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                    vm.persons[index].consultantName = person.name;
-                                else
-                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                            });
-
-                        locationSum += Number(item.locations.length);
-                        appointmentSum += Number(item.appointments.length);
-                    });
-
-                    // console.log("Total locations", locationSum);
-                    // console.log("Total appointments", appointmentSum);
-
-                    vm.locationSum = locationSum;
-                    vm.appointmentSum = appointmentSum;
-
-                });
-
-
-            vm.delete = function (id, index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function (isConfirm) {
-                    if (isConfirm) {
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id, index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(id, index) {
-                console.log(id);
-                console.log(index);
-                console.log(vm.persons);
-
-                $resource('http://localhost:9000/api/prescribers/:id').delete({id: id})
-                    .$promise
-                    .then
-                    (function (response) {
-                        console.log(response);
-                        vm.persons.splice(index, 1);
-                    });
-
-            }
-
-        }
-    }
-})();
-
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('LocationsDataTableController', LocationsDataTableController);
-
-
-    angular.module('app.tables')
-        .factory('PrescriberResource', ["$resource", function($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:PersonId', {
-                PersonId: '@param1'
-            }, {
-                update: {
-                    method:'PUT', params: {PersonId: '@param1'}
-                }
-            });
-        }])
-    .factory('PrescriberUpdatedResource', ["$resource", function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/update-locations/:personId', {
-            personId: '@param1'
-        }, {
-            update: {
-                method:'PUT'
-            }
-        });
-    }])
-    .factory('NoteResource', ["$resource", function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/update-notes/:personId', {
-            personId: '@param1'
-        }, {
-            update: {
-                method:'PUT'
-            }
-        });
-    }])
-    .factory('DeleteNoteResource', ["$resource", function($resource) {
-        return $resource('http://localhost:9000/api/prescribers/delete-notes/:personId', {
-            personId: '@param1'
-        }, {
-            update: {
-                method:'PUT'
-            }
-        });
-    }]);
-
-    LocationsDataTableController.$inject = ['$rootScope', '$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PrescriberResource', 'PrescriberUpdatedResource', 'NoteResource', 'DeleteNoteResource', 'User', '$location', '$cookies'];
-
-    function LocationsDataTableController($rootScope, $scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PrescriberResource, PrescriberUpdatedResource, NoteResource, DeleteNoteResource, User, $location, $cookies) {
-        var vm = this;
-        vm.$scope = $scope;
-        activate();
-
-        ////////////////
-
-        function activate() {
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-            PrescriberResource.get({ PersonId: $stateParams.id })
-                .$promise
-                .then(function(response){
-                    vm.locations = response.locations;
-
-                    vm.prescriber = response;
-
-                }, function(errResponse){
-                    //fail
-                    console.error('error: houston we got a problem', errResponse);
-                });
-
-            vm.delete = function(locationId ,index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removePerson($stateParams.id, locationId, index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(personId, locationId, index) {
-
-                //Removes the location from the Angular DOM
-                vm.locations.splice(index, 1);
-                console.log(vm.locations);
-                vm.prescriber.locations = vm.locations;
-                console.log(vm.prescriber);
-
-                PrescriberUpdatedResource.update({ personId: personId }, {locationId: locationId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-            function closeDialog() {
-                console.log("The dialog was closed");
-            }
-
-
-            //
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            vm.submitForm = function (locationId) {
-
-                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                    var creator = vm.currentUser.name;
-                else
-                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-                vm.submitted = true;
-                console.log("Agregar nota a " + locationId);
-                console.dir(vm.newNote);
-                console.log(vm.newNote.text);
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted!!');
-                    NoteResource.update({ personId: $stateParams.id }, {text: vm.newNote.text, creator: creator, locationId: locationId})
-                        .$promise
-                        .then
-                        (function(response) {
-                            //all good
-                            console.log(response);
-
-                            SweetAlert.swal('Success!', 'Note added', 'success');
-
-                            var note = {};
-                            note.text = vm.newNote.text;
-                            note.creator = creator;
-                            note.created_at  = "Just now";
-
-                            $rootScope.notes.push(note);
-
-
-                            vm.newNote = {};
-                            vm.formValidate.$setPristine();
-                            vm.formValidate.$setUntouched();
-
-                        }, function(errResponse){
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-            };
-
-            vm.deleteNote = function (locationId ,noteId, index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        console.log("delete dat note son");
-                        console.log("index", index);
-
-
-
-                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: noteId})
-                            .$promise
-                            .then
-                            (function(response) {
-                                //all good
-                                console.log(response);
-
-                                SweetAlert.swal('Success!', 'Note deleted', 'success');
-                                $rootScope.notes.splice(index, 1);
-                            }, function(errResponse){
-                                //fail
-                                SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
-                                console.error('error: Alaska we got a problem', errResponse);
-                            });
-
-                        SweetAlert.swal('Success!', 'Note added', 'success');
-                    }
-                });
-
-            }
-
-
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/8/2016.
- */
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('PatientAppointmentsDataTableController', PatientAppointmentsDataTableController);
-
-
-    angular.module('app.tables')
-        .factory('PatientResource', ["$resource", function($resource) {
-            return $resource('http://localhost:9000/api/patients/:PersonId', {
-                PersonId: '@param1'
-            }, {
-                update: {
-                    method:'PUT', params: {PersonId: '@param1'}
-                }
-            });
-        }])
-        .factory('AppointmentDeletionService', ["$resource", function($resource) {
-            return $resource('http://localhost:9000/api/patients/remove-app/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-    PatientAppointmentsDataTableController.$inject = ['$scope', '$stateParams', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'PatientResource', 'AppointmentDeletionService'];
-
-    function PatientAppointmentsDataTableController($scope, $stateParams, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, PatientResource, AppointmentDeletionService) {
-        var vm = this;
-        vm.$scope = $scope;
-        activate();
-
-        ////////////////
-
-        function activate() {
-            vm.$scope.target = $stateParams.id;
-
-            PatientResource.get({ PersonId: $stateParams.id })
-                .$promise
-                .then(function(response){
-                    vm.appointments = response.appointments;
-
-                    vm.prescriber = response;
-
-                }, function(errResponse){
-                    //fail
-                    console.error('error: houston we got a problem', errResponse);
-                });
-
-            vm.delete = function(appointmentId ,index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removePerson($stateParams.id, appointmentId, index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(personId, appointmentId, index) {
-
-                //Removes the location from the Angular DOM
-                console.log("deleting the appointment");
-                vm.appointments.splice(index, 1);
-
-                AppointmentDeletionService.update({ id: personId }, {appointmentId: appointmentId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-        }
-    }
-})();
-
-/**=========================================================
- * Module: datatable,js
- * Angular Datatable controller
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.tables')
-        .controller('PatientsDataTableController', PatientsDataTableController);
-
-
-    angular.module('app.tables')
-        .factory('prescriberService', ["$resource", function ($resource) {
-            return $resource('http://localhost:9000/api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                query: {
-                    method: 'GET', isArray: true
-                },
-                get: {
-                    method: 'GET', isArray: false
-                }
-            });
-        }]);
-
-    PatientsDataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'prescriberService'];
-
-    function PatientsDataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, prescriberService) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            // Ajax
-
-            $resource('http://localhost:9000/api/patients').query()
-                .$promise
-                .then(function (persons) {
-
-                    var appointmentSum = 0;
-                    var noteSum = 0;
-
-
-                    angular.forEach(persons, function (value, index) {
-
-                        prescriberService.get({id: value.prescriber})
-                            .$promise
-                            .then(function (person) {
-                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
-                            });
-
-                        appointmentSum += Number(value.appointments.length);
-                        noteSum += Number(value.notes.length);
-
-                    });
-
-                    vm.persons = persons;
-                    vm.persons.count = persons.length;
-                    vm.appointmentSum = appointmentSum;
-                    vm.noteSum = noteSum;
-
-                });
-
-            vm.delete = function (id, index) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'Your will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function (isConfirm) {
-                    if (isConfirm) {
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id, index);
-                    }
-                });
-            };
-
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.removePerson = removePerson;
-
-            function removePerson(id, index) {
-
-                $resource('http://localhost:9000/api/patients/:id').delete({id: id})
-                    .$promise
-                    .then
-                    (function (response) {
-                        vm.persons.splice(index, 1);
-                    });
-
-            }
-
-        }
-    }
-})();
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .config(translateConfig)
-        ;
-    translateConfig.$inject = ['$translateProvider'];
-    function translateConfig($translateProvider){
-
-      $translateProvider.useStaticFilesLoader({
-          prefix : 'app/i18n/',
-          suffix : '.json'
-      });
-
-      $translateProvider.preferredLanguage('en');
-      $translateProvider.useLocalStorage();
-      $translateProvider.usePostCompiling(true);
-      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .run(translateRun)
-        ;
-    translateRun.$inject = ['$rootScope', '$translate'];
-    
-    function translateRun($rootScope, $translate){
-
-      // Internationalization
-      // ----------------------
-
-      $rootScope.language = {
-        // Handles language dropdown
-        listIsOpen: false,
-        // list of available languages
-        available: {
-          'en':       'English',
-          'es_AR':    'Español'
-        },
-        // display always the current ui language
-        init: function () {
-          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
-          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
-          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
-        },
-        set: function (localeId) {
-          // Set the new idiom
-          $translate.use(localeId);
-          // save a reference for the current language
-          $rootScope.language.selected = $rootScope.language.available[localeId];
-          // finally toggle dropdown
-          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
-        }
-      };
-
-      $rootScope.language.init();
-
-    }
-})();
 /**=========================================================
  * Module: animate-enabled.js
  * Enable or disables ngAnimate for element with directive
@@ -5963,6 +7022,70 @@
     'use strict';
 
     angular
+        .module('app.translate')
+        .config(translateConfig)
+        ;
+    translateConfig.$inject = ['$translateProvider'];
+    function translateConfig($translateProvider){
+
+      $translateProvider.useStaticFilesLoader({
+          prefix : 'app/i18n/',
+          suffix : '.json'
+      });
+
+      $translateProvider.preferredLanguage('en');
+      $translateProvider.useLocalStorage();
+      $translateProvider.usePostCompiling(true);
+      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .run(translateRun)
+        ;
+    translateRun.$inject = ['$rootScope', '$translate'];
+    
+    function translateRun($rootScope, $translate){
+
+      // Internationalization
+      // ----------------------
+
+      $rootScope.language = {
+        // Handles language dropdown
+        listIsOpen: false,
+        // list of available languages
+        available: {
+          'en':       'English',
+          'es_AR':    'Español'
+        },
+        // display always the current ui language
+        init: function () {
+          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
+          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
+          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
+        },
+        set: function (localeId) {
+          // Set the new idiom
+          $translate.use(localeId);
+          // save a reference for the current language
+          $rootScope.language.selected = $rootScope.language.available[localeId];
+          // finally toggle dropdown
+          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
+        }
+      };
+
+      $rootScope.language.init();
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('custom', [
             // request the the entire framework
             //'angle',
@@ -6005,11 +7128,20 @@
     //         });
     //     });
 
+    angular.module('app.forms')
+        .factory('userStatsResource', ["$resource", function ($resource) {
+            return $resource('http://localhost:9000/api/patients/stats/:action/:id', {}, {
 
-    UserController.$inject = ['$rootScope', '$scope', '$cookies', '$state', '$location', 'User'];
+                getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
+
+            });
+        }]);
 
 
-    function UserController($rootScope, $scope, $cookies, $state, $location, User) {
+    UserController.$inject = ['$rootScope', '$scope', '$cookies', '$state', '$location', 'User', 'userStatsResource'];
+
+
+    function UserController($rootScope, $scope, $cookies, $state, $location, User, userStatsResource) {
 
         var vm = this;
         vm.$scope = $scope;
@@ -6023,7 +7155,7 @@
 
             if(toState.authenticate && !$cookies.get('token')){
                 console.log("ROUTE DENIED");
-                $state.transitionTo('app.login');
+                $state.transitionTo('account.login');
                 event.preventDefault();
             }else if ($cookies.get('token')){
                 vm.currentUser = User.get();
@@ -6032,13 +7164,79 @@
         });
 
 
+        var userData = {};
+
+
+        User.get({})
+            .$promise
+            .then
+            (function (successResponse) {
+                    // success callback
+                    userData = successResponse;
+                    vm.userData = successResponse;
+
+                   $rootScope.loggedUserId = userData._id;
+
+                    userStatsResource.getStats({ id: userData._id })
+                        .$promise
+                        .then(function (response) {
+
+
+                            console.log(response);
+
+                            $rootScope.money = response[0].total;
+                            $rootScope.sales = response[0].qty;
+
+
+
+                        }, function (errResponse) {
+                            //fail
+                            console.error('error: houston we got a problem', errResponse);
+                        });
+
+                },
+                function (errorResponse) {
+                    // failure callback
+                    userData = "nada";
+                    console.log(errorResponse);
+                });
+
+        // if ($cookies.get('token') && $location.path() !== 'app/login') {
+        //     async.waterfall([
+        //         function(callback) {
+        //
+        //
+        //
+        //             console.log("primer paso");
+        //             callback(null, "probando", userData);
+        //         },
+        //         function(arg1, arg2, callback) {
+        //
+        //             console.log("segundo paso", arg1);
+        //             console.log(arg1._id);
+        //             console.log(arg1.name);
+        //             console.log(arg1['name']);
+        //
+        //             callback(null, arg1);
+        //         }
+        //     ], function (err, result) {
+        //
+        //         console.log("final", result);
+        //
+        //     });
+        // }
 
 
 
 
-        if ($cookies.get('token') && $location.path() !== 'app/login') {
-            vm.currentUser = User.get();
-        }
+
+
+
+
+
+
+
+
         activate();
 
         ////////////////
@@ -6054,7 +7252,7 @@
             vm.logout = function () {
                 $cookies.remove('token');
                 vm.currentUser = {};
-                $state.go('app.login');
+                $state.go('account.login');
             };
 
 

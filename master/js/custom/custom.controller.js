@@ -58,7 +58,7 @@
 
             if(toState.authenticate && !$cookies.get('token')){
                 console.log("ROUTE DENIED");
-                $state.transitionTo('app.login');
+                $state.transitionTo('account.login');
                 event.preventDefault();
             }else if ($cookies.get('token')){
                 vm.currentUser = User.get();
@@ -155,7 +155,7 @@
             vm.logout = function () {
                 $cookies.remove('token');
                 vm.currentUser = {};
-                $state.go('app.login');
+                $state.go('account.login');
             };
 
 

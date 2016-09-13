@@ -75,15 +75,27 @@
                         var patientName = value.name + " " + value.lastname;
                         var patiendId = value._id;
 
+
                         if(value.followUp.length > 0){
+
+                            angular.forEach(value.followUp, function (valor, indice) {
+
+                                console.log(value.followUp);
+
+                                var newObject = {
+                                    patientId: patiendId,
+                                    name: patientName,
+                                    text: value.followUp[indice].text,
+                                    date: value.followUp[indice].date,
+                                    status: value.followUp[indice].status
+                                };
+                                vm.followUps.push(newObject);
+
+                            });
+
+
                             //console.log(value.followUp);
-                            var newObject = {
-                                patientId: patiendId,
-                                name: patientName,
-                                text: value.followUp[0].text,
-                                date: value.followUp[0].date
-                            };
-                            vm.followUps.push(newObject);
+
                         }
 
 

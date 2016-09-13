@@ -25,19 +25,7 @@
 <!--</div>-->
 
 <div class="row ng-scope" ng-controller="ConsultantsDataTableController as table">
-    <div class="col-lg-3 col-sm-6"><!-- START widget-->
-        <div class="panel widget onemed-blue-bg">
-            <div class="row row-table">
-                <div class="col-xs-4 text-center onemed-dark-blue-bg pv-lg"><em class="fa fa-folder-open-o fa-3x"></em>
-                </div>
-                <div class="col-xs-8 pv-lg">
-                    <div class="h2 mt0">{{table.persons.count}}</div>
-                    <div class="text-uppercase">Pacients</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-sm-6"><!-- START widget-->
+    <div class="col-lg-3 col-sm-6" style="visibility: hidden"><!-- START widget-->
         <div class="panel widget onemed-gray-bg">
             <div class="row row-table">
                 <div class="col-xs-4 text-center onemed-dark-gray-bg pv-lg"><em class="icon-globe fa-3x"></em></div>
@@ -49,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-12"><!-- START widget-->
+    <div class="col-lg-3 col-md-6 col-sm-12" style="visibility: hidden"><!-- START widget-->
         <div class="panel widget onemed-blue-bg">
             <div class="row row-table">
                 <div class="col-xs-4 text-center onemed-dark-blue-bg pv-lg"><em class="fa fa-calendar fa-3x" aria-hidden="true"></em></div>
@@ -58,6 +46,18 @@
                         <!--<small>UPCOMING</small>-->
                     </div>
                     <div class="text-uppercase">Appointments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6"><!-- START widget-->
+        <div class="panel widget onemed-blue-bg">
+            <div class="row row-table">
+                <div class="col-xs-4 text-center onemed-dark-blue-bg pv-lg"><em class="fa fa-folder-open-o fa-3x"></em>
+                </div>
+                <div class="col-xs-8 pv-lg">
+                    <div class="h2 mt0">{{table.persons.count}}</div>
+                    <div class="text-uppercase"> Consultants </div>
                 </div>
             </div>
         </div>
@@ -95,8 +95,8 @@
                         <!--<th>Location</th>-->
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>Sales</th>
-                        <th>Actions</th>
+                        <!--<th>Sales</th>-->
+                        <!--<th>Actions</th>-->
                     </tr>
                     </thead>
                     <tbody>
@@ -105,21 +105,21 @@
                         <!--<td> {{person.city}}, {{ person.state }} </td>-->
                         <td> {{person.phone}} </td>
                         <td> {{person.email}} </td>
-                        <td> {{person.sales}} </td>
-                        <td>
-                            <div >
-                                <button type="button" ui-sref="app.expandpat({id: person._id})" class="btn btn-sm btn-info">
-                                    <em class="fa fa-user"></em>
-                                </button>
-                                <!--<button type="button" ui-sref="app.modpat({id: person._id})" class="btn btn-sm btn-warning">-->
-                                    <!--<em class="fa fa-edit"></em>-->
+                        <!--<td> {{person.sales}} </td>-->
+                        <!--<td>-->
+                            <!--<div >-->
+                                <!--<button type="button" ui-sref="app.expandpat({id: person._id})" class="btn btn-sm btn-info">-->
+                                    <!--<em class="fa fa-user"></em>-->
                                 <!--</button>-->
-                                <!--<button type="button" ng-click="table1.delete(person._id, $index)" class="btn btn-sm btn-danger">-->
-                                    <!--<em class="fa fa-trash-o"></em>-->
-                                <!--</button>-->
-                            </div>
+                                <!--&lt;!&ndash;<button type="button" ui-sref="app.modpat({id: person._id})" class="btn btn-sm btn-warning">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<em class="fa fa-edit"></em>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<button type="button" ng-click="table1.delete(person._id, $index)" class="btn btn-sm btn-danger">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<em class="fa fa-trash-o"></em>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                            <!--</div>-->
 
-                        </td>
+                        <!--</td>-->
                     </tr>
                     </tbody>
                 </table>

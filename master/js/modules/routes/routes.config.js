@@ -31,7 +31,12 @@
               templateUrl: helper.basepath('app.html'),
               resolve: helper.resolveFor('modernizr', 'icons', 'datatables')
           })
-            .state('app.login', {
+            .state('account', {
+                url: '/account',
+                abstract: true,
+                templateUrl: helper.basepath('account/app.html')
+            })
+            .state('account.login', {
                 url: '/login',
                 title: 'Login',
                 templateUrl: helper.basepath('account/login.html'),

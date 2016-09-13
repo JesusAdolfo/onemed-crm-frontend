@@ -81,66 +81,72 @@
                                 <legend>NPI # {{form.person.npi}}: {{form.person.name}} {{form.person.lastname}} {{form.target}}</legend>
                             </fieldset>
                             <fieldset>
+                                <div class="col-md-8">
+                                    <div class="col-md-6">
 
-                                <div class="col-md-4">
+                                        <div class="panel panel-default" style="height: 470px;">
+                                            <div class="panel-body">
+                                                <legend>
+                                                    <h3>
+                                                        {{form.person.name}} {{form.person.lastname}}
+                                                    </h3>
+                                                </legend>
+                                            </div>
+                                            <fieldset class="nopadding">
+                                                <div class="col-md-6">
+                                                    <span>Address:</span><h4>{{form.person.address}}</h4>
+                                                    <span>City/State:</span><h4>{{form.person.city}} {{form.person.state}}</h4>
+                                                    <span>Phone:</span><h4>{{form.person.phone}}</h4>
+                                                    <div ng-if="form.person.fax">
+                                                        <span>Fax:</span><h4>{{form.person.fax}}</h4>
+                                                    </div>
+                                                    <div ng-if="!form.person.fax">
+                                                        <span>Fax:</span><h4> Not available </h4>
+                                                    </div>
 
-                                    <div class="panel panel-default">
-                                        <div class="panel-body">
-                                            <legend>
-                                                <h3>
-                                                    {{form.person.name}} {{form.person.lastname}}
-                                                </h3>
-                                            </legend>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <div ng-if="form.person.address2">
+                                                        <span>Address 2:</span><h4>{{form.person.address2}}</h4>
+                                                    </div>
+                                                    <div ng-if="!form.person.address2">
+                                                        <span>Address 2:</span><h4> Not available </h4>
+                                                    </div>
+                                                    <span>Zipcode:</span><h4>{{form.person.postal}}</h4>
+                                                    <div ng-if="form.person.phone2">
+                                                        <span>Alternate Phone:</span><h4>{{form.person.phone2}}</h4>
+                                                    </div>
+                                                    <div ng-if="!form.person.phone2">
+                                                        <span>Alternate Phone:</span><h4> Not available </h4>
+                                                    </div>
+                                                    <div ng-if="form.person.consultant">
+                                                        <span>Consultant:</span>  <h4>{{form.person.consultant}} </h4>
+                                                    </div>
+                                                    <div ng-if="!form.person.consultant">
+                                                        <span>Consultant:</span><h4 class="text-primary "> onemed </h4>
+                                                    </div>
+
+                                                </div>
+                                                <br>
+                                                <!--main location-->
+                                                <div ng-if="form.person.location" class="col-md-12">
+                                                    <br>
+                                                    <h4>Main Location: &nbsp;&nbsp;&nbsp;
+                                                        <span><a target="_blank" href="http://maps.google.com/maps?q={{form.person.location}}"> Click here <em class="icon-map"></em></a></span>
+                                                    </h4>
+                                                </div>
+                                                <div ng-if="!form.person.location" class="col-md-12">
+                                                    <br>
+                                                    <h4>Main Location: &nbsp;&nbsp;&nbsp;
+                                                        <span class="text-thin">Not available</span>
+                                                    </h4>
+                                                </div>
+                                            </fieldset>
                                         </div>
-                                        <fieldset class="nopadding">
-                                            <div class="col-md-6">
-                                                <span>Address:</span><h4>{{form.person.address}}</h4>
-                                                <span>City/State:</span><h4>{{form.person.city}} {{form.person.state}}</h4>
-                                                <span>Phone:</span><h4>{{form.person.phone}}</h4>
-                                                <div ng-if="form.person.fax">
-                                                    <span>Fax:</span><h4>{{form.person.fax}}</h4>
-                                                </div>
-                                                <div ng-if="!form.person.fax">
-                                                    <span>Fax:</span><h4> Not available </h4>
-                                                </div>
-                                                
-                                            </div>
-                                            <div class="col-md-6">
-
-                                                <div ng-if="form.person.address2">
-                                                    <span>Address 2:</span><h4>{{form.person.address2}}</h4>
-                                                </div>
-                                                <div ng-if="!form.person.address2">
-                                                    <span>Address 2:</span><h4> Not available </h4>
-                                                </div>
-                                                <span>Zipcode:</span><h4>{{form.person.postal}}</h4>
-                                                <div ng-if="form.person.phone2">
-                                                    <span>Alternate Phone:</span><h4>{{form.person.phone2}}</h4>
-                                                </div>
-                                                <div ng-if="!form.person.phone2">
-                                                    <span>Alternate Phone:</span><h4> Not available </h4>
-                                                </div>
-                                                <div ng-if="form.person.consultant">
-                                                    <span>Consultant:</span>  <h4>{{form.person.consultant}} </h4>
-                                                </div>
-                                                <div ng-if="!form.person.consultant">
-                                                    <span>Consultant:</span><h4 class="text-primary "> onemed </h4>
-                                                </div>
-
-                                            </div>
-                                            <!--main location-->
-                                            <div ng-if="form.person.location" class="col-md-12">
-
-                                                <h4>Main Location: &nbsp;&nbsp;&nbsp;
-                                                    <span><a target="_blank" href="http://maps.google.com/maps?q={{form.person.location}}"> Click here <em class="icon-map"></em></a></span>
-                                                </h4>
-                                            </div>
-                                        </fieldset>
                                     </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <!--<form name="form.formValidate" ng-submit="form.submitNote(form.target)" novalidate="" class="form-validate form-horizontal">-->
+                                    <div class="col-md-6">
+                                        <!--<form name="form.formValidate" ng-submit="form.submitNote(form.target)" novalidate="" class="form-validate form-horizontal">-->
                                         <!-- START panel-->
                                         <div class="panel panel-default notes-box">
                                             <div class="panel-body">
@@ -177,78 +183,139 @@
                                                 </div>
                                             </div>
                                             <!-- END panel-->
-                                    <!--</form>-->
+                                            <!--</form>-->
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <!--<script>-->
+                                        <!--$('#example').dataTable( {-->
+                                            <!--"pageLength": "2"-->
+                                        <!--} );-->
+                                    <!--</script>-->
+
+
                                 </div>
 
+
+                                    <div class="col-md-4">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" >
+                                                <legend>Patients</legend>
+                                            </div>
+                                            <div class="panel-body" >
+                                                <div ng-controller="PatientsDataTableController as table1">
+                                                    <table datatable="ng" dt-options="table1.dtOptions" class="row-border hover">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Full name</th>
+                                                            <th>Birth Date</th>
+                                                            <th></th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr ng-repeat="person in table1.persons">
+                                                            <td>{{ person.name }} {{ person.middle }} {{ person.lastname }}</td>
+                                                            <td>{{ person.birth | date:'MM/dd/yyyy'}} </td>
+                                                            <td>
+                                                                <div >
+                                                                    <button type="button" ui-sref="app.expandpat({id: person._id})" class="btn btn-sm btn-info">
+                                                                        <em class="fa fa-expand"></em>
+                                                                    </button>
+                                                                </div>
+
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="col-md-12">
+
+                                    <div class="col-md-6">
+                                        <div style="padding: 10px;" class="panel panel-default" ng-if="form.person.locations" ng-controller="LocationsDataTableController as location">
+                                            <legend>Locations</legend>
+                                            <table id="example" datatable="ng"  dt-options="location.dtOptions" class="row-border hover">
+                                                <thead>
+                                                <tr>
+                                                    <!--<th>#</th>-->
+                                                    <th>Name</th>
+                                                    <th>Location</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="map in location.locations">
+                                                    <!--<td>{{ map._id }}</td>-->
+                                                    <td>{{ map.name }} </td>
+                                                    <td> {{ map.city}}, {{ map.state}} </td>
+                                                    <td>
+                                                        <div ng-controller="DialogMainCtrl">
+                                                            <button type="button" ng-click="openInlineController(map)" class="btn btn-sm btn-info">
+                                                                <em class="fa fa-expand"></em>
+                                                            </button>
+                                                            <button type="button" ng-click="location.delete(map._id, $index)" class="btn btn-sm btn-danger">
+                                                                <em class="fa fa-trash-o"></em>
+                                                            </button>
+                                                            <a href="http://maps.google.com/maps?q={{map.latitude}},{{map.longitude}}" target="_blank" class="btn btn-sm btn-success">
+                                                                <em class="fa fa-map-o"></em>
+                                                            </a>
+                                                        </div>
+
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6" style="padding-right: 0px;">
+                                        <div class="panel panel-default" style="padding: 10px;" ng-if="form.person.appointments" ng-controller="AppointmentsDataTableController as appointment">
+                                            <legend>Appointments</legend>
+                                            <table datatable="ng" dt-options="appointment.dtOptions" class="row-border hover">
+                                                <thead>
+                                                <tr>
+                                                    <th>Text</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Location</th>
+                                                    <th>Consultant</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="app in appointment.appointments">
+                                                    <!--<td>{{ map._id }}</td>-->
+                                                    <td>{{ app.text }} </td>
+                                                    <td> {{ app.date | date:'shortDate' }} </td>
+                                                    <td> {{ app.time | date:'shortTime' }} </td>
+                                                    <td> {{ app.location }} </td>
+                                                    <td> {{ app.consultantName }} </td>
+                                                    <td>
+                                                        <div>
+                                                            <button type="button" ng-click="appointment.delete(app._id, $index)" class="btn btn-sm btn-danger">
+                                                                <em class="fa fa-trash-o"></em>
+                                                            </button>
+                                                        </div>
+
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </fieldset>
-                            <div ng-if="form.person.locations" ng-controller="LocationsDataTableController as location">
-                                <legend>Locations</legend>
-                                <table datatable="ng" class="row-border hover">
-                                    <thead>
-                                    <tr>
-                                        <!--<th>#</th>-->
-                                        <th>Name</th>
-                                        <th>Location</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr ng-repeat="map in location.locations">
-                                        <!--<td>{{ map._id }}</td>-->
-                                        <td>{{ map.name }} </td>
-                                        <td> {{ map.city}}, {{ map.state}} </td>
-                                        <td>
-                                            <div ng-controller="DialogMainCtrl">
-                                                <button type="button" ng-click="openInlineController(map)" class="btn btn-sm btn-info">
-                                                    <em class="fa fa-expand"></em>
-                                                </button>
-                                                <button type="button" ng-click="location.delete(map._id, $index)" class="btn btn-sm btn-danger">
-                                                    <em class="fa fa-trash-o"></em>
-                                                </button>
-                                                <a href="http://maps.google.com/maps?q={{map.latitude}},{{map.longitude}}" target="_blank" class="btn btn-sm btn-success">
-                                                    <em class="fa fa-map-o"></em>
-                                                </a>
-                                            </div>
 
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <br><br>
-                            <div ng-if="form.person.appointments" ng-controller="AppointmentsDataTableController as appointment">
-                                <legend>Appointments</legend>
-                                <table datatable="ng" class="row-border hover">
-                                    <thead>
-                                    <tr>
-                                        <th>Text</th>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Location</th>
-                                        <th>Consultant</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr ng-repeat="app in appointment.appointments">
-                                        <!--<td>{{ map._id }}</td>-->
-                                        <td>{{ app.text }} </td>
-                                        <td> {{ app.date | date:'shortDate' }} </td>
-                                        <td> {{ app.time | date:'shortTime' }} </td>
-                                        <td> {{ app.location }} </td>
-                                        <td> {{ app.consultantName }} </td>
-                                        <td>
-                                            <div>
-                                                <button type="button" ng-click="appointment.delete(app._id, $index)" class="btn btn-sm btn-danger">
-                                                    <em class="fa fa-trash-o"></em>
-                                                </button>
-                                            </div>
-
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                         <div class="panel-footer text-center">.
 
