@@ -27,8 +27,6 @@
   "bower_components/sweetalert/dist/sweetalert.css",
   "bower_components/sweetalert/dist/sweetalert.min.js",
   "bower_components/ngSweetAlert/SweetAlert.js",
-  "bower_components/angular-ui-map/ui-map.js",
-  "bower_components/load-google-maps/load-google-maps.js",
   "bower_components/ng-dialog/js/ngDialog.min.js",
   "bower_components/ng-dialog/css/ngDialog.min.css",
   "bower_components/ng-dialog/css/ngDialog-theme-default.min.css",
