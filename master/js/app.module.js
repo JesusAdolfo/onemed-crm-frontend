@@ -11,6 +11,7 @@
 
 // APP START
 // ----------------------------------- 
+// var globalUri = "http://localhost:9000/";
 var globalUri = "https://oms.gonkar.com:9001/";
 (function() {
     'use strict';
