@@ -12,7 +12,7 @@
 // APP START
 // ----------------------------------- 
 // var globalUri = "http://localhost:9000/";
-var globalUri = "https://oms.gonkar.com:9001/";
+var globalUri = "https://portal.onemed.us";
 (function() {
     'use strict';
 
