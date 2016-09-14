@@ -19,7 +19,7 @@
         $locationProvider.html5Mode(false);
 
         // defaults to dashboard
-        $urlRouterProvider.otherwise('/app/login');
+        $urlRouterProvider.otherwise('/account/login');
 
         // 
         // Application Routes
