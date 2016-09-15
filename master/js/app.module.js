@@ -11,8 +11,8 @@
 
 // APP START
 // ----------------------------------- 
-var globalUri = "http://localhost:9000/";
-// var globalUri = "https://portal.onemed.us:9001/";
+// var globalUri = "http://localhost:9000/";
+var globalUri = "https://portal.onemed.us:9001/";
 (function() {
     'use strict';
 
