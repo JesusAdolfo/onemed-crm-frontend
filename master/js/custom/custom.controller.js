@@ -10,26 +10,6 @@
         .module('custom')
         .controller('UserController', UserController);
 
-    // angular
-    //     .module('app.forms')
-    //     .factory('UserService', function ($resource) {
-    //         return $resource(globalUri + 'api/users/:id/:controller', {
-    //             id: '@_id'
-    //         }, {
-    //             changePassword: {
-    //                 method: 'PUT',
-    //                 params: {
-    //                     controller: 'password'
-    //                 }
-    //             },
-    //             get: {
-    //                 method: 'GET',
-    //                 params: {
-    //                     id: 'me'
-    //                 }
-    //             }
-    //         });
-    //     });
 
     angular.module('app.forms')
         .factory('userStatsResource', function ($resource) {
@@ -38,6 +18,38 @@
                 getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
 
             });
+        });
+    angular.module('app.forms')
+        .run(function ($rootScope, User) {
+            $rootScope.globalUri = globalUri;
+            var userData = {};
+
+            User.get({})
+                .$promise
+                .then
+                (function (successResponse) {
+                        // success callback
+                        userData = successResponse;
+                        $rootScope.thisUser = userData._id;
+                        $rootScope.role = userData.role;
+                        // userStatsResource.getStats({ id: userData._id })
+                        //     .$promise
+                        //     .then(function (response) {
+                        //
+                        //
+                        //
+                        //
+                        //     }, function (errResponse) {
+                        //         //fail
+                        //         console.error('error: houston we got a problem', errResponse);
+                        //     });
+
+                    },
+                    function (errorResponse) {
+                        // failure callback
+                        userData = "nada";
+                        console.log(errorResponse);
+                    });
         });
 
 
@@ -78,18 +90,21 @@
                     userData = successResponse;
                     vm.userData = successResponse;
 
-                   $rootScope.loggedUserId = userData._id;
+
 
                     userStatsResource.getStats({ id: userData._id })
                         .$promise
                         .then(function (response) {
 
+                            if (angular.isDefined(response[0])){
+                                $rootScope.money = response[0].total;
+                                $rootScope.sales = response[0].qty;
+                            }else{
+                                $rootScope.money = 0;
+                                $rootScope.sales = 0;
+                            }
 
-                            console.log(response);
-
-                            $rootScope.money = response[0].total;
-                            $rootScope.sales = response[0].qty;
-
+                            $rootScope.loggedUserId = userData._id;
 
 
                         }, function (errResponse) {

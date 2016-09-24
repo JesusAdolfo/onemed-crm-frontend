@@ -135,22 +135,14 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.lazyload', []);
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('app.loadingbar', []);
 })();
 (function() {
     'use strict';
 
     angular
-        .module('app.preloader', []);
+        .module('app.lazyload', []);
 })();
-
-
 (function() {
     'use strict';
 
@@ -175,13 +167,15 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.sidebar', []);
+        .module('app.preloader', []);
 })();
+
+
 (function() {
     'use strict';
 
     angular
-        .module('app.translate', []);
+        .module('app.sidebar', []);
 })();
 (function() {
     'use strict';
@@ -190,6 +184,12 @@ var globalUri = "http://localhost:9000/";
         .module('app.tables', []);
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate', []);
+})();
 (function() {
     'use strict';
 
@@ -462,7 +462,7 @@ var globalUri = "http://localhost:9000/";
 
 
                     //first step
-                    // vm.barData = ChartData.load('server/chart/bar.json');
+                    vm.barData = ChartData.load('server/chart/bar.json');
 
                     var userData = {};
                     User.get({})
@@ -479,7 +479,20 @@ var globalUri = "http://localhost:9000/";
                                     .$promise
                                     .then(function (response) {
 
-                                        var datos = [];
+                                        var datos = [
+                                            ["Jan", 0],
+                                            ["Feb", 0],
+                                            ["Mar", 0],
+                                            ["Apr", 0],
+                                            ["May", 0],
+                                            ["Jun", 0],
+                                            ["Jul", 0],
+                                            ["Aug", 0],
+                                            ["Sep", 0],
+                                            ["Oct", 0],
+                                            ["Nov", 0],
+                                            ["Dic", 0]
+                                        ];
                                         var meses = {
                                             1 : "Jan",
                                             2 : "Feb",
@@ -583,7 +596,7 @@ var globalUri = "http://localhost:9000/";
                         series: {
                             bars: {
                                 align: 'center',
-                                lineWidth: 0.5,
+                                lineWidth: 4,
                                 show: true,
                                 barWidth: 0.6,
                                 fill: 0.5
@@ -595,7 +608,7 @@ var globalUri = "http://localhost:9000/";
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: false,
+                        tooltip: true,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -605,7 +618,9 @@ var globalUri = "http://localhost:9000/";
                         },
                         yaxis: {
                             position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                            tickColor: '#eee'
+                            tickColor: '#eee',
+                            min: 0,
+                            tickDecimals: 0,
                         },
                         shadowSize: 0
                     };
@@ -628,8 +643,7 @@ var globalUri = "http://localhost:9000/";
                 function(callback) {
 
                     //first step
-                    // vm.barStackeData = ChartData.load('server/chart/barstacked.json');
-                    vm.barStackeData = [];
+                    vm.barStackeData = ChartData.load('server/chart/barstacked.json');
 
                     var userData = {};
                     User.get({})
@@ -644,7 +658,20 @@ var globalUri = "http://localhost:9000/";
                                     .$promise
                                     .then(function (response) {
 
-                                        var datos = [];
+                                        var datos = [
+                                                ["Jan", 0],
+                                                ["Feb", 0],
+                                                ["Mar", 0],
+                                                ["Apr", 0],
+                                                ["May", 0],
+                                                ["Jun", 0],
+                                                ["Jul", 0],
+                                                ["Aug", 0],
+                                                ["Sep", 0],
+                                                ["Oct", 0],
+                                                ["Nov", 0],
+                                                ["Dec", 0]
+                                        ];
 
                                         var meses = {
                                             1 : "Jan",
@@ -757,7 +784,7 @@ var globalUri = "http://localhost:9000/";
                             stack: true,
                             bars: {
                                 align: 'center',
-                                lineWidth: 0,
+                                lineWidth: 4,
                                 show: true,
                                 barWidth: 0.6,
                                 fill: 0.9
@@ -769,7 +796,7 @@ var globalUri = "http://localhost:9000/";
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: false,
+                        tooltip: true,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -779,7 +806,7 @@ var globalUri = "http://localhost:9000/";
                         },
                         yaxis: {
                             min: 0,
-                            max: 200, // optional: use it for a clear represetation
+                            tickDecimals: 0,
                             position: ($scope.app.layout.isRTL ? 'right' : 'left'),
                             tickColor: '#eee'
                         },
@@ -804,14 +831,15 @@ var globalUri = "http://localhost:9000/";
             // -----------------------------------
 
             // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
-            // ChartData.load('server/chart/pie.json');
+
 
 
 
 
             async.waterfall([
                 function(callback) {
-                    vm.pieData = [];
+
+                    vm.pieData = ChartData.load('server/chart/pie.json');
                     topThreeResource.getTopThree({})
                         .$promise
                         .then(function (response) {
@@ -829,7 +857,7 @@ var globalUri = "http://localhost:9000/";
 
 
                                 if(angular.isUndefined(value.label[0].lastname))
-                                    vm.pieData[index].label = value.label[0].name
+                                    vm.pieData[index].label = value.label[0].name;
                                 else
                                     vm.pieData[index].label = value.label[0].name +" "+ value.label[0].lastname;
 
@@ -855,7 +883,6 @@ var globalUri = "http://localhost:9000/";
                                     radius: 0.8,
                                     formatter: function (label, series) {
                                         return '<div class="flot-pie-label">' +
-                                            //label + ' : ' +
                                             series.data[0][1] + '$ -- ' +  label +  '</div>';
                                     },
                                     background: {
@@ -904,7 +931,7 @@ var globalUri = "http://localhost:9000/";
                                     //label + ' : ' +
                                     label +
                                     '</br>' +
-                                    series.percent +
+                                   (series.percent).toFixed(2) +
                                     '%</div>';
 
                             },
@@ -2689,9 +2716,9 @@ var globalUri = "http://localhost:9000/";
             }
         });
 
-    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
+    ModifyPatientFormValidationController.$inject = ['$scope', '$rootScope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
 
-    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
+    function ModifyPatientFormValidationController($scope, $rootScope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -2739,6 +2766,7 @@ var globalUri = "http://localhost:9000/";
                     prescriber: response.prescriber,
                     name: response.name,
                     conditions: response.conditions,
+                    middle: response.middle,
                     lastname: response.lastname,
                     address: response.address,
                     address2: response.address2,
@@ -2925,7 +2953,8 @@ var globalUri = "http://localhost:9000/";
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             vm.person.notes.push(note);
 
@@ -2947,7 +2976,7 @@ var globalUri = "http://localhost:9000/";
             };
 
 
-            vm.deleteNote = function(noteId, index) {
+            vm.deleteNote = function(item) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
                     text: 'You will not be able to recover this record!',
@@ -2960,23 +2989,21 @@ var globalUri = "http://localhost:9000/";
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        removeNote($stateParams.id, noteId, index);
+                        removeNote(item);
                     }
                 });
             };
 
 
-            function removeNote(personId, noteId, index) {
+            function removeNote(item) {
 
-                vm.person.notes.splice(index, 1);
-
-                PatientDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
+                PatientDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
                     .$promise
                     .then
                     (function(response) {
                         //all good
                         console.log(response);
-
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
                     }, function(errResponse){
                         //fail
@@ -3331,7 +3358,8 @@ var globalUri = "http://localhost:9000/";
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             vm.person.notes.push(note);
 
@@ -3354,7 +3382,7 @@ var globalUri = "http://localhost:9000/";
             };
 
 
-            vm.deleteNote = function(noteId, index) {
+            vm.deleteNote = function(item) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -3367,28 +3395,26 @@ var globalUri = "http://localhost:9000/";
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        removePerson($stateParams.id, noteId, index);
+                        removePerson(item);
                     }
                 });
             };
 
             vm.removePerson = removePerson;
 
-            function removePerson(personId, noteId, index) {
+            function removePerson(item) {
 
                 //Removes the location from the Angular DOM
-                vm.person.notes.splice(index, 1);
-                console.log(vm.person.notes);
-                //vm.person.locations = vm.locations;
-                //console.log(vm.prescriber);
+                // console.log("index is", vm.person.notes.indexOf(item));
+                // console.log("item is", item);
 
-                PrescriberDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
+                PrescriberDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
                     .$promise
                     .then
                     (function(response) {
                         //all good
                         console.log(response);
-
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
                     }, function(errResponse){
                         //fail
@@ -4418,6 +4444,50 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
+        .module('app.loadingbar')
+        .config(loadingbarConfig)
+        ;
+    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
+    function loadingbarConfig(cfpLoadingBarProvider){
+      cfpLoadingBarProvider.includeBar = true;
+      cfpLoadingBarProvider.includeSpinner = false;
+      cfpLoadingBarProvider.latencyThreshold = 500;
+      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar')
+        .run(loadingbarRun)
+        ;
+    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
+    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
+
+      // Loading bar transition
+      // ----------------------------------- 
+      var thBar;
+      $rootScope.$on('$stateChangeStart', function() {
+          if($('.wrapper > section').length) // check if bar container exists
+            thBar = $timeout(function() {
+              cfpLoadingBar.start();
+            }, 0); // sets a latency Threshold
+      });
+      $rootScope.$on('$stateChangeSuccess', function(event) {
+          event.targetScope.$watch('$viewContentLoaded', function () {
+            $timeout.cancel(thBar);
+            cfpLoadingBar.complete();
+          });
+      });
+
+    }
+
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('app.lazyload')
         .config(lazyloadConfig);
 
@@ -4500,143 +4570,6 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .config(loadingbarConfig)
-        ;
-    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
-    function loadingbarConfig(cfpLoadingBarProvider){
-      cfpLoadingBarProvider.includeBar = true;
-      cfpLoadingBarProvider.includeSpinner = false;
-      cfpLoadingBarProvider.latencyThreshold = 500;
-      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .run(loadingbarRun)
-        ;
-    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
-    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
-
-      // Loading bar transition
-      // ----------------------------------- 
-      var thBar;
-      $rootScope.$on('$stateChangeStart', function() {
-          if($('.wrapper > section').length) // check if bar container exists
-            thBar = $timeout(function() {
-              cfpLoadingBar.start();
-            }, 0); // sets a latency Threshold
-      });
-      $rootScope.$on('$stateChangeSuccess', function(event) {
-          event.targetScope.$watch('$viewContentLoaded', function () {
-            $timeout.cancel(thBar);
-            cfpLoadingBar.complete();
-          });
-      });
-
-    }
-
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.preloader')
-        .directive('preloader', preloader);
-
-    preloader.$inject = ['$animate', '$timeout', '$q'];
-    function preloader ($animate, $timeout, $q) {
-
-        var directive = {
-            restrict: 'EAC',
-            template: 
-              '<div class="preloader-progress">' +
-                  '<div class="preloader-progress-bar" ' +
-                       'ng-style="{width: loadCounter + \'%\'}"></div>' +
-              '</div>'
-            ,
-            link: link
-        };
-        return directive;
-
-        ///////
-
-        function link(scope, el) {
-
-          scope.loadCounter = 0;
-
-          var counter  = 0,
-              timeout;
-
-          // disables scrollbar
-          angular.element('body').css('overflow', 'hidden');
-          // ensure class is present for styling
-          el.addClass('preloader');
-
-          appReady().then(endCounter);
-
-          timeout = $timeout(startCounter);
-
-          ///////
-
-          function startCounter() {
-
-            var remaining = 100 - counter;
-            counter = counter + (0.015 * Math.pow(1 - Math.sqrt(remaining), 2));
-
-            scope.loadCounter = parseInt(counter, 10);
-
-            timeout = $timeout(startCounter, 20);
-          }
-
-          function endCounter() {
-
-            $timeout.cancel(timeout);
-
-            scope.loadCounter = 100;
-
-            $timeout(function(){
-              // animate preloader hiding
-              $animate.addClass(el, 'preloader-hidden');
-              // retore scrollbar
-              angular.element('body').css('overflow', '');
-            }, 300);
-          }
-
-          function appReady() {
-            var deferred = $q.defer();
-            var viewsLoaded = 0;
-            // if this doesn't sync with the real app ready
-            // a custom event must be used instead
-            var off = scope.$on('$viewContentLoaded', function () {
-              viewsLoaded ++;
-              // we know there are at least two views to be loaded 
-              // before the app is ready (1-index.html 2-app*.html)
-              if ( viewsLoaded === 2) {
-                // with resolve this fires only once
-                $timeout(function(){
-                  deferred.resolve();
-                }, 3000);
-
-                off();
-              }
-
-            });
-
-            return deferred.promise;
-          }
-
-        } //link
-    }
-
-})();
 /**=========================================================
  * Module: navbar-search.js
  * Navbar search toggler * Auto dismiss on ESC key
@@ -5062,7 +4995,7 @@ var globalUri = "http://localhost:9000/";
         year: ((new Date()).getFullYear()),
         layout: {
           isFixed: true,
-          isCollapsed: false,
+          isCollapsed: true,
           isBoxed: false,
           isRTL: false,
           horizontal: false,
@@ -5102,6 +5035,99 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.preloader')
+        .directive('preloader', preloader);
+
+    preloader.$inject = ['$animate', '$timeout', '$q'];
+    function preloader ($animate, $timeout, $q) {
+
+        var directive = {
+            restrict: 'EAC',
+            template: 
+              '<div class="preloader-progress">' +
+                  '<div class="preloader-progress-bar" ' +
+                       'ng-style="{width: loadCounter + \'%\'}"></div>' +
+              '</div>'
+            ,
+            link: link
+        };
+        return directive;
+
+        ///////
+
+        function link(scope, el) {
+
+          scope.loadCounter = 0;
+
+          var counter  = 0,
+              timeout;
+
+          // disables scrollbar
+          angular.element('body').css('overflow', 'hidden');
+          // ensure class is present for styling
+          el.addClass('preloader');
+
+          appReady().then(endCounter);
+
+          timeout = $timeout(startCounter);
+
+          ///////
+
+          function startCounter() {
+
+            var remaining = 100 - counter;
+            counter = counter + (0.015 * Math.pow(1 - Math.sqrt(remaining), 2));
+
+            scope.loadCounter = parseInt(counter, 10);
+
+            timeout = $timeout(startCounter, 20);
+          }
+
+          function endCounter() {
+
+            $timeout.cancel(timeout);
+
+            scope.loadCounter = 100;
+
+            $timeout(function(){
+              // animate preloader hiding
+              $animate.addClass(el, 'preloader-hidden');
+              // retore scrollbar
+              angular.element('body').css('overflow', '');
+            }, 300);
+          }
+
+          function appReady() {
+            var deferred = $q.defer();
+            var viewsLoaded = 0;
+            // if this doesn't sync with the real app ready
+            // a custom event must be used instead
+            var off = scope.$on('$viewContentLoaded', function () {
+              viewsLoaded ++;
+              // we know there are at least two views to be loaded 
+              // before the app is ready (1-index.html 2-app*.html)
+              if ( viewsLoaded === 2) {
+                // with resolve this fires only once
+                $timeout(function(){
+                  deferred.resolve();
+                }, 3000);
+
+                off();
+              }
+
+            });
+
+            return deferred.promise;
+          }
+
+        } //link
+    }
+
+})();
 /**=========================================================
  * Module: sidebar-menu.js
  * Handle sidebar collapsible elements
@@ -5457,70 +5483,6 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .config(translateConfig)
-        ;
-    translateConfig.$inject = ['$translateProvider'];
-    function translateConfig($translateProvider){
-
-      $translateProvider.useStaticFilesLoader({
-          prefix : 'app/i18n/',
-          suffix : '.json'
-      });
-
-      $translateProvider.preferredLanguage('en');
-      $translateProvider.useLocalStorage();
-      $translateProvider.usePostCompiling(true);
-      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .run(translateRun)
-        ;
-    translateRun.$inject = ['$rootScope', '$translate'];
-    
-    function translateRun($rootScope, $translate){
-
-      // Internationalization
-      // ----------------------
-
-      $rootScope.language = {
-        // Handles language dropdown
-        listIsOpen: false,
-        // list of available languages
-        available: {
-          'en':       'English',
-          'es_AR':    'Español'
-        },
-        // display always the current ui language
-        init: function () {
-          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
-          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
-          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
-        },
-        set: function (localeId) {
-          // Set the new idiom
-          $translate.use(localeId);
-          // save a reference for the current language
-          $rootScope.language.selected = $rootScope.language.available[localeId];
-          // finally toggle dropdown
-          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
-        }
-      };
-
-      $rootScope.language.init();
-
-    }
-})();
 /**
  * Created by Adolfo on 8/8/2016.
  */
@@ -5765,17 +5727,68 @@ var globalUri = "http://localhost:9000/";
             });
         }]);
 
-    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User', 'prescriberTableResource'];
+    DataTableController.$inject = ['$rootScope', '$scope', '$compile', '$resource', 'DTOptionsBuilder', 'DTColumnBuilder', 'SweetAlert', 'User', 'prescriberTableResource', '$http', '$q'];
 
-    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User, prescriberTableResource) {
+    function DataTableController($rootScope, $scope, $compile, $resource, DTOptionsBuilder, DTColumnBuilder, SweetAlert, User, prescriberTableResource, $http, $q) {
         var vm = this;
         vm.$scope = $scope;
+        vm.locationSum = 0;
+        vm.appointmentSum = 0;
+
+        var prescribersUri = "";
+        var datosUser = {};
+
+        // async.waterfall([
+        //     myFirstFunction,
+        //     mySecondFunction
+        // ], function (err, result) {
+        //     // result now equals 'done'
+        //     console.log($rootScope.loggedUserId);
+        //     // activate("http://localhost:9000/api/prescribers/list/get-prescribers/5793a8289fcbd12c17d0ae39");
+        // });
+        // function myFirstFunction(callback) {
+        //
+        //
+        //
+        //     User.get({})
+        //         .$promise
+        //         .then
+        //         (function (successResponse) {
+        //                 var datosUser = successResponse;
+        //                 if (datosUser.role == 'user') {
+        //                     prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + datosUser._id;
+        //                     console.log("normal user", prescribersUri);
+        //                 } else if (datosUser.role == 'admin') {
+        //                     console.log("le admin", prescribersUri);
+        //                     prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + datosUser._id;
+        //                 }
+        //
+        //                 console.log("paso 1 --", prescribersUri);
+        //                 callback(null, prescribersUri);
+        //         }, function (errorResponse) {
+        //                 // failure callback
+        //                 console.log("error");
+        //                 console.log(errorResponse);
+        //         });
+        // }
+        // function mySecondFunction(arg1, callback) {
+        //     // arg1 now equals 'one' and arg2 now equals 'two'
+        //     console.log("paso2:", arg1);
+        //
+        //     callback(null, 'three');
+        // }
 
         activate();
 
         ////////////////
 
         function activate() {
+
+            vm.message = '';
+            // vm.edit = edit;
+            vm.delete = deleteRow;
+            vm.dtInstance = {};
+            vm.personsArray = {};
 
             // Ajax
             var userData = {};
@@ -5789,36 +5802,19 @@ var globalUri = "http://localhost:9000/";
 
 
                         if(vm.userData.role == 'user'){
-                            console.log("it is NOT an admin -");
                             prescriberTableResource.getSomePrescribers({ id: userData._id })
                                 .$promise
                                 .then(function (persons) {
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
 
-                                    var locationSum = 0;
+                                    var locationSum = 1;
                                     var appointmentSum = 0;
 
                                     angular.forEach(vm.persons, function (item, index) {
-                                        // console.log(item.locations);
-                                        // console.log(item.locations.length);
-                                        User.get({id: item.consultant})
-                                            .$promise
-                                            .then(function (person) {
-
-                                                // in case the lastname is undefined
-                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                                    vm.persons[index].consultantName = person.name;
-                                                else
-                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                                            });
-
                                         locationSum += Number(item.locations.length);
                                         appointmentSum += Number(item.appointments.length);
                                     });
-
-                                    // console.log("Total locations", locationSum);
-                                    // console.log("Total appointments", appointmentSum);
 
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
@@ -5828,7 +5824,7 @@ var globalUri = "http://localhost:9000/";
 
 
                         }else if (vm.userData.role == 'admin'){
-                            console.log("it is an admin");
+                            vm.dataLoading = true;
                             prescriberTableResource.getAllPrescribers({ id: userData._id })
                                 .$promise
                                 .then(function (persons) {
@@ -5839,20 +5835,8 @@ var globalUri = "http://localhost:9000/";
                                     var appointmentSum = 0;
 
                                     angular.forEach(vm.persons, function (item, index) {
-                                        // console.log(item.locations);
-                                        // console.log(item.locations.length);
-                                        User.get({id: item.consultant})
-                                            .$promise
-                                            .then(function (person) {
 
-                                                // in case the lastname is undefined
-                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                                    vm.persons[index].consultantName = person.name;
-                                                else
-                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                                            });
-
-                                        locationSum += Number(item.locations.length);
+                                        locationSum += Number(item.locations.length) + 1;
                                         appointmentSum += Number(item.appointments.length);
                                     });
 
@@ -5862,24 +5846,11 @@ var globalUri = "http://localhost:9000/";
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
 
-                                });
+                                }).finally(function(){
+                                    vm.dataLoading = false;
+                            });
 
                         }
-
-                        // userStatsResource.getStats({ id: userData._id })
-                        //     .$promise
-                        //     .then(function (response) {
-                        //
-                        //
-                        //         console.log(response);
-                        //
-                        //
-                        //
-                        //
-                        //     }, function (errResponse) {
-                        //         //fail
-                        //         console.error('error: houston we got a problem', errResponse);
-                        //     });
 
                     },
                     function (errorResponse) {
@@ -5891,7 +5862,8 @@ var globalUri = "http://localhost:9000/";
 
 
 
-            vm.delete = function (id, index) {
+            vm.delete = deleteRow;
+            function deleteRow (person) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -5904,34 +5876,83 @@ var globalUri = "http://localhost:9000/";
                     closeOnCancel: true
                 }, function (isConfirm) {
                     if (isConfirm) {
+                        vm.dtInstance.reloadData();
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id, index);
+                        console.log("remove person with id", person);
+                        removePerson(person);
                     }
                 });
             };
 
 
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
+
+
+            //ask for prescribers to the server
+            //by using datatables and http
+            vm.dtOptions = DTOptionsBuilder.fromFnPromise(function() {
+                var defer = $q.defer();
+                var prescribersUri = "";
+
+                if ($rootScope.role == 'user') {
+                    prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + $rootScope.thisUser;
+                    // console.log("normal user", prescribersUri);
+                } else if ($rootScope.role == 'admin') {
+                    // console.log("le admin", prescribersUri);
+                    prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + $rootScope.thisUser;
+                }
+
+
+                $http.get(prescribersUri).then(function(result) {
+                    defer.resolve(result.data);
+                });
+                // $http.get('server/datatable.json').then(function(result) {
+                //     defer.resolve(result.data);
+                // });
+                return defer.promise;
+            }).withPaginationType('full_numbers')
+                .withOption('createdRow', createdRow);
+            vm.dtColumns = [
+                DTColumnBuilder.newColumn('npi').withTitle('NPI #'),
+                DTColumnBuilder.newColumn('name').withTitle('First name'),
+                DTColumnBuilder.newColumn('lastname').withTitle('Last name'),
+                DTColumnBuilder.newColumn(null).withTitle('Actions').notSortable()
+                    .renderWith(actionsHtml)
             ];
 
-            vm.removePerson = removePerson;
+            function createdRow(row, data, dataIndex) {
+                // Recompiling so we can bind Angular directive to the DT
+                $compile(angular.element(row).contents())($scope);
+            }
+            function actionsHtml(data, type, full, meta) {
+                vm.personsArray[data._id] = data;
+                // console.log(data);
+                return '<button class="btn btn-info" ui-sref="app.expanddoc({id: \'' + data._id + '\'})">' +
+                    '   <i class="fa fa-expand"></i>' +
+                    '</button>&nbsp;' +
+                    '<button class="btn btn-warning" ui-sref="app.moddoc({id: \'' + data._id + '\'})">' +
+                    '   <i class="fa fa-edit"></i>' +
+                    '</button>&nbsp;' +
+                    '<button class="btn btn-danger" ng-click="table1.delete(\'' + data._id + '\')">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+            }
 
-            function removePerson(id, index) {
-                console.log(id);
-                console.log(index);
-                console.log(vm.persons);
+
+
+
+            vm.removePerson = removePerson;
+            // function removePerson(id, index) {
+            function removePerson(id) {
+                // console.log(id);
+                // console.log(index);
+                // console.log(vm.persons);
 
                 $resource(globalUri + 'api/prescribers/:id').delete({id: id})
                     .$promise
                     .then
                     (function (response) {
                         console.log(response);
-                        vm.persons.splice(index, 1);
+                        //vm.persons.splice(index, 1);
                     });
 
             }
@@ -6279,7 +6300,8 @@ var globalUri = "http://localhost:9000/";
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at  = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             $rootScope.notes.push(note);
 
@@ -6299,7 +6321,7 @@ var globalUri = "http://localhost:9000/";
                 }
             };
 
-            vm.deleteNote = function (locationId ,noteId, index) {
+            vm.deleteNote = function (locationId , item) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -6312,12 +6334,13 @@ var globalUri = "http://localhost:9000/";
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        console.log("delete dat note son");
-                        console.log("index", index);
+                        console.log("delete dat note son-->", locationId);
+                        console.log("item -->", item);
+
+                        $rootScope.notes.splice($rootScope.notes.indexOf(item), 1);
 
 
-
-                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: noteId})
+                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: item._id})
                             .$promise
                             .then
                             (function(response) {
@@ -6325,14 +6348,13 @@ var globalUri = "http://localhost:9000/";
                                 console.log(response);
 
                                 SweetAlert.swal('Success!', 'Note deleted', 'success');
-                                $rootScope.notes.splice(index, 1);
                             }, function(errResponse){
                                 //fail
                                 SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
                                 console.error('error: Alaska we got a problem', errResponse);
                             });
 
-                        SweetAlert.swal('Success!', 'Note added', 'success');
+
                     }
                 });
 
@@ -6525,7 +6547,7 @@ var globalUri = "http://localhost:9000/";
                                 .then(function (persons) {
 
                                     var appointmentSum = 0;
-                                    var noteSum = 0;
+                                    var followUps = 0;
 
 
                                     angular.forEach(persons, function (value, index) {
@@ -6537,14 +6559,14 @@ var globalUri = "http://localhost:9000/";
                                             });
 
                                         appointmentSum += Number(value.appointments.length);
-                                        noteSum += Number(value.notes.length);
+                                        followUps += Number(value.followUp.length);
 
                                     });
 
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
                                     vm.appointmentSum = appointmentSum;
-                                    vm.noteSum = noteSum;
+                                    vm.followUps = followUps;
 
                                 });
 
@@ -6556,7 +6578,7 @@ var globalUri = "http://localhost:9000/";
                                 .then(function (persons) {
 
                                     var appointmentSum = 0;
-                                    var noteSum = 0;
+                                    var followUps = 0;
 
 
                                     angular.forEach(persons, function (value, index) {
@@ -6568,14 +6590,14 @@ var globalUri = "http://localhost:9000/";
                                             });
 
                                         appointmentSum += Number(value.appointments.length);
-                                        noteSum += Number(value.notes.length);
+                                        followUps += Number(value.notes.length);
 
                                     });
 
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
                                     vm.appointmentSum = appointmentSum;
-                                    vm.noteSum = noteSum;
+                                    vm.followUps = followUps;
 
                                 });
                         }
@@ -6624,13 +6646,7 @@ var globalUri = "http://localhost:9000/";
             };
 
 
-            // vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            // vm.dtColumnDefs = [
-            //     DTColumnDefBuilder.newColumnDef(0),
-            //     DTColumnDefBuilder.newColumnDef(1),
-            //     DTColumnDefBuilder.newColumnDef(2),
-            //     DTColumnDefBuilder.newColumnDef(3).notSortable()
-            // ];
+
 
             vm.dtOptions = DTOptionsBuilder
                 .newOptions()
@@ -6657,6 +6673,70 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .config(translateConfig)
+        ;
+    translateConfig.$inject = ['$translateProvider'];
+    function translateConfig($translateProvider){
+
+      $translateProvider.useStaticFilesLoader({
+          prefix : 'app/i18n/',
+          suffix : '.json'
+      });
+
+      $translateProvider.preferredLanguage('en');
+      $translateProvider.useLocalStorage();
+      $translateProvider.usePostCompiling(true);
+      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .run(translateRun)
+        ;
+    translateRun.$inject = ['$rootScope', '$translate'];
+    
+    function translateRun($rootScope, $translate){
+
+      // Internationalization
+      // ----------------------
+
+      $rootScope.language = {
+        // Handles language dropdown
+        listIsOpen: false,
+        // list of available languages
+        available: {
+          'en':       'English',
+          'es_AR':    'Español'
+        },
+        // display always the current ui language
+        init: function () {
+          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
+          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
+          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
+        },
+        set: function (localeId) {
+          // Set the new idiom
+          $translate.use(localeId);
+          // save a reference for the current language
+          $rootScope.language.selected = $rootScope.language.available[localeId];
+          // finally toggle dropdown
+          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
+        }
+      };
+
+      $rootScope.language.init();
+
+    }
+})();
 /**=========================================================
  * Module: animate-enabled.js
  * Enable or disables ngAnimate for element with directive
@@ -7112,26 +7192,6 @@ var globalUri = "http://localhost:9000/";
         .module('custom')
         .controller('UserController', UserController);
 
-    // angular
-    //     .module('app.forms')
-    //     .factory('UserService', function ($resource) {
-    //         return $resource(globalUri + 'api/users/:id/:controller', {
-    //             id: '@_id'
-    //         }, {
-    //             changePassword: {
-    //                 method: 'PUT',
-    //                 params: {
-    //                     controller: 'password'
-    //                 }
-    //             },
-    //             get: {
-    //                 method: 'GET',
-    //                 params: {
-    //                     id: 'me'
-    //                 }
-    //             }
-    //         });
-    //     });
 
     angular.module('app.forms')
         .factory('userStatsResource', ["$resource", function ($resource) {
@@ -7140,6 +7200,38 @@ var globalUri = "http://localhost:9000/";
                 getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
 
             });
+        }]);
+    angular.module('app.forms')
+        .run(["$rootScope", "User", function ($rootScope, User) {
+            $rootScope.globalUri = globalUri;
+            var userData = {};
+
+            User.get({})
+                .$promise
+                .then
+                (function (successResponse) {
+                        // success callback
+                        userData = successResponse;
+                        $rootScope.thisUser = userData._id;
+                        $rootScope.role = userData.role;
+                        // userStatsResource.getStats({ id: userData._id })
+                        //     .$promise
+                        //     .then(function (response) {
+                        //
+                        //
+                        //
+                        //
+                        //     }, function (errResponse) {
+                        //         //fail
+                        //         console.error('error: houston we got a problem', errResponse);
+                        //     });
+
+                    },
+                    function (errorResponse) {
+                        // failure callback
+                        userData = "nada";
+                        console.log(errorResponse);
+                    });
         }]);
 
 
@@ -7180,18 +7272,21 @@ var globalUri = "http://localhost:9000/";
                     userData = successResponse;
                     vm.userData = successResponse;
 
-                   $rootScope.loggedUserId = userData._id;
+
 
                     userStatsResource.getStats({ id: userData._id })
                         .$promise
                         .then(function (response) {
 
+                            if (angular.isDefined(response[0])){
+                                $rootScope.money = response[0].total;
+                                $rootScope.sales = response[0].qty;
+                            }else{
+                                $rootScope.money = 0;
+                                $rootScope.sales = 0;
+                            }
 
-                            console.log(response);
-
-                            $rootScope.money = response[0].total;
-                            $rootScope.sales = response[0].qty;
-
+                            $rootScope.loggedUserId = userData._id;
 
 
                         }, function (errResponse) {

@@ -1,0 +1,120 @@
+<h3>
+    Prescriber Appointment
+    <small>New appointment</small>
+</h3>
+
+<!-- START row-->
+<div ng-controller="AppointmentFormValidationController as form" class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="form.formValidate" ng-submit="form.submitForm()" novalidate=""
+                  class="form-validate form-horizontal">
+                <!-- START panel-->
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <fieldset class="b0">
+                            <legend>New Appointment for {{form.title.name}} {{form.title.lastname}} (NPI
+                                #{{form.title.npi}})
+                            </legend>
+                        </fieldset>
+                        <fieldset>
+                            <label class="col-sm-2 control-label">Notes </label>
+                            <div class="form-group col-sm-6">
+                                <div>
+                                    <input type="text" name="name" placeholder="Write notes here" required=""
+                                           ng-model="form.newAppointment.text" class="form-control"/>
+                                    <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted">
+                                    Required
+                                </small>
+                            </div>
+                        </fieldset>
+                        <!--TIMEPICKER-->
+                        <fieldset>
+                            <br>
+                            <label class="col-sm-2 control-label">Datepicker</label>
+                            <div class="form-group col-sm-2">
+                                <div class="">
+                                    <p class="input-group">
+                                        <input type="text" name="date" required="" uib-datepicker-popup="{{form.format}}" ng-model="form.newAppointment.date" is-open="form.opened" min-date="form.minDate" max-date="'2019-12-22'" uib-datepicker-options="form.dateOptions" date-disabled="form.disabled(date, mode)"
+                                               close-text="Close" class="form-control" />
+                              <span class="input-group-btn">
+                                 <button type="button" ng-click="form.open($event)" class="btn btn-default">
+                                     <em class="fa fa-calendar"></em>
+                                 </button>
+                              </span>
+                                    </p>
+                                    <span ng-show="form.validateInput('date', 'required')" class="text-danger">This field is required</span>
+                                </div>
+
+                            </div>
+                            <label class="col-sm-1 control-label">Time</label>
+                            <div class="col-sm-3" class="form-group" style="margin-top: -30px;">
+                                <div>
+                                    <uib-timepicker name="timepickr" required="" ng-model="form.newAppointment.mytime"
+                                                    ng-change="form.changed()" hour-step="form.hstep"
+                                                    minute-step="form.mstep"
+                                                    show-meridian="form.ismeridian"></uib-timepicker>
+                                    <span ng-show="form.validateInput('timepickr', 'required')" class="text-danger">This field is invalid</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted"> Required </small>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"> Location </label>
+                                <div class="col-sm-2">
+                                    <div class="input-group mb">
+                                        <span class="input-group-addon"></span>
+                                        <!-- this uses fixed width to avoid expand outside the group container-->
+                                        <select chosen="" required="" name="location"
+                                                ng-model="form.newAppointment.location" width="'100%'"
+                                                ng-options="location.name +' ('+ location.city +', '+ location.state+')' as (location.name +' ('+ location.city +', '+ location.state+')') for location in form.locations track by location._id"
+                                                class="chosen-select input-md">
+
+
+                                        </select>
+                                    </div>
+                                    <span ng-show="form.validateInput('location', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <label class="col-sm-1 control-label">Consultant</label>
+                                <div class="col-sm-3">
+                                    <div class="input-group mb">
+                                        <span class="input-group-addon"></span>
+                                        <!-- this uses fixed width to avoid expand outside the group container-->
+                                        <select chosen=""
+                                                required=""
+                                                name="consultant"
+                                                ng-model="form.newAppointment.consultant"
+                                                ng-options="consultant._id as (consultant.name +' '+ consultant.lastname) for consultant in form.consultants track by consultant._id"
+                                                width="'100%'"
+                                                class="chosen-select input-md">
+
+                                        </select>
+                                    </div>
+                                    <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted">
+                                        Required
+                                    </small>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="panel-footer text-center">
+                        <button type="submit" ng-disabled="form.formValidate.$invalid" class="btn btn-info">Save
+                        </button>
+                    </div>
+                </div>
+                <!-- END panel-->
+            </form>
+        </div>
+    </div>
+    <!-- END row-->
+</div>

@@ -88,9 +88,9 @@
             }
         });
 
-    ModifyPatientFormValidationController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
+    ModifyPatientFormValidationController.$inject = ['$scope', '$rootScope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
 
-    function ModifyPatientFormValidationController($scope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
+    function ModifyPatientFormValidationController($scope, $rootScope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -138,6 +138,7 @@
                     prescriber: response.prescriber,
                     name: response.name,
                     conditions: response.conditions,
+                    middle: response.middle,
                     lastname: response.lastname,
                     address: response.address,
                     address2: response.address2,
@@ -324,7 +325,8 @@
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             vm.person.notes.push(note);
 
@@ -346,7 +348,7 @@
             };
 
 
-            vm.deleteNote = function(noteId, index) {
+            vm.deleteNote = function(item) {
                 SweetAlert.swal({
                     title: 'Confirm note deletion?',
                     text: 'You will not be able to recover this record!',
@@ -359,23 +361,21 @@
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        removeNote($stateParams.id, noteId, index);
+                        removeNote(item);
                     }
                 });
             };
 
 
-            function removeNote(personId, noteId, index) {
+            function removeNote(item) {
 
-                vm.person.notes.splice(index, 1);
-
-                PatientDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
+                PatientDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
                     .$promise
                     .then
                     (function(response) {
                         //all good
                         console.log(response);
-
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
                     }, function(errResponse){
                         //fail

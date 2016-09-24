@@ -181,7 +181,8 @@
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             vm.person.notes.push(note);
 
@@ -204,7 +205,7 @@
             };
 
 
-            vm.deleteNote = function(noteId, index) {
+            vm.deleteNote = function(item) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -217,28 +218,26 @@
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        removePerson($stateParams.id, noteId, index);
+                        removePerson(item);
                     }
                 });
             };
 
             vm.removePerson = removePerson;
 
-            function removePerson(personId, noteId, index) {
+            function removePerson(item) {
 
                 //Removes the location from the Angular DOM
-                vm.person.notes.splice(index, 1);
-                console.log(vm.person.notes);
-                //vm.person.locations = vm.locations;
-                //console.log(vm.prescriber);
+                // console.log("index is", vm.person.notes.indexOf(item));
+                // console.log("item is", item);
 
-                PrescriberDeleteNoteResource.update({ personId: personId }, {noteId: noteId})
+                PrescriberDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
                     .$promise
                     .then
                     (function(response) {
                         //all good
                         console.log(response);
-
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
                     }, function(errResponse){
                         //fail

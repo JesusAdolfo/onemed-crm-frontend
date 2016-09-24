@@ -123,7 +123,7 @@
 
 
                     //first step
-                    // vm.barData = ChartData.load('server/chart/bar.json');
+                    vm.barData = ChartData.load('server/chart/bar.json');
 
                     var userData = {};
                     User.get({})
@@ -140,7 +140,20 @@
                                     .$promise
                                     .then(function (response) {
 
-                                        var datos = [];
+                                        var datos = [
+                                            ["Jan", 0],
+                                            ["Feb", 0],
+                                            ["Mar", 0],
+                                            ["Apr", 0],
+                                            ["May", 0],
+                                            ["Jun", 0],
+                                            ["Jul", 0],
+                                            ["Aug", 0],
+                                            ["Sep", 0],
+                                            ["Oct", 0],
+                                            ["Nov", 0],
+                                            ["Dic", 0]
+                                        ];
                                         var meses = {
                                             1 : "Jan",
                                             2 : "Feb",
@@ -244,7 +257,7 @@
                         series: {
                             bars: {
                                 align: 'center',
-                                lineWidth: 0.5,
+                                lineWidth: 4,
                                 show: true,
                                 barWidth: 0.6,
                                 fill: 0.5
@@ -256,7 +269,7 @@
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: false,
+                        tooltip: true,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -266,7 +279,9 @@
                         },
                         yaxis: {
                             position: ($scope.app.layout.isRTL ? 'right' : 'left'),
-                            tickColor: '#eee'
+                            tickColor: '#eee',
+                            min: 0,
+                            tickDecimals: 0,
                         },
                         shadowSize: 0
                     };
@@ -289,8 +304,7 @@
                 function(callback) {
 
                     //first step
-                    // vm.barStackeData = ChartData.load('server/chart/barstacked.json');
-                    vm.barStackeData = [];
+                    vm.barStackeData = ChartData.load('server/chart/barstacked.json');
 
                     var userData = {};
                     User.get({})
@@ -305,7 +319,20 @@
                                     .$promise
                                     .then(function (response) {
 
-                                        var datos = [];
+                                        var datos = [
+                                                ["Jan", 0],
+                                                ["Feb", 0],
+                                                ["Mar", 0],
+                                                ["Apr", 0],
+                                                ["May", 0],
+                                                ["Jun", 0],
+                                                ["Jul", 0],
+                                                ["Aug", 0],
+                                                ["Sep", 0],
+                                                ["Oct", 0],
+                                                ["Nov", 0],
+                                                ["Dec", 0]
+                                        ];
 
                                         var meses = {
                                             1 : "Jan",
@@ -418,7 +445,7 @@
                             stack: true,
                             bars: {
                                 align: 'center',
-                                lineWidth: 0,
+                                lineWidth: 4,
                                 show: true,
                                 barWidth: 0.6,
                                 fill: 0.9
@@ -430,7 +457,7 @@
                             hoverable: true,
                             backgroundColor: '#fcfcfc'
                         },
-                        tooltip: false,
+                        tooltip: true,
                         tooltipOpts: {
                             content: function (label, x, y) { return x + ' : ' + y; }
                         },
@@ -440,7 +467,7 @@
                         },
                         yaxis: {
                             min: 0,
-                            max: 200, // optional: use it for a clear represetation
+                            tickDecimals: 0,
                             position: ($scope.app.layout.isRTL ? 'right' : 'left'),
                             tickColor: '#eee'
                         },
@@ -465,14 +492,15 @@
             // -----------------------------------
 
             // Direct data temporarily added until fix: https://github.com/flot/flot/pull/1462
-            // ChartData.load('server/chart/pie.json');
+
 
 
 
 
             async.waterfall([
                 function(callback) {
-                    vm.pieData = [];
+
+                    vm.pieData = ChartData.load('server/chart/pie.json');
                     topThreeResource.getTopThree({})
                         .$promise
                         .then(function (response) {
@@ -490,7 +518,7 @@
 
 
                                 if(angular.isUndefined(value.label[0].lastname))
-                                    vm.pieData[index].label = value.label[0].name
+                                    vm.pieData[index].label = value.label[0].name;
                                 else
                                     vm.pieData[index].label = value.label[0].name +" "+ value.label[0].lastname;
 
@@ -516,7 +544,6 @@
                                     radius: 0.8,
                                     formatter: function (label, series) {
                                         return '<div class="flot-pie-label">' +
-                                            //label + ' : ' +
                                             series.data[0][1] + '$ -- ' +  label +  '</div>';
                                     },
                                     background: {
@@ -565,7 +592,7 @@
                                     //label + ' : ' +
                                     label +
                                     '</br>' +
-                                    series.percent +
+                                   (series.percent).toFixed(2) +
                                     '%</div>';
 
                             },

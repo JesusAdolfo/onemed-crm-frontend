@@ -174,7 +174,8 @@
                             var note = {};
                             note.text = vm.newNote.text;
                             note.creator = creator;
-                            note.created_at  = "Just now";
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
 
                             $rootScope.notes.push(note);
 
@@ -194,7 +195,7 @@
                 }
             };
 
-            vm.deleteNote = function (locationId ,noteId, index) {
+            vm.deleteNote = function (locationId , item) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -207,12 +208,13 @@
                     closeOnCancel: true
                 }, function(isConfirm){
                     if (isConfirm) {
-                        console.log("delete dat note son");
-                        console.log("index", index);
+                        console.log("delete dat note son-->", locationId);
+                        console.log("item -->", item);
+
+                        $rootScope.notes.splice($rootScope.notes.indexOf(item), 1);
 
 
-
-                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: noteId})
+                        DeleteNoteResource.update({ personId: $stateParams.id }, {locationId: locationId, noteId: item._id})
                             .$promise
                             .then
                             (function(response) {
@@ -220,14 +222,13 @@
                                 console.log(response);
 
                                 SweetAlert.swal('Success!', 'Note deleted', 'success');
-                                $rootScope.notes.splice(index, 1);
                             }, function(errResponse){
                                 //fail
                                 SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
                                 console.error('error: Alaska we got a problem', errResponse);
                             });
 
-                        SweetAlert.swal('Success!', 'Note added', 'success');
+
                     }
                 });
 

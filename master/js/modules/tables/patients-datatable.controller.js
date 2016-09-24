@@ -65,7 +65,7 @@
                                 .then(function (persons) {
 
                                     var appointmentSum = 0;
-                                    var noteSum = 0;
+                                    var followUps = 0;
 
 
                                     angular.forEach(persons, function (value, index) {
@@ -77,14 +77,14 @@
                                             });
 
                                         appointmentSum += Number(value.appointments.length);
-                                        noteSum += Number(value.notes.length);
+                                        followUps += Number(value.followUp.length);
 
                                     });
 
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
                                     vm.appointmentSum = appointmentSum;
-                                    vm.noteSum = noteSum;
+                                    vm.followUps = followUps;
 
                                 });
 
@@ -96,7 +96,7 @@
                                 .then(function (persons) {
 
                                     var appointmentSum = 0;
-                                    var noteSum = 0;
+                                    var followUps = 0;
 
 
                                     angular.forEach(persons, function (value, index) {
@@ -108,14 +108,14 @@
                                             });
 
                                         appointmentSum += Number(value.appointments.length);
-                                        noteSum += Number(value.notes.length);
+                                        followUps += Number(value.notes.length);
 
                                     });
 
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
                                     vm.appointmentSum = appointmentSum;
-                                    vm.noteSum = noteSum;
+                                    vm.followUps = followUps;
 
                                 });
                         }
@@ -164,13 +164,7 @@
             };
 
 
-            // vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            // vm.dtColumnDefs = [
-            //     DTColumnDefBuilder.newColumnDef(0),
-            //     DTColumnDefBuilder.newColumnDef(1),
-            //     DTColumnDefBuilder.newColumnDef(2),
-            //     DTColumnDefBuilder.newColumnDef(3).notSortable()
-            // ];
+
 
             vm.dtOptions = DTOptionsBuilder
                 .newOptions()

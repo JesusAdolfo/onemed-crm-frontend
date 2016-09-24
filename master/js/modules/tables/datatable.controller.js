@@ -20,17 +20,68 @@
             });
         });
 
-    DataTableController.$inject = ['$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'User', 'prescriberTableResource'];
+    DataTableController.$inject = ['$rootScope', '$scope', '$compile', '$resource', 'DTOptionsBuilder', 'DTColumnBuilder', 'SweetAlert', 'User', 'prescriberTableResource', '$http', '$q'];
 
-    function DataTableController($scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, User, prescriberTableResource) {
+    function DataTableController($rootScope, $scope, $compile, $resource, DTOptionsBuilder, DTColumnBuilder, SweetAlert, User, prescriberTableResource, $http, $q) {
         var vm = this;
         vm.$scope = $scope;
+        vm.locationSum = 0;
+        vm.appointmentSum = 0;
+
+        var prescribersUri = "";
+        var datosUser = {};
+
+        // async.waterfall([
+        //     myFirstFunction,
+        //     mySecondFunction
+        // ], function (err, result) {
+        //     // result now equals 'done'
+        //     console.log($rootScope.loggedUserId);
+        //     // activate("http://localhost:9000/api/prescribers/list/get-prescribers/5793a8289fcbd12c17d0ae39");
+        // });
+        // function myFirstFunction(callback) {
+        //
+        //
+        //
+        //     User.get({})
+        //         .$promise
+        //         .then
+        //         (function (successResponse) {
+        //                 var datosUser = successResponse;
+        //                 if (datosUser.role == 'user') {
+        //                     prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + datosUser._id;
+        //                     console.log("normal user", prescribersUri);
+        //                 } else if (datosUser.role == 'admin') {
+        //                     console.log("le admin", prescribersUri);
+        //                     prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + datosUser._id;
+        //                 }
+        //
+        //                 console.log("paso 1 --", prescribersUri);
+        //                 callback(null, prescribersUri);
+        //         }, function (errorResponse) {
+        //                 // failure callback
+        //                 console.log("error");
+        //                 console.log(errorResponse);
+        //         });
+        // }
+        // function mySecondFunction(arg1, callback) {
+        //     // arg1 now equals 'one' and arg2 now equals 'two'
+        //     console.log("paso2:", arg1);
+        //
+        //     callback(null, 'three');
+        // }
 
         activate();
 
         ////////////////
 
         function activate() {
+
+            vm.message = '';
+            // vm.edit = edit;
+            vm.delete = deleteRow;
+            vm.dtInstance = {};
+            vm.personsArray = {};
 
             // Ajax
             var userData = {};
@@ -44,36 +95,19 @@
 
 
                         if(vm.userData.role == 'user'){
-                            console.log("it is NOT an admin -");
                             prescriberTableResource.getSomePrescribers({ id: userData._id })
                                 .$promise
                                 .then(function (persons) {
                                     vm.persons = persons;
                                     vm.persons.count = persons.length;
 
-                                    var locationSum = 0;
+                                    var locationSum = 1;
                                     var appointmentSum = 0;
 
                                     angular.forEach(vm.persons, function (item, index) {
-                                        // console.log(item.locations);
-                                        // console.log(item.locations.length);
-                                        User.get({id: item.consultant})
-                                            .$promise
-                                            .then(function (person) {
-
-                                                // in case the lastname is undefined
-                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                                    vm.persons[index].consultantName = person.name;
-                                                else
-                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                                            });
-
                                         locationSum += Number(item.locations.length);
                                         appointmentSum += Number(item.appointments.length);
                                     });
-
-                                    // console.log("Total locations", locationSum);
-                                    // console.log("Total appointments", appointmentSum);
 
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
@@ -83,7 +117,7 @@
 
 
                         }else if (vm.userData.role == 'admin'){
-                            console.log("it is an admin");
+                            vm.dataLoading = true;
                             prescriberTableResource.getAllPrescribers({ id: userData._id })
                                 .$promise
                                 .then(function (persons) {
@@ -94,20 +128,8 @@
                                     var appointmentSum = 0;
 
                                     angular.forEach(vm.persons, function (item, index) {
-                                        // console.log(item.locations);
-                                        // console.log(item.locations.length);
-                                        User.get({id: item.consultant})
-                                            .$promise
-                                            .then(function (person) {
 
-                                                // in case the lastname is undefined
-                                                if(person.lastname == "" || angular.isUndefined(person.lastname))
-                                                    vm.persons[index].consultantName = person.name;
-                                                else
-                                                    vm.persons[index].consultantName = person.name +" "+ person.lastname;
-                                            });
-
-                                        locationSum += Number(item.locations.length);
+                                        locationSum += Number(item.locations.length) + 1;
                                         appointmentSum += Number(item.appointments.length);
                                     });
 
@@ -117,24 +139,11 @@
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
 
-                                });
+                                }).finally(function(){
+                                    vm.dataLoading = false;
+                            });
 
                         }
-
-                        // userStatsResource.getStats({ id: userData._id })
-                        //     .$promise
-                        //     .then(function (response) {
-                        //
-                        //
-                        //         console.log(response);
-                        //
-                        //
-                        //
-                        //
-                        //     }, function (errResponse) {
-                        //         //fail
-                        //         console.error('error: houston we got a problem', errResponse);
-                        //     });
 
                     },
                     function (errorResponse) {
@@ -146,7 +155,8 @@
 
 
 
-            vm.delete = function (id, index) {
+            vm.delete = deleteRow;
+            function deleteRow (person) {
                 SweetAlert.swal({
                     title: 'Confirm deletion?',
                     text: 'You will not be able to recover this record!',
@@ -159,34 +169,83 @@
                     closeOnCancel: true
                 }, function (isConfirm) {
                     if (isConfirm) {
+                        vm.dtInstance.reloadData();
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removePerson(id, index);
+                        console.log("remove person with id", person);
+                        removePerson(person);
                     }
                 });
             };
 
 
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
+
+
+            //ask for prescribers to the server
+            //by using datatables and http
+            vm.dtOptions = DTOptionsBuilder.fromFnPromise(function() {
+                var defer = $q.defer();
+                var prescribersUri = "";
+
+                if ($rootScope.role == 'user') {
+                    prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + $rootScope.thisUser;
+                    // console.log("normal user", prescribersUri);
+                } else if ($rootScope.role == 'admin') {
+                    // console.log("le admin", prescribersUri);
+                    prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + $rootScope.thisUser;
+                }
+
+
+                $http.get(prescribersUri).then(function(result) {
+                    defer.resolve(result.data);
+                });
+                // $http.get('server/datatable.json').then(function(result) {
+                //     defer.resolve(result.data);
+                // });
+                return defer.promise;
+            }).withPaginationType('full_numbers')
+                .withOption('createdRow', createdRow);
+            vm.dtColumns = [
+                DTColumnBuilder.newColumn('npi').withTitle('NPI #'),
+                DTColumnBuilder.newColumn('name').withTitle('First name'),
+                DTColumnBuilder.newColumn('lastname').withTitle('Last name'),
+                DTColumnBuilder.newColumn(null).withTitle('Actions').notSortable()
+                    .renderWith(actionsHtml)
             ];
 
-            vm.removePerson = removePerson;
+            function createdRow(row, data, dataIndex) {
+                // Recompiling so we can bind Angular directive to the DT
+                $compile(angular.element(row).contents())($scope);
+            }
+            function actionsHtml(data, type, full, meta) {
+                vm.personsArray[data._id] = data;
+                // console.log(data);
+                return '<button class="btn btn-info" ui-sref="app.expanddoc({id: \'' + data._id + '\'})">' +
+                    '   <i class="fa fa-expand"></i>' +
+                    '</button>&nbsp;' +
+                    '<button class="btn btn-warning" ui-sref="app.moddoc({id: \'' + data._id + '\'})">' +
+                    '   <i class="fa fa-edit"></i>' +
+                    '</button>&nbsp;' +
+                    '<button class="btn btn-danger" ng-click="table1.delete(\'' + data._id + '\')">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+            }
 
-            function removePerson(id, index) {
-                console.log(id);
-                console.log(index);
-                console.log(vm.persons);
+
+
+
+            vm.removePerson = removePerson;
+            // function removePerson(id, index) {
+            function removePerson(id) {
+                // console.log(id);
+                // console.log(index);
+                // console.log(vm.persons);
 
                 $resource(globalUri + 'api/prescribers/:id').delete({id: id})
                     .$promise
                     .then
                     (function (response) {
                         console.log(response);
-                        vm.persons.splice(index, 1);
+                        //vm.persons.splice(index, 1);
                     });
 
             }

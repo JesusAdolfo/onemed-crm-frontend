@@ -1,0 +1,73 @@
+<h3>
+    Patient condition
+    <small>Add new condition</small>
+</h3>
+
+<!-- START row-->
+<div ng-controller="ConditionController as form" class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="form.formValidate" ng-submit="form.submitCond()" novalidate=""
+                  class="form-validate form-horizontal">
+
+                <!-- START panel-->
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <fieldset class="b0">
+                            <legend> <small> {{form.person.name | uppercase}} {{form.person.lastname | uppercase }} {{form.target}}
+                            </legend>
+                        </fieldset>
+                        <fieldset>
+                            <label class="col-sm-2 control-label">Condition </label>
+                            <div class="form-group col-sm-6">
+                                <select chosen="" required="" name="condition"
+                                ng-model="form.newCondition.text"
+                                        ng-change="form.changeSelectedItem()"
+                                class="chosen-select input-md" width="'100%'">7
+                                    <option value=""></option>
+                                    <option>Post Prostatectomy Surgery</option>
+                                    <option>Peyronie’s Disease</option>
+                                    <option>Pre Prosthesis Surgery</option>
+                                    <option>Erectile Dysfunction</option>
+                                    <option>Diabetes</option>
+                                    <option>Hypertension</option>
+                                    <option>Spinal Cord Injury</option>
+                                    <option>Bladder Conditions</option>
+                                    <option>Testosterone Levels</option>
+                                    <option>Other</option>
+
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted">
+                                    Required
+                                </small>
+                            </div>
+                        </fieldset>
+                        <fieldset ng-show="form.newCondition.text == 'Other' ">
+                            <label  class="col-sm-2 control-label">Description </label>
+                            <div class="form-group col-sm-6">
+                                <input type="text" name="name" ng-required="form.newCondition.text == 'Other' "
+                                       placeholder="Input the condition here"
+                                       ng-model="form.newCondition.other"
+                                       class="form-control"/>
+                                <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted">
+                                    Required
+                                </small>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="panel-footer text-center">
+                        <button type="submit" ng-disabled="form.formValidate.$invalid" class="btn btn-info">Save
+                        </button>
+                    </div>
+                </div>
+                <!-- END panel-->
+            </form>
+        </div>
+    </div>
+    <!-- END row-->
+</div>

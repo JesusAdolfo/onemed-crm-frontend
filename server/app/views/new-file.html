@@ -1,0 +1,72 @@
+<h3>
+    Add new file
+</h3>
+
+<!-- START row-->
+<div ng-controller="FilesController as form" class="container-fluid">
+    <form name="myForm">
+
+        <div class="col-md-12">
+                <!-- START panel-->
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <fieldset class="b0">
+                            <legend> <small> {{form.person.name | uppercase}} {{form.person.lastname | uppercase }} {{form.target}}
+                            </legend>
+                        </fieldset>
+                        <fieldset>
+                            <label class="col-sm-2 control-label"> Description </label>
+                            <div class="form-group col-sm-6">
+                                <input type="text" name="description" required=""
+                                       ng-model="form.description"
+                                       placeholder="File description"
+                                       class="form-control"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <small ng-show="myForm.description.$error.required" class="text-muted">
+                                    Required
+                                </small>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <label  class="col-sm-2 control-label"> Images or PDF only </label>
+                            <div class="form-group col-sm-6">
+                                <input type="file" ngf-select ng-model="picFile"
+                                       name="file"
+                                       ngf-pattern="'image/*,application/pdf'"
+                                       ngf-max-size="10MB" required
+                                       ngf-model-invalid="errorFile"
+                                       class="form-control"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <span class="text-muted">
+                                    <span ng-show="myForm.file.$error.required">Required - MAX 10MB</span><br>
+                                    <span ng-show="myForm.file.$error.maxSize">File too large
+                                        {{errorFile.size / 1000000|number:1}}MB: max 10M</span>
+                                </span>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="panel-footer text-center">
+                        <button type="submit"
+                                ng-disabled="!myForm.$valid"
+                                class="btn btn-info"
+                                ng-click="form.uploadPic(picFile)">
+                                Save
+                        </button>
+                    </div>
+                    <div>
+                        <span class="progress" ng-show="picFile.progress >= 0">
+                            <div style="width:{{picFile.progress}}%;"
+                                 ng-bind="picFile.progress + '%'">
+                            </div>
+                        </span>
+                        <span ng-show="picFile.result">Upload Successful</span>
+                        <span class="err" ng-show="form.errorMsg">{{form.errorMsg}}</span>
+                    </div>
+                </div>
+                <!-- END panel-->
+        </div>
+    </form>
+    <!-- END row-->
+</div>
