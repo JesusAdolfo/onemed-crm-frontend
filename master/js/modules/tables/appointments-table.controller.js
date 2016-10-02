@@ -52,16 +52,16 @@
                     vm.appointments = response.appointments;
                     vm.prescriber = response;
 
-                    angular.forEach(response.appointments, function (value, index) {
-
-                        User.get({id: value.consultant})
-                            .$promise
-                            .then(function (person) {
-                                vm.appointments[index].consultantName = person.name + " " + person.lastname;
-                            });
-
-
-                    });
+                    // angular.forEach(response.appointments, function (value, index) {
+                    //
+                    //     User.get({id: value.consultant})
+                    //         .$promise
+                    //         .then(function (person) {
+                    //             vm.appointments[index].consultantName = person.name + " " + person.lastname;
+                    //         });
+                    //
+                    //
+                    // });
 
 
                 }, function(errResponse){

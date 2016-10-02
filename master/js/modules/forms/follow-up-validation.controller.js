@@ -140,8 +140,8 @@
             };
 
             vm.initDate = new Date('2019-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[0];
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
         }
 
 

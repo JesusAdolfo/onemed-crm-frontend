@@ -35,12 +35,20 @@
                         <!--TIMEPICKER-->
                         <fieldset>
                             <br>
-                            <label class="col-sm-2 control-label">Datepicker</label>
+                            <label class="col-sm-2 control-label">Date</label>
                             <div class="form-group col-sm-2">
                                 <div class="">
                                     <p class="input-group">
-                                        <input type="text" name="date" required="" uib-datepicker-popup="{{form.format}}" ng-model="form.newAppointment.date" is-open="form.opened" min-date="form.minDate" max-date="'2019-12-22'" uib-datepicker-options="form.dateOptions" date-disabled="form.disabled(date, mode)"
-                                               close-text="Close" class="form-control" />
+                                        <input type="text" name="date" required=""
+                                               uib-datepicker-popup="{{form.format}}"
+                                               ng-model="form.newAppointment.date"
+                                               is-open="form.opened"
+                                               min-date="form.minDate" max-date="'2019-12-22'"
+                                               uib-datepicker-options="form.dateOptions"
+                                               date-disabled="form.disabled(date, mode)"
+                                               close-text="Close" class="form-control"
+                                                placeholder="MM/DD/YYYY"
+                                        />
                               <span class="input-group-btn">
                                  <button type="button" ng-click="form.open($event)" class="btn btn-default">
                                      <em class="fa fa-calendar"></em>
@@ -72,7 +80,7 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required="" name="location"
+                                        <select chosen=""  name="location"
                                                 ng-model="form.newAppointment.location" width="'100%'"
                                                 ng-options="location.name +' ('+ location.city +', '+ location.state+')' as (location.name +' ('+ location.city +', '+ location.state+')') for location in form.locations track by location._id"
                                                 class="chosen-select input-md">

@@ -60,6 +60,12 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
+        .module('app.elements', []);
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('app.core', [
             'ngRoute',
             'ngAnimate',
@@ -74,18 +80,6 @@ var globalUri = "http://localhost:9000/";
             'ngResource',
             'ui.utils'
         ]);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.elements', []);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras', []);
 })();
 (function() {
     'use strict';
@@ -135,7 +129,7 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.loadingbar', []);
+        .module('app.extras', []);
 })();
 (function() {
     'use strict';
@@ -147,7 +141,19 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
+        .module('app.loadingbar', []);
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('app.navsearch', []);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.settings', []);
 })();
 (function() {
     'use strict';
@@ -156,12 +162,6 @@ var globalUri = "http://localhost:9000/";
         .module('app.routes', [
             'app.lazyload'
         ]);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.settings', []);
 })();
 (function() {
     'use strict';
@@ -188,17 +188,17 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.translate', []);
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('app.utils', [
           'app.colors'
           ]);
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate', []);
+})();
 /**=========================================================
  * Module: demo-datepicker.js
  * Provides a simple demo for bootstrap datepicker
@@ -491,7 +491,7 @@ var globalUri = "http://localhost:9000/";
                                             ["Sep", 0],
                                             ["Oct", 0],
                                             ["Nov", 0],
-                                            ["Dic", 0]
+                                            ["Dec", 0]
                                         ];
                                         var meses = {
                                             1 : "Jan",
@@ -1162,135 +1162,6 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.core')
-        .config(coreConfig);
-
-    coreConfig.$inject = ['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$animateProvider'];
-    function coreConfig($controllerProvider, $compileProvider, $filterProvider, $provide, $animateProvider){
-
-      var core = angular.module('app.core');
-      // registering components after bootstrap
-      core.controller = $controllerProvider.register;
-      core.directive  = $compileProvider.directive;
-      core.filter     = $filterProvider.register;
-      core.factory    = $provide.factory;
-      core.service    = $provide.service;
-      core.constant   = $provide.constant;
-      core.value      = $provide.value;
-
-      // Disables animation on items with class .ng-no-animation
-      $animateProvider.classNameFilter(/^((?!(ng-no-animation)).)*$/);
-
-    }
-
-})();
-    /**=========================================================
- * Module: constants.js
- * Define constants to inject across the application
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.core')
-        .constant('APP_MEDIAQUERY', {
-          'desktopLG':             1200,
-          'desktop':                992,
-          'tablet':                 768,
-          'mobile':                 480
-        })
-      ;
-
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.core')
-        .run(appRun);
-
-    angular
-        .module('app.core')
-        .factory('Auth', function(){
-            var user;
-
-            return{
-                setUser : function(aUser){
-                    user = aUser;
-                },
-                isLoggedIn : function(){
-                    return(user)? user : false;
-                }
-            }
-        });
-
-    appRun.$inject = ['$rootScope', '$state', '$stateParams',  '$window', '$templateCache', 'Colors'];
-    
-    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
-
-      // Set reference to access them from any scope
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-      $rootScope.$storage = $window.localStorage;
-
-      // Uncomment this to disable template cache
-      /*$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-          if (typeof(toState) !== 'undefined'){
-            $templateCache.remove(toState.templateUrl);
-          }
-      });*/
-
-      // Allows to use branding color with interpolation
-      // {{ colorByName('primary') }}
-      $rootScope.colorByName = Colors.byName;
-
-      // cancel click event easily
-      $rootScope.cancel = function($event) {
-        $event.stopPropagation();
-      };
-
-      // Hooks Example
-      // ----------------------------------- 
-
-      // Hook not found
-      $rootScope.$on('$stateNotFound',
-        function(event, unfoundState/*, fromState, fromParams*/) {
-            console.log(unfoundState.to); // "lazy.state"
-            console.log(unfoundState.toParams); // {a:1, b:2}
-            console.log(unfoundState.options); // {inherit:false} + default options
-        });
-      // Hook error
-      $rootScope.$on('$stateChangeError',
-        function(event, toState, toParams, fromState, fromParams, error){
-          console.log(error);
-        });
-      // Hook success
-      $rootScope.$on('$stateChangeSuccess',
-        function(/*event, toState, toParams, fromState, fromParams*/) {
-          // display new view from top
-          $window.scrollTo(0, 0);
-          // Save the route title
-          $rootScope.currTitle = $state.current.title;
-        });
-
-      // Load a title dynamically
-      $rootScope.currTitle = $state.current.title;
-      $rootScope.pageTitle = function() {
-        var title = $rootScope.app.name + ' - ' + ($rootScope.currTitle || $rootScope.app.description);
-        document.title = title;
-        return title;
-      };      
-
-    }
-
-})();
-
-
 /**=========================================================
  * Module: demo-dialog.js
  * Demo for multiple ngDialog Usage
@@ -1547,6 +1418,2413 @@ var globalUri = "http://localhost:9000/";
         }
     }
 })();
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .config(coreConfig);
+
+    coreConfig.$inject = ['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$animateProvider'];
+    function coreConfig($controllerProvider, $compileProvider, $filterProvider, $provide, $animateProvider){
+
+      var core = angular.module('app.core');
+      // registering components after bootstrap
+      core.controller = $controllerProvider.register;
+      core.directive  = $compileProvider.directive;
+      core.filter     = $filterProvider.register;
+      core.factory    = $provide.factory;
+      core.service    = $provide.service;
+      core.constant   = $provide.constant;
+      core.value      = $provide.value;
+
+      // Disables animation on items with class .ng-no-animation
+      $animateProvider.classNameFilter(/^((?!(ng-no-animation)).)*$/);
+
+    }
+
+})();
+    /**=========================================================
+ * Module: constants.js
+ * Define constants to inject across the application
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .constant('APP_MEDIAQUERY', {
+          'desktopLG':             1200,
+          'desktop':                992,
+          'tablet':                 768,
+          'mobile':                 480
+        })
+      ;
+
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .run(appRun);
+
+    angular
+        .module('app.core')
+        .factory('Auth', function(){
+            var user;
+
+            return{
+                setUser : function(aUser){
+                    user = aUser;
+                },
+                isLoggedIn : function(){
+                    return(user)? user : false;
+                }
+            }
+        });
+
+    appRun.$inject = ['$rootScope', '$state', '$stateParams',  '$window', '$templateCache', 'Colors'];
+    
+    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
+
+      // Set reference to access them from any scope
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+      $rootScope.$storage = $window.localStorage;
+
+      // Uncomment this to disable template cache
+      /*$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+          if (typeof(toState) !== 'undefined'){
+            $templateCache.remove(toState.templateUrl);
+          }
+      });*/
+
+      // Allows to use branding color with interpolation
+      // {{ colorByName('primary') }}
+      $rootScope.colorByName = Colors.byName;
+
+      // cancel click event easily
+      $rootScope.cancel = function($event) {
+        $event.stopPropagation();
+      };
+
+      // Hooks Example
+      // ----------------------------------- 
+
+      // Hook not found
+      $rootScope.$on('$stateNotFound',
+        function(event, unfoundState/*, fromState, fromParams*/) {
+            console.log(unfoundState.to); // "lazy.state"
+            console.log(unfoundState.toParams); // {a:1, b:2}
+            console.log(unfoundState.options); // {inherit:false} + default options
+        });
+      // Hook error
+      $rootScope.$on('$stateChangeError',
+        function(event, toState, toParams, fromState, fromParams, error){
+          console.log(error);
+        });
+      // Hook success
+      $rootScope.$on('$stateChangeSuccess',
+        function(/*event, toState, toParams, fromState, fromParams*/) {
+          // display new view from top
+          $window.scrollTo(0, 0);
+          // Save the route title
+          $rootScope.currTitle = $state.current.title;
+        });
+
+      // Load a title dynamically
+      $rootScope.currTitle = $state.current.title;
+      $rootScope.pageTitle = function() {
+        var title = $rootScope.app.name + ' - ' + ($rootScope.currTitle || $rootScope.app.description);
+        document.title = title;
+        return title;
+      };      
+
+    }
+
+})();
+
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('ConditionController', ConditionController);
+
+    angular.module('app.forms')
+        .factory('patientService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('ConditionResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/add-cond/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+
+    ConditionController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', '$filter', '$resource', 'ConditionResource', 'User', '$location', '$cookies'];
+
+    function ConditionController($scope, $stateParams, patientService, SweetAlert, $state, $filter, $resource, ConditionResource, User, $location, $cookies) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        patientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                console.log(response);
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.changeSelectedItem = function(current){
+                // console.log("select changed");
+
+            };
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            vm.submitted = false;
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+
+
+
+            vm.submitCond = function () {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                console.log("submit cond", $stateParams.id);
+                vm.submitted = true;
+                // console.dir(vm.newNote);
+                var condition = "";
+                if(vm.newCondition.text == "Other"){
+                    condition = vm.newCondition.other;
+                }else{
+                    condition = vm.newCondition.text;
+                }
+                console.log(vm.newCondition.text);
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted new condition!!');
+                    ConditionResource.update({personId: $stateParams.id}, {text: condition, creator: creator})
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'Condition added', 'success');
+                            $state.go('app.expandpat', {id: $stateParams.id});
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+        }
+
+
+    }
+})();
+
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('FollowUpController', FollowUpController);
+
+    angular.module('app.forms')
+        .factory('FollowUpPatientService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('FollowUpResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/add-followup/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+
+    FollowUpController.$inject = ['$scope', '$stateParams', 'FollowUpPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FollowUpResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
+
+    function FollowUpController($scope, $stateParams, FollowUpPatientService, SweetAlert, $state, $filter, $resource, FollowUpResource, User, $location, $cookies, $timeout, Upload) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        FollowUpPatientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+        activate2();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('adding follow up...');
+                    console.log(vm.newFollowUp);
+                    FollowUpResource.update({personId: $stateParams.id}, {followUp: vm.newFollowUp})
+                        .$promise
+                        .then(function (response) {
+                            //success
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'New appointment created!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.expandpat', {id: $stateParams.id});
+                            });
+                        }, function(errResponse){
+                            //fail
+                            console.error('error: dakota we got a problem', errResponse);
+                        });
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this follow up!', 'warning');
+                    return false;
+                }
+            };
+
+
+
+        }
+
+        function activate2() {
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            vm.toggleMin = function() {
+                vm.minDate = vm.minDate ? null : new Date();
+            };
+            vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            vm.initDate = new Date('2019-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
+        }
+
+
+    }
+})();
+
+
+/**=========================================================
+ * Module: FormValidationController
+ * Input validation with UI Validate
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('app.forms')
+        .controller('FormValidationController', FormValidationController);
+
+    function FormValidationController($resource, $state, SweetAlert ) {
+        var vm = this;
+        activate();
+
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted!!');
+                    console.log(this.newPrescriber);
+                    $resource(globalUri + 'api/prescribers').save(this.newPrescriber)
+                        .$promise
+                        .then(function(data){
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'The prescriber was modified!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.singleview');
+                            });
+                    }, function (errResponse) {
+                        console.error('error: pennsylvania we got a problem');
+                        });
+
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this presciber!', 'warning');
+                    return false;
+                }
+            };
+        }
+    }
+    FormValidationController.$inject = ["$resource", "$state", "SweetAlert"];
+})();
+
+(function ($rootScope){
+    'use strict';
+
+    console.log(globalUri);
+
+    angular.module('app.forms')
+        .controller('LoginController', LoginController);
+
+    angular.module('app.forms')
+        .factory('userService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/users/login', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+    function UserResource($resource, $rootScope) {
+
+        return $resource(globalUri + 'api/users/:id/:controller', {
+            id: '@_id'
+        }, {
+            changePassword: {
+                method: 'PUT',
+                params: {
+                    controller: 'password'
+                }
+            },
+            get: {
+                method: 'GET',
+                params: {
+                    id: 'me'
+                }
+            }
+        });
+    }
+    UserResource.$inject = ["$resource", "$rootScope"];
+
+    angular.module('app.forms')
+        .factory('User', UserResource);
+
+    LoginController.$inject = ['$rootScope', '$scope', '$http', '$cookies',  '$state', 'userService', 'SweetAlert', 'Auth', 'User'];
+
+    function LoginController($rootScope, $scope, $http, $cookies, $state, userService, SweetAlert, Auth, User) {
+
+        var vm = this;
+        vm.$scope = $scope;
+        vm.login = {};
+
+        var currentUser = {};
+
+        activate();
+
+        function activate() {
+
+            vm.login.email = "test@example.com";
+            vm.login.password = "test";
+            // vm.login.email = "";
+            // vm.login.password = "";
+
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.loginForm[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            vm.submitForm = function () {
+                vm.submitted = true;
+                var email = vm.login.email;
+                var password = vm.login.password;
+
+                if (vm.loginForm.$valid) {
+                    $http.post(globalUri + 'auth/local', { email: email, password: password})
+                        .then
+                        (function(res) {
+                            // console.log("res =", res);
+                            $cookies.put('token', res.data.token);
+                            currentUser = User.get();
+                            console.log("curry", currentUser);
+
+                            // $rootScope.role = User.role;
+                            return currentUser.$promise;
+                        })
+                        .then(function () {
+                            console.log("curry", currentUser.role);
+                            $rootScope.role = currentUser.role;
+                            // redirect to dashboard after login
+                            $state.go('app.dashboard');
+                        })
+                        .catch
+                        (function (err) {
+                            SweetAlert.swal('Error!', err.statusText, 'warning');
+
+                        });
+                }
+
+            };
+        }
+
+    }
+
+})();
+
+
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('ModifyPatientFormValidationController', ModifyPatientFormValidationController);
+
+    angular.module('app.forms')
+        .factory('patientService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('prescriberService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                }
+            });
+        }])
+        .factory('PatientNoteResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/add-notes/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('PatientDeleteNoteResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/delete-notes/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('DeleteCondResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/delete-cond/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('DeleteSystemsResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/delete-system/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('DeleteFileResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/delete-file/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+    angular.module('app.forms')
+        .directive('datepickerPopup', function (){
+            return {
+                restrict: 'EAC',
+                require: 'ngModel',
+                link: function(scope, element, attr, controller) {
+                    //remove the default formatter from the input directive to prevent conflict
+                    controller.$formatters.shift();
+                }
+            }
+        });
+
+    ModifyPatientFormValidationController.$inject = ['$scope', '$rootScope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
+
+    function ModifyPatientFormValidationController($scope, $rootScope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        prescriberService.query()
+            .$promise
+            .then(function (response) {
+
+                vm.prescribers = [];
+                angular.forEach(response, function (value, index) {
+
+                    var singlePrescriber = value;
+
+                    singlePrescriber.name = value.name + " " + value.lastname +"  (NPI: "+ value.npi +")";
+                    vm.prescribers.push(singlePrescriber);
+                });
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
+
+            vm.consultants = [];
+            angular.forEach(consultants, function (value, index) {
+
+                var singleConsultant = value;
+                if(angular.isUndefined(value.lastname))
+                    value.lastname = "";
+
+                singleConsultant.name = value.name + " " + value.lastname;
+                vm.consultants.push(singleConsultant);
+            });
+
+
+            vm.consultants.count = consultants.length;
+
+        });
+
+        patientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    prescriber: response.prescriber,
+                    name: response.name,
+                    conditions: response.conditions,
+                    middle: response.middle,
+                    lastname: response.lastname,
+                    address: response.address,
+                    address2: response.address2,
+                    city: response.city,
+                    state: response.state,
+                    postal: response.postal,
+                    phone: response.phone,
+                    phone2: response.phone,
+                    email: response.email,
+                    email2: response.email2,
+                    birth: response.birth,
+                    date: response.date,
+                    insuranceName: response.insuranceName,
+                    insuranceNumber: response.insuranceNumber,
+                    insuranceGroup: response.insuranceGroup,
+                    insurancePhone: response.insurancePhone,
+                    dmeName: response.dmeName,
+                    dmeEmail: response.dmeEmail,
+                    dmePerson: response.dmePerson,
+                    dmePhone: response.dmePhone,
+                    consultant: response.consultant,
+                    notes: response.notes,
+                    appointments: response.appointments,
+                    sales: response.sales,
+                    notes2: response.notes2,
+                    files: response.files
+                };
+
+                vm.sumSales = 0;
+                vm.numSales = 0;
+                angular.forEach(vm.person.sales, function (value) {
+                    vm.sumSales += value.amount;
+                    vm.numSales += 1;
+                });
+
+                vm.selectedConsultant = vm.person.consultant;
+                vm.selectedPrescriber = vm.person.prescriber;
+
+                prescriberService.get({ id: vm.person.prescriber })
+                    .$promise
+                    .then(function (response) {
+
+
+                        vm.prescriberName = response.name + " " + response.lastname + "  (NPI:" + response.npi + ")" ;
+                        vm.prescriberId = response._id;
+
+
+                    }, function (errResponse) {
+                        //fail
+                        console.error('error: houston we got a problem', errResponse);
+                    });
+
+
+                User.get({id: vm.person.consultant})
+                    .$promise
+                    .then(function (person) {
+
+                        // in case the lastname is undefined
+                        if(person.lastname == "" || angular.isUndefined(person.lastname))
+                            vm.person.consultant = person.name;
+                        else
+                            vm.person.consultant = person.name +" "+ person.lastname;
+                    });
+
+                vm.person.birth = new Date(vm.person.birth);
+
+                vm.person.prescriber = vm.person.prescriber[0];
+
+                //in case one of the fields is 0
+                if (response.address2 == 0) {
+                    vm.$scope.form.person.address2 = "";
+                }
+                if (response.email2 == 0) {
+                    vm.$scope.form.person.email2 = "";
+                }
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+        activate2();
+
+        ////////////////
+
+        function activate() {
+
+            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
+            vm.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3).notSortable()
+            ];
+
+            vm.systemDtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(4)
+                .withOption('order', [[ 0, 'desc' ]])
+                .withOption("lengthMenu", [ [4], ["4"] ]);
+
+
+            vm.changeSelectedItem = function(current){
+                //console.log("select changed", current._id);
+
+            };
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+
+            // Submit form
+            vm.submitForm = function () {
+
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('Trying to update ' + $stateParams.id);
+
+                    vm.person.consultant = vm.selectedConsultant;
+                    vm.person.prescriber = vm.selectedPrescriber;
+
+                    patientService.update({id: $stateParams.id}, vm.person)
+                        .$promise
+                        .then(function (response) {
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'The prescriber was modified!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            }, function () {
+                                $state.go('app.patients');
+                            });
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Fill in the prescriber and consultant!', 'warning');
+                            console.error('error in patient: wyoming we got a problem', errResponse);
+                        });
+
+                } else {
+                    console.log('Not valid!!');
+                    SweetAlert.swal('Error!', 'Something went wrong while deleting this entry!', 'warning');
+                    return false;
+                }
+            };
+
+
+            vm.submitNote = function () {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                console.log("submit note", $stateParams.id);
+                vm.submitted = true;
+                console.dir(vm.newNote);
+                console.log(vm.newNote.text);
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted to patient!!');
+                    PatientNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator})
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+
+                            SweetAlert.swal('Success!', 'Note added', 'success');
+
+                            var note = {};
+                            note.text = vm.newNote.text;
+                            note.creator = creator;
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
+
+                            vm.person.notes.push(note);
+
+                            vm.newNote = {};
+                            vm.formValidate.$setPristine();
+                            vm.formValidate.$setUntouched();
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+
+            vm.deleteNote = function(item) {
+                SweetAlert.swal({
+                    title: 'Confirm note deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeNote(item);
+                    }
+                });
+            };
+
+
+            function removeNote(item) {
+
+                PatientDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this note!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+            vm.deleteCond = function(condId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm condition deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeCond($stateParams.id, condId, index);
+                    }
+                });
+            };
+
+            function removeCond(personId, condId, index) {
+
+                vm.person.conditions.splice(index, 1);
+                console.log(vm.person.conditions);
+
+                DeleteCondResource.update({ personId: personId }, {condId: condId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this condition!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+
+            vm.deleteSystem = function(saleId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm note deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeSystem($stateParams.id, saleId, index);
+                    }
+                });
+            };
+
+            function removeSystem(personId, saleId, index) {
+
+                vm.person.sales.splice(index, 1);
+                console.log(vm.person.sales);
+
+                DeleteSystemsResource.update({ personId: personId }, {saleId: saleId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this system!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+
+            vm.deleteFile = function(fileId, index) {
+                SweetAlert.swal({
+                    title: 'Confirm file deletion?',
+                    text: 'Your will not be able to recover this file!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removeFile($stateParams.id, fileId, index);
+                    }
+                });
+            };
+
+            function removeFile(personId, fileId, index) {
+
+                vm.person.files.splice(index, 1);
+                console.log(vm.person.files);
+
+                DeleteFileResource.update({ personId: personId }, {fileId: fileId})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while deleting this file!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+
+        }
+
+        function activate2() {
+
+            vm.minDate = new Date('1900-10-20');
+
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            //vm.toggleMin = function() {
+            //    vm.minDate = vm.minDate ? null : new Date();
+            //};
+            //vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            vm.initDate = new Date('2020-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
+        }
+    }
+})();
+
+
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('ModifyFormValidationController', ModifyFormValidationController);
+
+    angular.module('app.forms')
+        .factory('ModifyPrescriberService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('PrescriberNoteResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/prescribers/add-notes/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            })
+        }])
+        .factory('PrescriberDeleteNoteResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/prescribers/delete-prescriber-notes/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            })
+        }]);
+
+    ModifyFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'ModifyPrescriberService', 'SweetAlert', '$state', 'PrescriberNoteResource', 'PrescriberDeleteNoteResource', 'User', '$location', '$cookies'];
+
+    function ModifyFormValidationController($scope, $resource, $stateParams, ModifyPrescriberService, SweetAlert, $state, PrescriberNoteResource, PrescriberDeleteNoteResource, User, $location, $cookies) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+
+
+        ModifyPrescriberService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    name: response.name,
+                    middle: response.middle,
+                    lastname: response.lastname,
+                    address: response.address,
+                    address2: response.address2,
+                    city: response.city,
+                    state: response.state,
+                    postal: response.postal,
+                    phone: response.phone,
+                    fax: response.fax,
+                    npi: response.npi,
+                    location: response.location,
+                    locations: response.locations,
+                    consultant: response.consultant,
+                    notes: response.notes,
+                    appointments: response.appointments
+                };
+
+
+                User.get({id: vm.person.consultant})
+                    .$promise
+                    .then(function (person) {
+
+                        // in case the lastname is undefined
+                        if(person.lastname == "" || angular.isUndefined(person.lastname))
+                            vm.person.consultant = person.name;
+                        else
+                            vm.person.consultant = person.name +" "+ person.lastname;
+                    });
+
+
+                //in case one of the fields is 0
+                if (response.address2 == 0) {
+                    vm.$scope.form.person.address2 = "";
+                }
+                if (response.fax == 0) {
+                    vm.$scope.form.person.fax = "";
+                }
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function () {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('Trying to update the prescriber ' + $stateParams.id);
+
+                    ModifyPrescriberService.update({id: $stateParams.id}, vm.person)
+                        .$promise
+                        .then(function (response) {
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'The prescriber was modified!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            }, function () {
+                                $state.go('app.singleview');
+                            });
+                        }, function (errResponse) {
+                            //fail
+                            console.error('error: wyoming we got a problem', errResponse);
+                        });
+
+                } else {
+                    console.log('Not valid!!');
+                    SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                    return false;
+                }
+            };
+
+
+            vm.submitNote = function () {
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+
+
+                console.log("submit note", $stateParams.id);
+                vm.submitted = true;
+                console.dir(vm.newNote);
+                console.log(vm.newNote.text);
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted note to prescriber!!');
+                    PrescriberNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator })
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'Note added', 'success');
+
+                            var note = {};
+                            note.text = vm.newNote.text;
+                            note.creator = creator;
+                            var myDate = new Date();
+                            note.created_at = myDate.toISOString();
+
+                            vm.person.notes.push(note);
+
+                            vm.newNote.text = "";
+                            vm.formValidate.$setPristine();
+                            vm.formValidate.$setUntouched();
+
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+
+            vm.deleteNote = function(item) {
+                SweetAlert.swal({
+                    title: 'Confirm deletion?',
+                    text: 'You will not be able to recover this record!',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, confirm deletion!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    if (isConfirm) {
+                        removePerson(item);
+                    }
+                });
+            };
+
+            vm.removePerson = removePerson;
+
+            function removePerson(item) {
+
+                //Removes the location from the Angular DOM
+                // console.log("index is", vm.person.notes.indexOf(item));
+                // console.log("item is", item);
+
+                PrescriberDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        console.log(response);
+                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
+                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
+                        console.error('error: Alaska we got a problem', errResponse);
+                    });
+
+            }
+        }
+    }
+})();
+
+
+/**
+ * Created by Adolfo on 8/8/2016.
+ */
+/**=========================================================
+ * Module: AppointmentFormValidationController
+ * Input validation with UI Validate for NEW Appointments
+ =========================================================*/
+
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('app.forms')
+        .controller('AppointmentFormValidationController', AppointmentFormValidationController);
+
+    angular.module('app.forms')
+        .factory('prescriberService', ["$resource", function($resource) {
+            return $resource(globalUri + 'api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('AppointmentCreationService', ["$resource", function($resource) {
+            return $resource(globalUri + 'api/prescribers/add-app/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+    AppointmentFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'SweetAlert', '$state', 'prescriberService', 'AppointmentCreationService'];
+
+
+    function AppointmentFormValidationController($scope, $resource, $stateParams, SweetAlert, $state, prescriberService, AppointmentCreationService) {
+        var vm = this;
+        vm.$scope = $scope;
+        vm.locations = [];
+
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+        prescriberService.get({ id: $stateParams.id })
+            .$promise
+            .then(function(response){
+                console.log(response);
+                vm.$scope.form.title = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    npi: response.npi
+                };
+                vm.locations = response.locations;
+                console.log(vm.locations);
+
+            }, function(errResponse){
+                //fail
+                console.error('error: manila we got a problem', errResponse);
+            });
+
+        activate();
+        activate2();
+        activate3();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('SU SU Submitted!!');
+                    console.log(this.newAppointment);
+                    console.log(vm.newAppointment);
+                    AppointmentCreationService.update({id: $stateParams.id}, {appointments: vm.newAppointment})
+                        .$promise
+                        .then(function (response) {
+                            //success
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'New appointment created!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.expanddoc', {id: $stateParams.id});
+                            });
+                        }, function(errResponse){
+                            //fail
+                            console.error('error: dakota we got a problem', errResponse);
+                        });
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this location!', 'warning');
+                    return false;
+                }
+            };
+        }
+
+        function activate2() {
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            vm.toggleMin = function() {
+                vm.minDate = vm.minDate ? null : new Date();
+            };
+            vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1,
+
+            };
+
+            vm.initDate = new Date('2019-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
+        }
+
+        function activate3() {
+            vm.mytime = new Date();
+
+            vm.hstep = 1;
+            vm.mstep = 15;
+
+            vm.options = {
+                hstep: [1, 2, 3],
+                mstep: [1, 5, 10, 15, 25, 30]
+            };
+
+            vm.ismeridian = true;
+            vm.toggleMode = function() {
+                vm.ismeridian = ! vm.ismeridian;
+            };
+
+            vm.update = function() {
+                var d = new Date();
+                d.setHours( 14 );
+                d.setMinutes( 0 );
+                vm.mytime = d;
+            };
+
+            vm.changed = function () {
+                console.log('Time changed to: ' + vm.mytime);
+            };
+
+            vm.clear = function() {
+                vm.mytime = null;
+            };
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('FilesController', FilesController);
+
+    angular.module('app.forms')
+        .factory('FilesPatientService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('FileResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/add-file/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .directive("fileread", [function () {
+            return {
+                scope: {
+                    fileread: "="
+                },
+                link: function (scope, element, attributes) {
+                    element.bind("change", function (changeEvent) {
+                        var reader = new FileReader();
+                        reader.onload = function (loadEvent) {
+                            scope.$apply(function () {
+                                scope.fileread = loadEvent.target.result;
+                            });
+                        }
+                        reader.readAsDataURL(changeEvent.target.files[0]);
+                    });
+                }
+            }
+        }]);
+
+
+
+    FilesController.$inject = ['$scope', '$stateParams', 'FilesPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FileResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
+
+    function FilesController($scope, $stateParams, FilesPatientService, SweetAlert, $state, $filter, $resource, FileResource, User, $location, $cookies, $timeout, Upload) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        FilesPatientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.uploadPic = function(file) {
+                file.upload = Upload.upload({
+                    url: globalUri + 'api/patients/uploads/'+ $stateParams.id,
+                    method: 'PUT',
+                    data: {description: vm.description, file: file},
+                });
+
+                file.upload.then(function (response) {
+                    $timeout(function () {
+                        file.result = response.data;
+                    });
+                }, function (response) {
+                    if (response.status > 0){
+                        vm.errorMsg = response.status + ': ' + response.data;
+
+                    }
+
+
+                }, function (evt) {
+                    // Math.min is to fix IE which reports 200% sometimes
+                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    SweetAlert.swal('Success!', 'File added', 'success');
+                    $state.go('app.expandpat', {id: $stateParams.id});
+                });
+            };
+
+            vm.changeSelectedItem = function(current){
+                // console.log("select changed");
+
+            };
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+            vm.submitted = false;
+            vm.submitted = false;
+            vm.validateInput = function (name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+
+
+
+            vm.submitFile = function () {
+
+                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                    var creator = vm.currentUser.name;
+                else
+                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                console.log("submit cond", $stateParams.id);
+                vm.submitted = true;
+                // console.dir(vm.newNote);
+                
+                
+
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted new file!!');
+                    console.dir(vm.newFile);
+                    FileResource.update({personId: $stateParams.id}, {description: vm.newFile.description, file: vm.newFile.testFile})
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'File added', 'success');
+                            $state.go('app.expandpat', {id: $stateParams.id});
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a file!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+        }
+
+
+    }
+})();
+
+/**=========================================================
+ * Module: LocationFormValidationController
+ * Input validation with UI Validate for NEW LOCATIONS
+ =========================================================*/
+
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('LocationFormValidationController', LocationFormValidationController);
+
+    angular.module('app.forms')
+        .factory('newLocationPrescriberService', ["$resource", function($resource) {
+            return $resource(globalUri + 'api/prescribers/:id', {id: '@param1'},
+                {
+                update: {method: 'PUT'}
+            })
+        }]);
+
+    LocationFormValidationController.$inject = ['$scope', '$stateParams', 'newLocationPrescriberService', 'SweetAlert', '$state'];
+
+    function LocationFormValidationController($scope, $stateParams, newLocationPrescriberService, SweetAlert, $state) {
+        var vm = this;
+        vm.$scope = $scope;
+        vm.locations = [];
+
+        newLocationPrescriberService.get({ id: $stateParams.id })
+            .$promise
+            .then(function(response){
+                console.log(response);
+                vm.$scope.form.title = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    npi: response.npi
+                };
+            vm.locations = response.locations;
+                console.log(vm.locations);
+
+            }, function(errResponse){
+                //fail
+                console.error('error: manila we got a problem', errResponse);
+            });
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted!!');
+                    console.log(this.newLocation);
+                    vm.locations.push(this.newLocation);
+                    console.log(vm.locations);
+                    newLocationPrescriberService.update({id: $stateParams.id}, {locations: vm.locations})
+                        .$promise
+                        .then(function (response) {
+                            //success
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'The new location was added!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.expanddoc', {id: $stateParams.id});
+                            });
+                        }, function(errResponse){
+                            //fail
+                            console.error('error: dakota we got a problem', errResponse);
+                        });
+
+
+
+
+                } else {
+                        SweetAlert.swal('Error!', 'Something went wrong while adding this location!', 'warning');
+                    return false;
+                }
+            };
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/8/2016.
+ */
+/**=========================================================
+ * Module: AppointmentFormValidationController
+ * Input validation with UI Validate for NEW Appointments
+ =========================================================*/
+
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('app.forms')
+        .controller('PatientAppointmentFormValidationController', PatientAppointmentFormValidationController);
+
+    angular.module('app.forms')
+        .factory('patientService', ["$resource", function($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('PatientAppointmentFormValidationController', ["$resource", function($resource) {
+            return $resource(globalUri + 'api/patients/add-app/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+
+    PatientAppointmentFormValidationController.$inject = ['$scope', '$stateParams', 'SweetAlert', '$state', 'patientService', 'PatientAppointmentFormValidationController'];
+
+
+    function PatientAppointmentFormValidationController($scope, $stateParams, SweetAlert, $state, patientService, PatientAppointmentFormValidationController) {
+        var vm = this;
+        vm.$scope = $scope;
+        vm.locations = [];
+
+        patientService.get({ id: $stateParams.id })
+            .$promise
+            .then(function(response){
+                console.log(response);
+                vm.$scope.form.title = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    date: response.date,
+                    birth: response.birth
+                };
+                vm.locations = response.locations;
+                console.log(vm.locations);
+
+            }, function(errResponse){
+                //fail
+                console.error('error: manila we got a problem', errResponse);
+            });
+
+        activate();
+        activate2();
+        activate3();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('SU SU Submitted!!');
+                    console.log(this.newAppointment);
+                    console.log(vm.newAppointment);
+                    PatientAppointmentFormValidationController.update({id: $stateParams.id}, {appointments: vm.newAppointment})
+                        .$promise
+                        .then(function (response) {
+                            //success
+                            SweetAlert.swal('Success!', 'New appointment created!', 'success');
+
+                            $state.go('app.expandpat', {id: $stateParams.id});
+
+
+                        }, function(errResponse){
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while creating an appointment!', 'warning');
+
+                            console.error('error: Milwaukee we got a problem', errResponse);
+                        });
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong', 'warning');
+                    return false;
+                }
+            };
+        }
+
+        function activate2() {
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            vm.toggleMin = function() {
+                vm.minDate = vm.minDate ? null : new Date();
+            };
+            vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            vm.initDate = new Date('2019-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
+        }
+
+        function activate3() {
+            vm.mytime = new Date();
+
+            vm.hstep = 1;
+            vm.mstep = 15;
+
+            vm.options = {
+                hstep: [1, 2, 3],
+                mstep: [1, 5, 10, 15, 25, 30]
+            };
+
+            vm.ismeridian = true;
+            vm.toggleMode = function() {
+                vm.ismeridian = ! vm.ismeridian;
+            };
+
+            vm.update = function() {
+                var d = new Date();
+                d.setHours( 14 );
+                d.setMinutes( 0 );
+                vm.mytime = d;
+            };
+
+            vm.changed = function () {
+                console.log('Time changed to: ' + vm.mytime);
+            };
+
+            vm.clear = function() {
+                vm.mytime = null;
+            };
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/9/2016.
+ */
+/**=========================================================
+ * Module: FormValidationController
+ * Input validation with UI Validate
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('app.forms')
+        .controller('PatientFormValidationController', PatientFormValidationController);
+    angular.module('app.forms')
+        .factory('prescriberService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/prescribers/:id', {
+                id: '@param1'
+            }, {
+                query: {
+                    method: 'GET', isArray: true
+                }
+            });
+        }])
+        .factory('userService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/users/all', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]);
+
+    PatientFormValidationController.$inject = ['$scope', '$resource', '$state', 'SweetAlert', 'prescriberService', 'userService'];
+    function PatientFormValidationController($scope, $resource, $state, SweetAlert, prescriberService, userService ) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        $resource(globalUri + 'api/prescribers').query().$promise.then(function(persons) {
+            vm.persons = persons;
+            vm.persons.count = persons.length;
+
+        });
+
+        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
+            vm.consultants = consultants;
+            vm.consultants.count = consultants.length;
+
+        });
+
+
+
+        prescriberService.query()
+            .$promise
+            .then(function (response) {
+                console.log(response);
+                vm.prescribers = response;
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+        activate();
+        activate2();
+
+        ////////////////
+
+        function activate() {
+
+            vm.submitted = false;
+            vm.validateInput = function(name, type) {
+                var input = vm.formValidate[name];
+                return (input.$dirty || vm.submitted) && input.$error[type];
+            };
+
+            // Submit form
+            vm.submitForm = function() {
+                vm.submitted = true;
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted!!');
+                    console.log(this.newPatient);
+                    $resource(globalUri + 'api/patients').save(this.newPatient)
+                        .$promise
+                        .then(function(data){
+                            SweetAlert.swal({
+                                title: 'Success!',
+                                text: 'The patient was saved!',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#A1D490',
+                                confirmButtonText: 'Done!',
+                                closeOnConfirm: true
+                            },  function(){
+                                $state.go('app.patients');
+                            });
+                        }, function (errResponse) {
+                            console.error('error: Washington we got a problem');
+                        });
+
+                } else {
+                    SweetAlert.swal('Error!', 'Something went wrong while adding this presciber!', 'warning');
+                    return false;
+                }
+            };
+        }
+
+        function activate2() {
+
+            vm.minDate = new Date('1900-10-20');
+
+            vm.today = function() {
+                vm.dt = new Date();
+            };
+            vm.today();
+
+            vm.clear = function () {
+                vm.dt = null;
+            };
+
+            // Disable weekend selection
+            vm.disabled = function(date, mode) {
+                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            };
+
+            //vm.toggleMin = function() {
+            //    vm.minDate = vm.minDate ? null : new Date();
+            //};
+            //vm.toggleMin();
+
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.opened = true;
+            };
+
+            vm.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            vm.initDate = new Date('2020-10-20');
+            vm.formats = ['dd-MMMM-yyyy', 'MM/dd/yyyy', 'dd.MM.yyyy', 'shortDate'];
+            vm.format = vm.formats[1];
+        }
+    }
+})();
+
+/**
+ * Created by Adolfo on 8/17/2016.
+ */
+/**=========================================================
+ * Module: Modify Prescriber
+ * Input validation with UI Validate TO MODIFY PRESCRIBER
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.forms')
+        .controller('SystemController', SystemController);
+
+    angular.module('app.forms')
+        .factory('systemPatientService', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/:id', {
+                id: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }])
+        .factory('SystemsResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/add-system/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+}]);
+
+
+
+    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize', 'DTOptionsBuilder'];
+
+    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize, DTOptionsBuilder) {
+        var vm = this;
+        vm.$scope = $scope;
+
+
+        systemPatientService.get({id: $stateParams.id})
+            .$promise
+            .then(function (response) {
+                console.log(response);
+                vm.$scope.form.person = {
+                    name: response.name,
+                    lastname: response.lastname,
+                    birth: response.birth,
+                    date: response.date
+                };
+
+
+            }, function (errResponse) {
+                //fail
+                console.error('error: houston we got a problem', errResponse);
+            });
+
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+            vm.changeSelectedItem = function(current){
+                //console.log("select changed", current._id);
+
+            };
+
+            vm.$scope.target = $stateParams.id;
+
+            if ($cookies.get('token') && $location.path() !== 'app/login') {
+                vm.currentUser = User.get();
+            }
+
+
+            vm.submitted = false;
+            vm.system = {};
+            var finalPrice = 0;
+            var initialPrice = 0;
+
+            vm.discount = 0;
+            vm.buttons = ["None", "5%", "10%", "15%", "20%"];
+
+            vm.products = [
+                {
+                    id: '1',
+                    value: '150',
+                    label: 'MANUAL MVP-700 SYSTEM ------- $150.00',
+                    name: 'MANUAL MVP-700 SYSTEM'
+                }, {
+                    id: '2',
+                    value: '250',
+                    label: 'INTRODUCTORY BATTERY SYSTEM ------- $250.00',
+                    name: 'INTRODUCTORY BATTERY SYSTEM'
+                },{
+                    id: '3',
+                    value: '350',
+                    label: 'BATTERY STANDARD SYSTEM ------- $350.00',
+                    name: 'BATTERY STANDARD SYSTEM'
+                },{
+                    id: '4',
+                    value: '500',
+                    label: 'DELUXE BATTERY SYSTEM ------- $500.00',
+                    name: 'DELUXE BATTERY SYSTEM'
+                },{
+                    id: '5',
+                    value: '6000',
+                    label: 'FLEXIBLE URETEROSCOPE ------- $6,000.00',
+                    name: 'FLEXIBLE URETEROSCOPE'
+                }];
+
+
+            vm.resetDiscount = function () {
+                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
+                initialPrice = selectedProduct.value;
+                finalPrice = initialPrice;
+                vm.system.finalPrice = finalPrice;
+            };
+
+            vm.updatePrice = function (buttonValue) {
+                console.log("Discount:", buttonValue);
+
+
+
+                console.log("System ID:", vm.system.id);
+                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
+
+                console.log("System Name:", selectedProduct.label);
+                console.log("System Price:", selectedProduct.value);
+
+                vm.discount = buttonValue;
+
+
+
+                var initialPrice = selectedProduct.value;
+
+
+                switch(buttonValue){
+                    case "None":
+                        console.log("0");
+                        finalPrice = initialPrice;
+                        break;
+                    case "5%":
+                        console.log("5");
+                        finalPrice = Number(  initialPrice - (initialPrice * 0.05)  );
+                        break;
+                    case "10%":
+                        console.log("10");
+                        finalPrice = Number(  initialPrice - (initialPrice * 0.1)  );
+                        break;
+                    case "15%":
+                        console.log("15");
+                        finalPrice = Number(  initialPrice - (initialPrice * 0.15)  );
+                        break;
+                    case "20%":
+                        console.log("20");
+                        finalPrice = Number(  initialPrice - (initialPrice * 0.2)  );
+                        break;
+                    default:
+                        SweetAlert.swal('Error!', 'Something went wrong!', 'warning');
+
+                }
+
+                vm.system.finalPrice = finalPrice;
+
+            };
+
+
+
+            vm.submitCond = function () {
+
+                console.log(parseInt(finalPrice));
+                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
+                console.log(selectedProduct.name);
+
+                console.log("patient", $stateParams.id);
+
+                // if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
+                //     var creator = vm.currentUser.name;
+                // else
+                //     var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
+
+                vm.submitted = true;
+
+                if (vm.formValidate.$valid) {
+                    console.log('Submitted new condition!!');
+                    SystemsResource.update({personId: $stateParams.id}, {amount: parseInt(finalPrice), description: selectedProduct.name })
+                        .$promise
+                        .then
+                        (function (response) {
+                            //all good
+                            console.log(response);
+
+                            SweetAlert.swal('Success!', 'System added', 'success');
+                            $state.go('app.expandpat', {id: $stateParams.id});
+
+                        }, function (errResponse) {
+                            //fail
+                            SweetAlert.swal('Error!', 'Something went wrong while adding a system!', 'warning');
+                            console.error('error: Alaska we got a problem', errResponse);
+                        });
+                } else {
+                    console.log("form is invalid");
+                    return false;
+                }
+
+
+            };
+
+        }
+
+
+    }
+})();
+
 
 /**=========================================================
  * Module: article.js
@@ -2162,2328 +4440,6 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
-/**
- * Created by Adolfo on 8/17/2016.
- */
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('ConditionController', ConditionController);
-
-    angular.module('app.forms')
-        .factory('patientService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('ConditionResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/add-cond/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-
-
-    ConditionController.$inject = ['$scope', '$stateParams', 'patientService', 'SweetAlert', '$state', '$filter', '$resource', 'ConditionResource', 'User', '$location', '$cookies'];
-
-    function ConditionController($scope, $stateParams, patientService, SweetAlert, $state, $filter, $resource, ConditionResource, User, $location, $cookies) {
-        var vm = this;
-        vm.$scope = $scope;
-
-
-        patientService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                console.log(response);
-                vm.$scope.form.person = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    birth: response.birth,
-                    date: response.date
-                };
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            vm.changeSelectedItem = function(current){
-                // console.log("select changed");
-
-            };
-
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-            vm.submitted = false;
-            vm.submitted = false;
-            vm.validateInput = function (name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-
-
-
-            vm.submitCond = function () {
-
-                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                    var creator = vm.currentUser.name;
-                else
-                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-                console.log("submit cond", $stateParams.id);
-                vm.submitted = true;
-                // console.dir(vm.newNote);
-                var condition = "";
-                if(vm.newCondition.text == "Other"){
-                    condition = vm.newCondition.other;
-                }else{
-                    condition = vm.newCondition.text;
-                }
-                console.log(vm.newCondition.text);
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted new condition!!');
-                    ConditionResource.update({personId: $stateParams.id}, {text: condition, creator: creator})
-                        .$promise
-                        .then
-                        (function (response) {
-                            //all good
-                            console.log(response);
-
-                            SweetAlert.swal('Success!', 'Condition added', 'success');
-                            $state.go('app.expandpat', {id: $stateParams.id});
-
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-
-
-            };
-
-        }
-
-
-    }
-})();
-
-
-/**
- * Created by Adolfo on 8/17/2016.
- */
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('FollowUpController', FollowUpController);
-
-    angular.module('app.forms')
-        .factory('FollowUpPatientService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('FollowUpResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/add-followup/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-
-
-    FollowUpController.$inject = ['$scope', '$stateParams', 'FollowUpPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FollowUpResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
-
-    function FollowUpController($scope, $stateParams, FollowUpPatientService, SweetAlert, $state, $filter, $resource, FollowUpResource, User, $location, $cookies, $timeout, Upload) {
-        var vm = this;
-        vm.$scope = $scope;
-
-
-        FollowUpPatientService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                vm.$scope.form.person = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    birth: response.birth,
-                    date: response.date
-                };
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-        activate2();
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('adding follow up...');
-                    console.log(vm.newFollowUp);
-                    FollowUpResource.update({personId: $stateParams.id}, {followUp: vm.newFollowUp})
-                        .$promise
-                        .then(function (response) {
-                            //success
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'New appointment created!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            },  function(){
-                                $state.go('app.expandpat', {id: $stateParams.id});
-                            });
-                        }, function(errResponse){
-                            //fail
-                            console.error('error: dakota we got a problem', errResponse);
-                        });
-                } else {
-                    SweetAlert.swal('Error!', 'Something went wrong while adding this follow up!', 'warning');
-                    return false;
-                }
-            };
-
-
-
-        }
-
-        function activate2() {
-            vm.today = function() {
-                vm.dt = new Date();
-            };
-            vm.today();
-
-            vm.clear = function () {
-                vm.dt = null;
-            };
-
-            // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
-
-            vm.toggleMin = function() {
-                vm.minDate = vm.minDate ? null : new Date();
-            };
-            vm.toggleMin();
-
-            vm.open = function($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-
-                vm.opened = true;
-            };
-
-            vm.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
-
-            vm.initDate = new Date('2019-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[0];
-        }
-
-
-    }
-})();
-
-
-/**=========================================================
- * Module: FormValidationController
- * Input validation with UI Validate
- =========================================================*/
-
-(function() {
-    'use strict';
-
-
-    angular
-        .module('app.forms')
-        .controller('FormValidationController', FormValidationController);
-
-    function FormValidationController($resource, $state, SweetAlert ) {
-        var vm = this;
-        activate();
-
-        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
-            vm.consultants = consultants;
-            vm.consultants.count = consultants.length;
-
-        });
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted!!');
-                    console.log(this.newPrescriber);
-                    $resource(globalUri + 'api/prescribers').save(this.newPrescriber)
-                        .$promise
-                        .then(function(data){
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'The prescriber was modified!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            },  function(){
-                                $state.go('app.singleview');
-                            });
-                    }, function (errResponse) {
-                        console.error('error: pennsylvania we got a problem');
-                        });
-
-                } else {
-                    SweetAlert.swal('Error!', 'Something went wrong while adding this presciber!', 'warning');
-                    return false;
-                }
-            };
-        }
-    }
-    FormValidationController.$inject = ["$resource", "$state", "SweetAlert"];
-})();
-
-(function ($rootScope){
-    'use strict';
-
-    console.log(globalUri);
-
-    angular.module('app.forms')
-        .controller('LoginController', LoginController);
-
-    angular.module('app.forms')
-        .factory('userService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/users/login', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-    function UserResource($resource, $rootScope) {
-
-        return $resource(globalUri + 'api/users/:id/:controller', {
-            id: '@_id'
-        }, {
-            changePassword: {
-                method: 'PUT',
-                params: {
-                    controller: 'password'
-                }
-            },
-            get: {
-                method: 'GET',
-                params: {
-                    id: 'me'
-                }
-            }
-        });
-    }
-    UserResource.$inject = ["$resource", "$rootScope"];
-
-    angular.module('app.forms')
-        .factory('User', UserResource);
-
-    LoginController.$inject = ['$scope', '$http', '$cookies',  '$state', 'userService', 'SweetAlert', 'Auth', 'User'];
-
-    function LoginController($scope, $http, $cookies, $state, userService, SweetAlert, Auth, User) {
-
-        var vm = this;
-        vm.$scope = $scope;
-        vm.login = {};
-
-        var currentUser = {};
-
-        activate();
-
-        function activate() {
-
-            console.log("activated");
-
-            vm.login.email = "test@example.com";
-            vm.login.password = "test";
-
-            vm.submitted = false;
-            vm.validateInput = function (name, type) {
-                var input = vm.loginForm[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            vm.submitForm = function () {
-                vm.submitted = true;
-                console.log("FU");
-
-                var email = vm.login.email;
-                var password = vm.login.password;
-
-                if (vm.loginForm.$valid) {
-                    console.log("Trying to log in....");
-                    $http.post(globalUri + 'auth/local', { email: email, password: password})
-                        .then
-                        (function(res) {
-                            console.log("res =", res);
-                            // Auth.setUser(res.data.token);
-                            $cookies.put('token', res.data.token);
-                            currentUser = User.get();
-                            return currentUser.$promise;
-                        })
-                        .then(function () {
-                            // redirect to dashboard after login
-                            $state.go('app.dashboard');
-                        })
-                        .catch
-                        (function (err) {
-                            console.log(err);
-                            console.log(err.statusText);
-                            SweetAlert.swal('Error!', err.statusText, 'warning');
-
-                        });
-                }
-
-            };
-        }
-
-    }
-
-})();
-
-
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('ModifyPatientFormValidationController', ModifyPatientFormValidationController);
-
-    angular.module('app.forms')
-        .factory('patientService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('prescriberService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                query: {
-                    method: 'GET', isArray: true
-                }
-            });
-        }])
-        .factory('PatientNoteResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/add-notes/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('PatientDeleteNoteResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/delete-notes/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('DeleteCondResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/delete-cond/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('DeleteSystemsResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/delete-system/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('DeleteFileResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/delete-file/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-
-    angular.module('app.forms')
-        .directive('datepickerPopup', function (){
-            return {
-                restrict: 'EAC',
-                require: 'ngModel',
-                link: function(scope, element, attr, controller) {
-                    //remove the default formatter from the input directive to prevent conflict
-                    controller.$formatters.shift();
-                }
-            }
-        });
-
-    ModifyPatientFormValidationController.$inject = ['$scope', '$rootScope', '$stateParams', 'patientService', 'SweetAlert', '$state', 'PatientNoteResource', 'PatientDeleteNoteResource', 'prescriberService', '$resource', 'DeleteCondResource', 'User', '$location', '$cookies', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'DeleteSystemsResource', 'DeleteFileResource'];
-
-    function ModifyPatientFormValidationController($scope, $rootScope, $stateParams, patientService, SweetAlert, $state, PatientNoteResource, PatientDeleteNoteResource, prescriberService, $resource, DeleteCondResource, User, $location, $cookies, DTOptionsBuilder, DTColumnDefBuilder, DeleteSystemsResource, DeleteFileResource) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        prescriberService.query()
-            .$promise
-            .then(function (response) {
-
-                vm.prescribers = [];
-                angular.forEach(response, function (value, index) {
-
-                    var singlePrescriber = value;
-
-                    singlePrescriber.name = value.name + " " + value.lastname +"  (NPI: "+ value.npi +")";
-                    vm.prescribers.push(singlePrescriber);
-                });
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
-
-            vm.consultants = [];
-            angular.forEach(consultants, function (value, index) {
-
-                var singleConsultant = value;
-                if(angular.isUndefined(value.lastname))
-                    value.lastname = "";
-
-                singleConsultant.name = value.name + " " + value.lastname;
-                vm.consultants.push(singleConsultant);
-            });
-
-
-            vm.consultants.count = consultants.length;
-
-        });
-
-        patientService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                vm.$scope.form.person = {
-                    prescriber: response.prescriber,
-                    name: response.name,
-                    conditions: response.conditions,
-                    middle: response.middle,
-                    lastname: response.lastname,
-                    address: response.address,
-                    address2: response.address2,
-                    city: response.city,
-                    state: response.state,
-                    postal: response.postal,
-                    phone: response.phone,
-                    phone2: response.phone,
-                    email: response.email,
-                    email2: response.email2,
-                    birth: response.birth,
-                    date: response.date,
-                    insuranceName: response.insuranceName,
-                    insuranceNumber: response.insuranceNumber,
-                    insuranceGroup: response.insuranceGroup,
-                    insurancePhone: response.insurancePhone,
-                    dmeName: response.dmeName,
-                    dmeEmail: response.dmeEmail,
-                    dmePerson: response.dmePerson,
-                    dmePhone: response.dmePhone,
-                    consultant: response.consultant,
-                    notes: response.notes,
-                    appointments: response.appointments,
-                    sales: response.sales,
-                    notes2: response.notes2,
-                    files: response.files
-                };
-
-                vm.sumSales = 0;
-                vm.numSales = 0;
-                angular.forEach(vm.person.sales, function (value) {
-                    vm.sumSales += value.amount;
-                    vm.numSales += 1;
-                });
-
-                vm.selectedConsultant = vm.person.consultant;
-                vm.selectedPrescriber = vm.person.prescriber;
-
-                prescriberService.get({ id: vm.person.prescriber })
-                    .$promise
-                    .then(function (response) {
-
-
-                        vm.prescriberName = response.name + " " + response.lastname + "  (NPI:" + response.npi + ")" ;
-                        vm.prescriberId = response._id;
-
-
-                    }, function (errResponse) {
-                        //fail
-                        console.error('error: houston we got a problem', errResponse);
-                    });
-
-
-                User.get({id: vm.person.consultant})
-                    .$promise
-                    .then(function (person) {
-
-                        // in case the lastname is undefined
-                        if(person.lastname == "" || angular.isUndefined(person.lastname))
-                            vm.person.consultant = person.name;
-                        else
-                            vm.person.consultant = person.name +" "+ person.lastname;
-                    });
-
-                vm.person.birth = new Date(vm.person.birth);
-
-                vm.person.prescriber = vm.person.prescriber[0];
-
-                //in case one of the fields is 0
-                if (response.address2 == 0) {
-                    vm.$scope.form.person.address2 = "";
-                }
-                if (response.email2 == 0) {
-                    vm.$scope.form.person.email2 = "";
-                }
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-        activate2();
-
-        ////////////////
-
-        function activate() {
-
-            vm.dtOptions = DTOptionsBuilder.newOptions().withPaginationType('full_numbers');
-            vm.dtColumnDefs = [
-                DTColumnDefBuilder.newColumnDef(0),
-                DTColumnDefBuilder.newColumnDef(1),
-                DTColumnDefBuilder.newColumnDef(2),
-                DTColumnDefBuilder.newColumnDef(3).notSortable()
-            ];
-
-            vm.systemDtOptions = DTOptionsBuilder
-                .newOptions()
-                .withDisplayLength(4)
-                .withOption('order', [[ 0, 'desc' ]])
-                .withOption("lengthMenu", [ [4], ["4"] ]);
-
-
-            vm.changeSelectedItem = function(current){
-                //console.log("select changed", current._id);
-
-            };
-
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-            vm.submitted = false;
-            vm.validateInput = function (name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-
-            // Submit form
-            vm.submitForm = function () {
-
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('Trying to update ' + $stateParams.id);
-
-                    vm.person.consultant = vm.selectedConsultant;
-                    vm.person.prescriber = vm.selectedPrescriber;
-
-                    patientService.update({id: $stateParams.id}, vm.person)
-                        .$promise
-                        .then(function (response) {
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'The prescriber was modified!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            }, function () {
-                                $state.go('app.patients');
-                            });
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Fill in the prescriber and consultant!', 'warning');
-                            console.error('error in patient: wyoming we got a problem', errResponse);
-                        });
-
-                } else {
-                    console.log('Not valid!!');
-                    SweetAlert.swal('Error!', 'Something went wrong while deleting this entry!', 'warning');
-                    return false;
-                }
-            };
-
-
-            vm.submitNote = function () {
-
-                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                    var creator = vm.currentUser.name;
-                else
-                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-                console.log("submit note", $stateParams.id);
-                vm.submitted = true;
-                console.dir(vm.newNote);
-                console.log(vm.newNote.text);
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted to patient!!');
-                    PatientNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator})
-                        .$promise
-                        .then
-                        (function (response) {
-                            //all good
-
-                            SweetAlert.swal('Success!', 'Note added', 'success');
-
-                            var note = {};
-                            note.text = vm.newNote.text;
-                            note.creator = creator;
-                            var myDate = new Date();
-                            note.created_at = myDate.toISOString();
-
-                            vm.person.notes.push(note);
-
-                            vm.newNote = {};
-                            vm.formValidate.$setPristine();
-                            vm.formValidate.$setUntouched();
-
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-
-
-            };
-
-
-            vm.deleteNote = function(item) {
-                SweetAlert.swal({
-                    title: 'Confirm note deletion?',
-                    text: 'You will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removeNote(item);
-                    }
-                });
-            };
-
-
-            function removeNote(item) {
-
-                PatientDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while deleting this note!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-            vm.deleteCond = function(condId, index) {
-                SweetAlert.swal({
-                    title: 'Confirm condition deletion?',
-                    text: 'You will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removeCond($stateParams.id, condId, index);
-                    }
-                });
-            };
-
-            function removeCond(personId, condId, index) {
-
-                vm.person.conditions.splice(index, 1);
-                console.log(vm.person.conditions);
-
-                DeleteCondResource.update({ personId: personId }, {condId: condId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while deleting this condition!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-
-            vm.deleteSystem = function(saleId, index) {
-                SweetAlert.swal({
-                    title: 'Confirm note deletion?',
-                    text: 'You will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removeSystem($stateParams.id, saleId, index);
-                    }
-                });
-            };
-
-            function removeSystem(personId, saleId, index) {
-
-                vm.person.sales.splice(index, 1);
-                console.log(vm.person.sales);
-
-                DeleteSystemsResource.update({ personId: personId }, {saleId: saleId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while deleting this system!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-
-            vm.deleteFile = function(fileId, index) {
-                SweetAlert.swal({
-                    title: 'Confirm file deletion?',
-                    text: 'Your will not be able to recover this file!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removeFile($stateParams.id, fileId, index);
-                    }
-                });
-            };
-
-            function removeFile(personId, fileId, index) {
-
-                vm.person.files.splice(index, 1);
-                console.log(vm.person.files);
-
-                DeleteFileResource.update({ personId: personId }, {fileId: fileId})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while deleting this file!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-
-        }
-
-        function activate2() {
-
-            vm.minDate = new Date('1900-10-20');
-
-            vm.today = function() {
-                vm.dt = new Date();
-            };
-            vm.today();
-
-            vm.clear = function () {
-                vm.dt = null;
-            };
-
-            // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
-
-            //vm.toggleMin = function() {
-            //    vm.minDate = vm.minDate ? null : new Date();
-            //};
-            //vm.toggleMin();
-
-            vm.open = function($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-
-                vm.opened = true;
-            };
-
-            vm.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
-
-            vm.initDate = new Date('2020-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[2];
-        }
-    }
-})();
-
-
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('ModifyFormValidationController', ModifyFormValidationController);
-
-    angular.module('app.forms')
-        .factory('ModifyPrescriberService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('PrescriberNoteResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/prescribers/add-notes/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            })
-        }])
-        .factory('PrescriberDeleteNoteResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/prescribers/delete-prescriber-notes/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            })
-        }]);
-
-    ModifyFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'ModifyPrescriberService', 'SweetAlert', '$state', 'PrescriberNoteResource', 'PrescriberDeleteNoteResource', 'User', '$location', '$cookies'];
-
-    function ModifyFormValidationController($scope, $resource, $stateParams, ModifyPrescriberService, SweetAlert, $state, PrescriberNoteResource, PrescriberDeleteNoteResource, User, $location, $cookies) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
-            vm.consultants = consultants;
-            vm.consultants.count = consultants.length;
-
-        });
-
-
-
-        ModifyPrescriberService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                vm.$scope.form.person = {
-                    name: response.name,
-                    middle: response.middle,
-                    lastname: response.lastname,
-                    address: response.address,
-                    address2: response.address2,
-                    city: response.city,
-                    state: response.state,
-                    postal: response.postal,
-                    phone: response.phone,
-                    fax: response.fax,
-                    npi: response.npi,
-                    location: response.location,
-                    locations: response.locations,
-                    consultant: response.consultant,
-                    notes: response.notes,
-                    appointments: response.appointments
-                };
-
-
-                User.get({id: vm.person.consultant})
-                    .$promise
-                    .then(function (person) {
-
-                        // in case the lastname is undefined
-                        if(person.lastname == "" || angular.isUndefined(person.lastname))
-                            vm.person.consultant = person.name;
-                        else
-                            vm.person.consultant = person.name +" "+ person.lastname;
-                    });
-
-
-                //in case one of the fields is 0
-                if (response.address2 == 0) {
-                    vm.$scope.form.person.address2 = "";
-                }
-                if (response.fax == 0) {
-                    vm.$scope.form.person.fax = "";
-                }
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-            vm.submitted = false;
-            vm.validateInput = function (name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function () {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('Trying to update the prescriber ' + $stateParams.id);
-
-                    ModifyPrescriberService.update({id: $stateParams.id}, vm.person)
-                        .$promise
-                        .then(function (response) {
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'The prescriber was modified!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            }, function () {
-                                $state.go('app.singleview');
-                            });
-                        }, function (errResponse) {
-                            //fail
-                            console.error('error: wyoming we got a problem', errResponse);
-                        });
-
-                } else {
-                    console.log('Not valid!!');
-                    SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
-                    return false;
-                }
-            };
-
-
-            vm.submitNote = function () {
-                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                    var creator = vm.currentUser.name;
-                else
-                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-
-
-                console.log("submit note", $stateParams.id);
-                vm.submitted = true;
-                console.dir(vm.newNote);
-                console.log(vm.newNote.text);
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted note to prescriber!!');
-                    PrescriberNoteResource.update({personId: $stateParams.id}, {text: vm.newNote.text, creator: creator })
-                        .$promise
-                        .then
-                        (function (response) {
-                            //all good
-                            console.log(response);
-
-                            SweetAlert.swal('Success!', 'Note added', 'success');
-
-                            var note = {};
-                            note.text = vm.newNote.text;
-                            note.creator = creator;
-                            var myDate = new Date();
-                            note.created_at = myDate.toISOString();
-
-                            vm.person.notes.push(note);
-
-                            vm.newNote.text = "";
-                            vm.formValidate.$setPristine();
-                            vm.formValidate.$setUntouched();
-
-
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a note!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-
-
-            };
-
-
-            vm.deleteNote = function(item) {
-                SweetAlert.swal({
-                    title: 'Confirm deletion?',
-                    text: 'You will not be able to recover this record!',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, confirm deletion!',
-                    cancelButtonText: 'Cancel',
-                    closeOnConfirm: false,
-                    closeOnCancel: true
-                }, function(isConfirm){
-                    if (isConfirm) {
-                        removePerson(item);
-                    }
-                });
-            };
-
-            vm.removePerson = removePerson;
-
-            function removePerson(item) {
-
-                //Removes the location from the Angular DOM
-                // console.log("index is", vm.person.notes.indexOf(item));
-                // console.log("item is", item);
-
-                PrescriberDeleteNoteResource.update({ personId: $stateParams.id }, {noteId: item._id})
-                    .$promise
-                    .then
-                    (function(response) {
-                        //all good
-                        console.log(response);
-                        vm.person.notes.splice(vm.person.notes.indexOf(item), 1);
-                        SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                    }, function(errResponse){
-                        //fail
-                        SweetAlert.swal('Error!', 'Something went wrong while updating the prescriber!', 'warning');
-                        console.error('error: Alaska we got a problem', errResponse);
-                    });
-
-            }
-        }
-    }
-})();
-
-
-/**
- * Created by Adolfo on 8/8/2016.
- */
-/**=========================================================
- * Module: AppointmentFormValidationController
- * Input validation with UI Validate for NEW Appointments
- =========================================================*/
-
-
-(function() {
-    'use strict';
-
-
-    angular
-        .module('app.forms')
-        .controller('AppointmentFormValidationController', AppointmentFormValidationController);
-
-    angular.module('app.forms')
-        .factory('prescriberService', ["$resource", function($resource) {
-            return $resource(globalUri + 'api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('AppointmentCreationService', ["$resource", function($resource) {
-            return $resource(globalUri + 'api/prescribers/add-app/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-
-    AppointmentFormValidationController.$inject = ['$scope', '$resource', '$stateParams', 'SweetAlert', '$state', 'prescriberService', 'AppointmentCreationService'];
-
-
-    function AppointmentFormValidationController($scope, $resource, $stateParams, SweetAlert, $state, prescriberService, AppointmentCreationService) {
-        var vm = this;
-        vm.$scope = $scope;
-        vm.locations = [];
-
-        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
-            vm.consultants = consultants;
-            vm.consultants.count = consultants.length;
-
-        });
-
-        prescriberService.get({ id: $stateParams.id })
-            .$promise
-            .then(function(response){
-                console.log(response);
-                vm.$scope.form.title = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    npi: response.npi
-                };
-                vm.locations = response.locations;
-                console.log(vm.locations);
-
-            }, function(errResponse){
-                //fail
-                console.error('error: manila we got a problem', errResponse);
-            });
-
-        activate();
-        activate2();
-        activate3();
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('SU SU Submitted!!');
-                    console.log(this.newAppointment);
-                    console.log(vm.newAppointment);
-                    AppointmentCreationService.update({id: $stateParams.id}, {appointments: vm.newAppointment})
-                        .$promise
-                        .then(function (response) {
-                            //success
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'New appointment created!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            },  function(){
-                                $state.go('app.expanddoc', {id: $stateParams.id});
-                            });
-                        }, function(errResponse){
-                            //fail
-                            console.error('error: dakota we got a problem', errResponse);
-                        });
-                } else {
-                    SweetAlert.swal('Error!', 'Something went wrong while adding this location!', 'warning');
-                    return false;
-                }
-            };
-        }
-
-        function activate2() {
-            vm.today = function() {
-                vm.dt = new Date();
-            };
-            vm.today();
-
-            vm.clear = function () {
-                vm.dt = null;
-            };
-
-            // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
-
-            vm.toggleMin = function() {
-                vm.minDate = vm.minDate ? null : new Date();
-            };
-            vm.toggleMin();
-
-            vm.open = function($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-
-                vm.opened = true;
-            };
-
-            vm.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
-
-            vm.initDate = new Date('2019-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[0];
-        }
-
-        function activate3() {
-            vm.mytime = new Date();
-
-            vm.hstep = 1;
-            vm.mstep = 15;
-
-            vm.options = {
-                hstep: [1, 2, 3],
-                mstep: [1, 5, 10, 15, 25, 30]
-            };
-
-            vm.ismeridian = true;
-            vm.toggleMode = function() {
-                vm.ismeridian = ! vm.ismeridian;
-            };
-
-            vm.update = function() {
-                var d = new Date();
-                d.setHours( 14 );
-                d.setMinutes( 0 );
-                vm.mytime = d;
-            };
-
-            vm.changed = function () {
-                console.log('Time changed to: ' + vm.mytime);
-            };
-
-            vm.clear = function() {
-                vm.mytime = null;
-            };
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/17/2016.
- */
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('FilesController', FilesController);
-
-    angular.module('app.forms')
-        .factory('FilesPatientService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('FileResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/add-file/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .directive("fileread", [function () {
-            return {
-                scope: {
-                    fileread: "="
-                },
-                link: function (scope, element, attributes) {
-                    element.bind("change", function (changeEvent) {
-                        var reader = new FileReader();
-                        reader.onload = function (loadEvent) {
-                            scope.$apply(function () {
-                                scope.fileread = loadEvent.target.result;
-                            });
-                        }
-                        reader.readAsDataURL(changeEvent.target.files[0]);
-                    });
-                }
-            }
-        }]);
-
-
-
-    FilesController.$inject = ['$scope', '$stateParams', 'FilesPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'FileResource', 'User', '$location', '$cookies', '$timeout', 'Upload'];
-
-    function FilesController($scope, $stateParams, FilesPatientService, SweetAlert, $state, $filter, $resource, FileResource, User, $location, $cookies, $timeout, Upload) {
-        var vm = this;
-        vm.$scope = $scope;
-
-
-        FilesPatientService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                vm.$scope.form.person = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    birth: response.birth,
-                    date: response.date
-                };
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            vm.uploadPic = function(file) {
-                file.upload = Upload.upload({
-                    url: globalUri + 'api/patients/uploads/'+ $stateParams.id,
-                    method: 'PUT',
-                    data: {description: vm.description, file: file},
-                });
-
-                file.upload.then(function (response) {
-                    $timeout(function () {
-                        file.result = response.data;
-                    });
-                }, function (response) {
-                    if (response.status > 0){
-                        vm.errorMsg = response.status + ': ' + response.data;
-
-                    }
-
-
-                }, function (evt) {
-                    // Math.min is to fix IE which reports 200% sometimes
-                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                    SweetAlert.swal('Success!', 'File added', 'success');
-                    $state.go('app.expandpat', {id: $stateParams.id});
-                });
-            };
-
-            vm.changeSelectedItem = function(current){
-                // console.log("select changed");
-
-            };
-
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-            vm.submitted = false;
-            vm.submitted = false;
-            vm.validateInput = function (name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-
-
-
-            vm.submitFile = function () {
-
-                if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                    var creator = vm.currentUser.name;
-                else
-                    var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-                console.log("submit cond", $stateParams.id);
-                vm.submitted = true;
-                // console.dir(vm.newNote);
-                
-                
-
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted new file!!');
-                    console.dir(vm.newFile);
-                    FileResource.update({personId: $stateParams.id}, {description: vm.newFile.description, file: vm.newFile.testFile})
-                        .$promise
-                        .then
-                        (function (response) {
-                            //all good
-                            console.log(response);
-
-                            SweetAlert.swal('Success!', 'File added', 'success');
-                            $state.go('app.expandpat', {id: $stateParams.id});
-
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a file!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-
-
-            };
-
-        }
-
-
-    }
-})();
-
-/**=========================================================
- * Module: LocationFormValidationController
- * Input validation with UI Validate for NEW LOCATIONS
- =========================================================*/
-
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('LocationFormValidationController', LocationFormValidationController);
-
-    angular.module('app.forms')
-        .factory('newLocationPrescriberService', ["$resource", function($resource) {
-            return $resource(globalUri + 'api/prescribers/:id', {id: '@param1'},
-                {
-                update: {method: 'PUT'}
-            })
-        }]);
-
-    LocationFormValidationController.$inject = ['$scope', '$stateParams', 'newLocationPrescriberService', 'SweetAlert', '$state'];
-
-    function LocationFormValidationController($scope, $stateParams, newLocationPrescriberService, SweetAlert, $state) {
-        var vm = this;
-        vm.$scope = $scope;
-        vm.locations = [];
-
-        newLocationPrescriberService.get({ id: $stateParams.id })
-            .$promise
-            .then(function(response){
-                console.log(response);
-                vm.$scope.form.title = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    npi: response.npi
-                };
-            vm.locations = response.locations;
-                console.log(vm.locations);
-
-            }, function(errResponse){
-                //fail
-                console.error('error: manila we got a problem', errResponse);
-            });
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted!!');
-                    console.log(this.newLocation);
-                    vm.locations.push(this.newLocation);
-                    console.log(vm.locations);
-                    newLocationPrescriberService.update({id: $stateParams.id}, {locations: vm.locations})
-                        .$promise
-                        .then(function (response) {
-                            //success
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'The new location was added!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            },  function(){
-                                $state.go('app.expanddoc', {id: $stateParams.id});
-                            });
-                        }, function(errResponse){
-                            //fail
-                            console.error('error: dakota we got a problem', errResponse);
-                        });
-
-
-
-
-                } else {
-                        SweetAlert.swal('Error!', 'Something went wrong while adding this location!', 'warning');
-                    return false;
-                }
-            };
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/8/2016.
- */
-/**=========================================================
- * Module: AppointmentFormValidationController
- * Input validation with UI Validate for NEW Appointments
- =========================================================*/
-
-
-(function() {
-    'use strict';
-
-
-    angular
-        .module('app.forms')
-        .controller('PatientAppointmentFormValidationController', PatientAppointmentFormValidationController);
-
-    angular.module('app.forms')
-        .factory('patientService', ["$resource", function($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('PatientAppointmentFormValidationController', ["$resource", function($resource) {
-            return $resource(globalUri + 'api/patients/add-app/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-
-    PatientAppointmentFormValidationController.$inject = ['$scope', '$stateParams', 'SweetAlert', '$state', 'patientService', 'PatientAppointmentFormValidationController'];
-
-
-    function PatientAppointmentFormValidationController($scope, $stateParams, SweetAlert, $state, patientService, PatientAppointmentFormValidationController) {
-        var vm = this;
-        vm.$scope = $scope;
-        vm.locations = [];
-
-        patientService.get({ id: $stateParams.id })
-            .$promise
-            .then(function(response){
-                console.log(response);
-                vm.$scope.form.title = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    date: response.date,
-                    birth: response.birth
-                };
-                vm.locations = response.locations;
-                console.log(vm.locations);
-
-            }, function(errResponse){
-                //fail
-                console.error('error: manila we got a problem', errResponse);
-            });
-
-        activate();
-        activate2();
-        activate3();
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('SU SU Submitted!!');
-                    console.log(this.newAppointment);
-                    console.log(vm.newAppointment);
-                    PatientAppointmentFormValidationController.update({id: $stateParams.id}, {appointments: vm.newAppointment})
-                        .$promise
-                        .then(function (response) {
-                            //success
-                            SweetAlert.swal('Success!', 'New appointment created!', 'success');
-
-                            $state.go('app.expandpat', {id: $stateParams.id});
-
-
-                        }, function(errResponse){
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while creating an appointment!', 'warning');
-
-                            console.error('error: Milwaukee we got a problem', errResponse);
-                        });
-                } else {
-                    SweetAlert.swal('Error!', 'Something went wrong', 'warning');
-                    return false;
-                }
-            };
-        }
-
-        function activate2() {
-            vm.today = function() {
-                vm.dt = new Date();
-            };
-            vm.today();
-
-            vm.clear = function () {
-                vm.dt = null;
-            };
-
-            // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
-
-            vm.toggleMin = function() {
-                vm.minDate = vm.minDate ? null : new Date();
-            };
-            vm.toggleMin();
-
-            vm.open = function($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-
-                vm.opened = true;
-            };
-
-            vm.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
-
-            vm.initDate = new Date('2019-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[0];
-        }
-
-        function activate3() {
-            vm.mytime = new Date();
-
-            vm.hstep = 1;
-            vm.mstep = 15;
-
-            vm.options = {
-                hstep: [1, 2, 3],
-                mstep: [1, 5, 10, 15, 25, 30]
-            };
-
-            vm.ismeridian = true;
-            vm.toggleMode = function() {
-                vm.ismeridian = ! vm.ismeridian;
-            };
-
-            vm.update = function() {
-                var d = new Date();
-                d.setHours( 14 );
-                d.setMinutes( 0 );
-                vm.mytime = d;
-            };
-
-            vm.changed = function () {
-                console.log('Time changed to: ' + vm.mytime);
-            };
-
-            vm.clear = function() {
-                vm.mytime = null;
-            };
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/9/2016.
- */
-/**=========================================================
- * Module: FormValidationController
- * Input validation with UI Validate
- =========================================================*/
-
-(function() {
-    'use strict';
-
-
-    angular
-        .module('app.forms')
-        .controller('PatientFormValidationController', PatientFormValidationController);
-    angular.module('app.forms')
-        .factory('prescriberService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/prescribers/:id', {
-                id: '@param1'
-            }, {
-                query: {
-                    method: 'GET', isArray: true
-                }
-            });
-        }])
-        .factory('userService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/users/all', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }]);
-
-    PatientFormValidationController.$inject = ['$scope', '$resource', '$state', 'SweetAlert', 'prescriberService', 'userService'];
-    function PatientFormValidationController($scope, $resource, $state, SweetAlert, prescriberService, userService ) {
-        var vm = this;
-        vm.$scope = $scope;
-
-        $resource(globalUri + 'api/prescribers').query().$promise.then(function(persons) {
-            vm.persons = persons;
-            vm.persons.count = persons.length;
-
-        });
-
-        $resource(globalUri + 'api/users/all').query().$promise.then(function(consultants) {
-            vm.consultants = consultants;
-            vm.consultants.count = consultants.length;
-
-        });
-
-
-
-        prescriberService.query()
-            .$promise
-            .then(function (response) {
-                console.log(response);
-                vm.prescribers = response;
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-        activate();
-        activate2();
-
-        ////////////////
-
-        function activate() {
-
-            vm.submitted = false;
-            vm.validateInput = function(name, type) {
-                var input = vm.formValidate[name];
-                return (input.$dirty || vm.submitted) && input.$error[type];
-            };
-
-            // Submit form
-            vm.submitForm = function() {
-                vm.submitted = true;
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted!!');
-                    console.log(this.newPatient);
-                    $resource(globalUri + 'api/patients').save(this.newPatient)
-                        .$promise
-                        .then(function(data){
-                            SweetAlert.swal({
-                                title: 'Success!',
-                                text: 'The patient was saved!',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#A1D490',
-                                confirmButtonText: 'Done!',
-                                closeOnConfirm: true
-                            },  function(){
-                                $state.go('app.patients');
-                            });
-                        }, function (errResponse) {
-                            console.error('error: Washington we got a problem');
-                        });
-
-                } else {
-                    SweetAlert.swal('Error!', 'Something went wrong while adding this presciber!', 'warning');
-                    return false;
-                }
-            };
-        }
-
-        function activate2() {
-
-            vm.minDate = new Date('1900-10-20');
-
-            vm.today = function() {
-                vm.dt = new Date();
-            };
-            vm.today();
-
-            vm.clear = function () {
-                vm.dt = null;
-            };
-
-            // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
-
-            //vm.toggleMin = function() {
-            //    vm.minDate = vm.minDate ? null : new Date();
-            //};
-            //vm.toggleMin();
-
-            vm.open = function($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-
-                vm.opened = true;
-            };
-
-            vm.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
-
-            vm.initDate = new Date('2020-10-20');
-            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-            vm.format = vm.formats[0];
-        }
-    }
-})();
-
-/**
- * Created by Adolfo on 8/17/2016.
- */
-/**=========================================================
- * Module: Modify Prescriber
- * Input validation with UI Validate TO MODIFY PRESCRIBER
- =========================================================*/
-
-(function () {
-    'use strict';
-
-    angular
-        .module('app.forms')
-        .controller('SystemController', SystemController);
-
-    angular.module('app.forms')
-        .factory('systemPatientService', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/:id', {
-                id: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-        }])
-        .factory('SystemsResource', ["$resource", function ($resource) {
-            return $resource(globalUri + 'api/patients/add-system/:personId', {
-                personId: '@param1'
-            }, {
-                update: {
-                    method: 'PUT'
-                }
-            });
-}]);
-
-
-
-    SystemController.$inject = ['$scope', '$stateParams', 'systemPatientService', 'SweetAlert', '$state', '$filter', '$resource', 'SystemsResource', 'User', '$location', '$cookies', '$sanitize', 'DTOptionsBuilder'];
-
-    function SystemController($scope, $stateParams, systemPatientService, SweetAlert, $state, $filter, $resource, SystemsResource, User, $location, $cookies, $sanitize, DTOptionsBuilder) {
-        var vm = this;
-        vm.$scope = $scope;
-
-
-        systemPatientService.get({id: $stateParams.id})
-            .$promise
-            .then(function (response) {
-                console.log(response);
-                vm.$scope.form.person = {
-                    name: response.name,
-                    lastname: response.lastname,
-                    birth: response.birth,
-                    date: response.date
-                };
-
-
-            }, function (errResponse) {
-                //fail
-                console.error('error: houston we got a problem', errResponse);
-            });
-
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-            vm.changeSelectedItem = function(current){
-                //console.log("select changed", current._id);
-
-            };
-
-            vm.$scope.target = $stateParams.id;
-
-            if ($cookies.get('token') && $location.path() !== 'app/login') {
-                vm.currentUser = User.get();
-            }
-
-
-            vm.submitted = false;
-            vm.system = {};
-            var finalPrice = 0;
-            var initialPrice = 0;
-
-            vm.discount = 0;
-            vm.buttons = ["None", "5%", "10%", "15%", "20%"];
-
-            vm.products = [
-                {
-                    id: '1',
-                    value: '150',
-                    label: 'MANUAL MVP-700 SYSTEM ------- $150.00',
-                    name: 'MANUAL MVP-700 SYSTEM'
-                }, {
-                    id: '2',
-                    value: '250',
-                    label: 'INTRODUCTORY BATTERY SYSTEM ------- $250.00',
-                    name: 'INTRODUCTORY BATTERY SYSTEM'
-                },{
-                    id: '3',
-                    value: '350',
-                    label: 'BATTERY STANDARD SYSTEM ------- $350.00',
-                    name: 'BATTERY STANDARD SYSTEM'
-                },{
-                    id: '4',
-                    value: '500',
-                    label: 'DELUXE BATTERY SYSTEM ------- $500.00',
-                    name: 'DELUXE BATTERY SYSTEM'
-                },{
-                    id: '5',
-                    value: '6000',
-                    label: 'FLEXIBLE URETEROSCOPE ------- $6,000.00',
-                    name: 'FLEXIBLE URETEROSCOPE'
-                }];
-
-
-            vm.resetDiscount = function () {
-                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
-                initialPrice = selectedProduct.value;
-                finalPrice = initialPrice;
-                vm.system.finalPrice = finalPrice;
-            };
-
-            vm.updatePrice = function (buttonValue) {
-                console.log("Discount:", buttonValue);
-
-
-
-                console.log("System ID:", vm.system.id);
-                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
-
-                console.log("System Name:", selectedProduct.label);
-                console.log("System Price:", selectedProduct.value);
-
-                vm.discount = buttonValue;
-
-
-
-                var initialPrice = selectedProduct.value;
-
-
-                switch(buttonValue){
-                    case "None":
-                        console.log("0");
-                        finalPrice = initialPrice;
-                        break;
-                    case "5%":
-                        console.log("5");
-                        finalPrice = Number(  initialPrice - (initialPrice * 0.05)  );
-                        break;
-                    case "10%":
-                        console.log("10");
-                        finalPrice = Number(  initialPrice - (initialPrice * 0.1)  );
-                        break;
-                    case "15%":
-                        console.log("15");
-                        finalPrice = Number(  initialPrice - (initialPrice * 0.15)  );
-                        break;
-                    case "20%":
-                        console.log("20");
-                        finalPrice = Number(  initialPrice - (initialPrice * 0.2)  );
-                        break;
-                    default:
-                        SweetAlert.swal('Error!', 'Something went wrong!', 'warning');
-
-                }
-
-                vm.system.finalPrice = finalPrice;
-
-            };
-
-
-
-            vm.submitCond = function () {
-
-                console.log(parseInt(finalPrice));
-                var selectedProduct = $filter('filter')(vm.products, {id: vm.system.id })[0];
-                console.log(selectedProduct.name);
-
-                console.log("patient", $stateParams.id);
-
-                // if (vm.currentUser.lastname == "" || angular.isUndefined(vm.currentUser.lastname))
-                //     var creator = vm.currentUser.name;
-                // else
-                //     var creator = vm.currentUser.name +" "+ vm.currentUser.lastname;
-
-                vm.submitted = true;
-
-                if (vm.formValidate.$valid) {
-                    console.log('Submitted new condition!!');
-                    SystemsResource.update({personId: $stateParams.id}, {amount: parseInt(finalPrice), description: selectedProduct.name })
-                        .$promise
-                        .then
-                        (function (response) {
-                            //all good
-                            console.log(response);
-
-                            SweetAlert.swal('Success!', 'System added', 'success');
-                            $state.go('app.expandpat', {id: $stateParams.id});
-
-                        }, function (errResponse) {
-                            //fail
-                            SweetAlert.swal('Error!', 'Something went wrong while adding a system!', 'warning');
-                            console.error('error: Alaska we got a problem', errResponse);
-                        });
-                } else {
-                    console.log("form is invalid");
-                    return false;
-                }
-
-
-            };
-
-        }
-
-
-    }
-})();
-
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .config(loadingbarConfig)
-        ;
-    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
-    function loadingbarConfig(cfpLoadingBarProvider){
-      cfpLoadingBarProvider.includeBar = true;
-      cfpLoadingBarProvider.includeSpinner = false;
-      cfpLoadingBarProvider.latencyThreshold = 500;
-      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.loadingbar')
-        .run(loadingbarRun)
-        ;
-    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
-    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
-
-      // Loading bar transition
-      // ----------------------------------- 
-      var thBar;
-      $rootScope.$on('$stateChangeStart', function() {
-          if($('.wrapper > section').length) // check if bar container exists
-            thBar = $timeout(function() {
-              cfpLoadingBar.start();
-            }, 0); // sets a latency Threshold
-      });
-      $rootScope.$on('$stateChangeSuccess', function(event) {
-          event.targetScope.$watch('$viewContentLoaded', function () {
-            $timeout.cancel(thBar);
-            cfpLoadingBar.complete();
-          });
-      });
-
-    }
-
-})();
 (function() {
     'use strict';
 
@@ -4570,6 +4526,50 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar')
+        .config(loadingbarConfig)
+        ;
+    loadingbarConfig.$inject = ['cfpLoadingBarProvider'];
+    function loadingbarConfig(cfpLoadingBarProvider){
+      cfpLoadingBarProvider.includeBar = true;
+      cfpLoadingBarProvider.includeSpinner = false;
+      cfpLoadingBarProvider.latencyThreshold = 500;
+      cfpLoadingBarProvider.parentSelector = '.wrapper > section';
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.loadingbar')
+        .run(loadingbarRun)
+        ;
+    loadingbarRun.$inject = ['$rootScope', '$timeout', 'cfpLoadingBar'];
+    function loadingbarRun($rootScope, $timeout, cfpLoadingBar){
+
+      // Loading bar transition
+      // ----------------------------------- 
+      var thBar;
+      $rootScope.$on('$stateChangeStart', function() {
+          if($('.wrapper > section').length) // check if bar container exists
+            thBar = $timeout(function() {
+              cfpLoadingBar.start();
+            }, 0); // sets a latency Threshold
+      });
+      $rootScope.$on('$stateChangeSuccess', function(event) {
+          event.targetScope.$watch('$viewContentLoaded', function () {
+            $timeout.cancel(thBar);
+            cfpLoadingBar.complete();
+          });
+      });
+
+    }
+
+})();
 /**=========================================================
  * Module: navbar-search.js
  * Navbar search toggler * Auto dismiss on ESC key
@@ -4677,6 +4677,65 @@ var globalUri = "http://localhost:9000/";
             ;
         }        
     }
+})();
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.settings')
+        .run(settingsRun);
+
+    settingsRun.$inject = ['$rootScope', '$localStorage'];
+
+    function settingsRun($rootScope, $localStorage){
+
+      // Global Settings
+      // -----------------------------------
+      $rootScope.app = {
+        name: 'onemed',
+        description: 'crm',
+        year: ((new Date()).getFullYear()),
+        layout: {
+          isFixed: true,
+          isCollapsed: true,
+          isBoxed: false,
+          isRTL: false,
+          horizontal: false,
+          isFloat: false,
+          asideHover: false,
+          theme: null,
+          asideScrollbar: false
+        },
+        useFullLayout: false,
+        hiddenFooter: false,
+        offsidebarOpen: false,
+        asideToggled: false,
+        viewAnimation: 'ng-fadeInUp',
+        uri: 'http://localhost:9000'
+      };
+
+      // Setup the layout mode
+      $rootScope.app.layout.horizontal = ( $rootScope.$stateParams.layout === 'app-h') ;
+
+      // Restore layout settings [*** UNCOMMENT TO ENABLE ***]
+      // if( angular.isDefined($localStorage.layout) )
+      //   $rootScope.app.layout = $localStorage.layout;
+      // else
+      //   $localStorage.layout = $rootScope.app.layout;
+      //
+      // $rootScope.$watch('app.layout', function () {
+      //   $localStorage.layout = $rootScope.app.layout;
+      // }, true);
+
+      // Close submenu when sidebar change from collapsed to normal
+      $rootScope.$watch('app.layout.isCollapsed', function(newValue) {
+        if( newValue === false )
+          $rootScope.$broadcast('closeSidebarMenu');
+      });
+
+    }
+
 })();
 
 /**=========================================================
@@ -4975,65 +5034,6 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.settings')
-        .run(settingsRun);
-
-    settingsRun.$inject = ['$rootScope', '$localStorage'];
-
-    function settingsRun($rootScope, $localStorage){
-
-      // Global Settings
-      // -----------------------------------
-      $rootScope.app = {
-        name: 'onemed',
-        description: 'crm',
-        year: ((new Date()).getFullYear()),
-        layout: {
-          isFixed: true,
-          isCollapsed: true,
-          isBoxed: false,
-          isRTL: false,
-          horizontal: false,
-          isFloat: false,
-          asideHover: false,
-          theme: null,
-          asideScrollbar: false
-        },
-        useFullLayout: false,
-        hiddenFooter: false,
-        offsidebarOpen: false,
-        asideToggled: false,
-        viewAnimation: 'ng-fadeInUp',
-        uri: 'http://localhost:9000'
-      };
-
-      // Setup the layout mode
-      $rootScope.app.layout.horizontal = ( $rootScope.$stateParams.layout === 'app-h') ;
-
-      // Restore layout settings [*** UNCOMMENT TO ENABLE ***]
-      // if( angular.isDefined($localStorage.layout) )
-      //   $rootScope.app.layout = $localStorage.layout;
-      // else
-      //   $localStorage.layout = $rootScope.app.layout;
-      //
-      // $rootScope.$watch('app.layout', function () {
-      //   $localStorage.layout = $rootScope.app.layout;
-      // }, true);
-
-      // Close submenu when sidebar change from collapsed to normal
-      $rootScope.$watch('app.layout.isCollapsed', function(newValue) {
-        if( newValue === false )
-          $rootScope.$broadcast('closeSidebarMenu');
-      });
-
-    }
-
-})();
 
 (function() {
     'use strict';
@@ -5537,16 +5537,16 @@ var globalUri = "http://localhost:9000/";
                     vm.appointments = response.appointments;
                     vm.prescriber = response;
 
-                    angular.forEach(response.appointments, function (value, index) {
-
-                        User.get({id: value.consultant})
-                            .$promise
-                            .then(function (person) {
-                                vm.appointments[index].consultantName = person.name + " " + person.lastname;
-                            });
-
-
-                    });
+                    // angular.forEach(response.appointments, function (value, index) {
+                    //
+                    //     User.get({id: value.consultant})
+                    //         .$promise
+                    //         .then(function (person) {
+                    //             vm.appointments[index].consultantName = person.name + " " + person.lastname;
+                    //         });
+                    //
+                    //
+                    // });
 
 
                 }, function(errResponse){
@@ -5836,12 +5836,9 @@ var globalUri = "http://localhost:9000/";
 
                                     angular.forEach(vm.persons, function (item, index) {
 
-                                        locationSum += Number(item.locations.length) + 1;
+                                        locationSum += Number(item.locations.length);
                                         appointmentSum += Number(item.appointments.length);
                                     });
-
-                                    // console.log("Total locations", locationSum);
-                                    // console.log("Total appointments", appointmentSum);
 
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
@@ -5897,7 +5894,7 @@ var globalUri = "http://localhost:9000/";
                     prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + $rootScope.thisUser;
                     // console.log("normal user", prescribersUri);
                 } else if ($rootScope.role == 'admin') {
-                    // console.log("le admin", prescribersUri);
+                    console.log("le admin", prescribersUri);
                     prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + $rootScope.thisUser;
                 }
 
@@ -5912,11 +5909,12 @@ var globalUri = "http://localhost:9000/";
             }).withPaginationType('full_numbers')
                 .withOption('createdRow', createdRow);
             vm.dtColumns = [
-                DTColumnBuilder.newColumn('npi').withTitle('NPI #'),
-                DTColumnBuilder.newColumn('name').withTitle('First name'),
-                DTColumnBuilder.newColumn('lastname').withTitle('Last name'),
-                DTColumnBuilder.newColumn(null).withTitle('Actions').notSortable()
-                    .renderWith(actionsHtml)
+                DTColumnBuilder.newColumn('npi').withTitle('NPI #').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('name').withTitle('First name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('middle').withTitle('Middle name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('lastname').withTitle('Last name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('state').withTitle('State').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn(null).withTitle('Actions').renderWith(actionsHtml)
             ];
 
             function createdRow(row, data, dataIndex) {
@@ -5925,6 +5923,8 @@ var globalUri = "http://localhost:9000/";
             }
             function actionsHtml(data, type, full, meta) {
                 vm.personsArray[data._id] = data;
+
+                //esta linea imprime cada record
                 // console.log(data);
                 return '<button class="btn btn-info" ui-sref="app.expanddoc({id: \'' + data._id + '\'})">' +
                     '   <i class="fa fa-expand"></i>' +
@@ -6490,6 +6490,116 @@ var globalUri = "http://localhost:9000/";
 
     angular
         .module('app.tables')
+        .controller('PatientPerDoctorDataTableController', PatientPerDoctorDataTableController);
+
+
+    angular.module('app.tables')
+        .factory('patientsPerDoctorTableResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/list/:action/:id/:docid', {}, {
+
+                getThisDoctorPatients: {method: 'GET', params: {id: '@param1', docid: '@param2' , action: "get-patients-per-doctor"}, isArray: true}
+
+            });
+        }]);
+
+    PatientPerDoctorDataTableController.$inject = ['User', '$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'patientsPerDoctorTableResource', '$stateParams'];
+
+    function PatientPerDoctorDataTableController(User, $rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, patientsPerDoctorTableResource, $stateParams) {
+        var vm = this;
+        vm.$scope = $scope;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+
+            console.log("this doctors id is", $stateParams.id);
+
+
+            patientsPerDoctorTableResource.getThisDoctorPatients({id: $rootScope.thisUser, docid: $stateParams.id})
+                .$promise
+                .then(function (persons) {
+
+                    var appointmentSum = 0;
+                    var followUps = 0;
+
+
+                    angular.forEach(persons, function (value, index) {
+
+
+                    });
+
+                    vm.persons = persons;
+                    vm.persons.count = persons.length;
+                    vm.appointmentSum = appointmentSum;
+                    vm.followUps = followUps;
+
+                });
+
+            // Ajax
+            // var userData = {};
+            // User.get({})
+            //     .$promise
+            //     .then
+            //     (function (successResponse) {
+            //             // success callback
+            //             userData = successResponse;
+            //             vm.userData = successResponse;
+            //
+            //             // patientsTableResource.getThisDoctorPatients({id: userData._id}, {doctorId: $stateParams.id})
+            //             //     .$promise
+            //             //     .then(function (persons) {
+            //             //
+            //             //         var appointmentSum = 0;
+            //             //         var followUps = 0;
+            //             //
+            //             //
+            //             //         angular.forEach(persons, function (value, index) {
+            //             //
+            //             //
+            //             //         });
+            //             //
+            //             //         vm.persons = persons;
+            //             //         vm.persons.count = persons.length;
+            //             //         vm.appointmentSum = appointmentSum;
+            //             //         vm.followUps = followUps;
+            //             //
+            //             //     });
+            //
+            //
+            //         },
+            //         function (errorResponse) {
+            //             // failure callback
+            //             userData = "nada";
+            //             console.log(errorResponse);
+            //         });
+
+
+
+            vm.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withDisplayLength(5)
+                .withOption('order', [[0, 'desc']])
+                .withOption("lengthMenu", [[5], ["5"]]);
+
+
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: datatable,js
+ * Angular Datatable controller
+ =========================================================*/
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.tables')
         .controller('PatientsDataTableController', PatientsDataTableController);
 
 
@@ -6673,70 +6783,6 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .config(translateConfig)
-        ;
-    translateConfig.$inject = ['$translateProvider'];
-    function translateConfig($translateProvider){
-
-      $translateProvider.useStaticFilesLoader({
-          prefix : 'app/i18n/',
-          suffix : '.json'
-      });
-
-      $translateProvider.preferredLanguage('en');
-      $translateProvider.useLocalStorage();
-      $translateProvider.usePostCompiling(true);
-      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .run(translateRun)
-        ;
-    translateRun.$inject = ['$rootScope', '$translate'];
-    
-    function translateRun($rootScope, $translate){
-
-      // Internationalization
-      // ----------------------
-
-      $rootScope.language = {
-        // Handles language dropdown
-        listIsOpen: false,
-        // list of available languages
-        available: {
-          'en':       'English',
-          'es_AR':    'Español'
-        },
-        // display always the current ui language
-        init: function () {
-          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
-          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
-          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
-        },
-        set: function (localeId) {
-          // Set the new idiom
-          $translate.use(localeId);
-          // save a reference for the current language
-          $rootScope.language.selected = $rootScope.language.available[localeId];
-          // finally toggle dropdown
-          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
-        }
-      };
-
-      $rootScope.language.init();
-
-    }
-})();
 /**=========================================================
  * Module: animate-enabled.js
  * Enable or disables ngAnimate for element with directive
@@ -7171,6 +7217,70 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
+        .module('app.translate')
+        .config(translateConfig)
+        ;
+    translateConfig.$inject = ['$translateProvider'];
+    function translateConfig($translateProvider){
+
+      $translateProvider.useStaticFilesLoader({
+          prefix : 'app/i18n/',
+          suffix : '.json'
+      });
+
+      $translateProvider.preferredLanguage('en');
+      $translateProvider.useLocalStorage();
+      $translateProvider.usePostCompiling(true);
+      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .run(translateRun)
+        ;
+    translateRun.$inject = ['$rootScope', '$translate'];
+    
+    function translateRun($rootScope, $translate){
+
+      // Internationalization
+      // ----------------------
+
+      $rootScope.language = {
+        // Handles language dropdown
+        listIsOpen: false,
+        // list of available languages
+        available: {
+          'en':       'English',
+          'es_AR':    'Español'
+        },
+        // display always the current ui language
+        init: function () {
+          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
+          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
+          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
+        },
+        set: function (localeId) {
+          // Set the new idiom
+          $translate.use(localeId);
+          // save a reference for the current language
+          $rootScope.language.selected = $rootScope.language.available[localeId];
+          // finally toggle dropdown
+          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
+        }
+      };
+
+      $rootScope.language.init();
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('custom', [
             // request the the entire framework
             //'angle',
@@ -7204,6 +7314,7 @@ var globalUri = "http://localhost:9000/";
     angular.module('app.forms')
         .run(["$rootScope", "User", function ($rootScope, User) {
             $rootScope.globalUri = globalUri;
+
             var userData = {};
 
             User.get({})
@@ -7256,6 +7367,7 @@ var globalUri = "http://localhost:9000/";
                 event.preventDefault();
             }else if ($cookies.get('token')){
                 vm.currentUser = User.get();
+
             }
 
         });

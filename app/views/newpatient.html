@@ -33,7 +33,14 @@
                                 <div class="form-group col-sm-2">
                                     <div class="">
                                         <p class="input-group">
-                                            <input placeholder="Birth Date" type="text" name="date" required="" uib-datepicker-popup="{{form.format}}" ng-model="form.newPatient.birth" is-open="form.opened" min-date="form.minDate" max-date="'2019-12-22'" uib-datepicker-options="form.dateOptions" date-disabled="form.disabled(date, mode)"
+                                            <input placeholder="Birth Date" type="text" name="date"
+                                                   required="" uib-datepicker-popup="{{form.format}}"
+                                                   ng-model="form.newPatient.birth"
+                                                   is-open="form.opened"
+                                                   min-date="form.minDate"
+                                                   max-date="'2019-12-22'"
+                                                   uib-datepicker-options="form.dateOptions"
+                                                   date-disabled="form.disabled(date, mode)"
                                                    close-text="Close" class="form-control" />
                                               <span class="input-group-btn">
                                                  <button type="button" ng-click="form.open($event)" class="btn btn-default">
@@ -146,7 +153,7 @@
                                     <span ng-show="form.validateInput('state', 'required')" class="text-danger">This field is required</span>
                                 </div>
                                 <div class="col-sm-2">
-                                    <input type="text" name="zipcode" placeholder="Zipcode" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newPatient.postal" class="form-control" />
+                                    <input type="text" name="zipcode" placeholder="Zipcode" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newPatient.postal" class="form-control" />
                                     <span ng-show="form.validateInput('zipcode', 'pattern')" class="text-danger">This field is required</span>
                                 </div>
                                 <div class="col-sm-2 hidden-xs">
@@ -159,11 +166,11 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Phone / Alternate Phone</label>
                                 <div class="col-sm-4">
-                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newPatient.phone" class="form-control" />
+                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newPatient.phone" class="form-control" />
                                     <span ng-show="form.validateInput('phone', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-3">
-                                    <input type="text" placeholder="Alternate Phone" name="phone2" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newPatient.phone2" class="form-control" />
+                                    <input type="text" placeholder="Alternate Phone" name="phone2" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newPatient.phone2" class="form-control" />
                                     <span ng-show="form.validateInput('phone2', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-2 hidden-xs">
@@ -257,7 +264,7 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen="" required=""
+                                        <select chosen=""
                                                 name="consultant"
                                                 ng-model="form.newPatient.prescriber"
                                                 width="'100%'"

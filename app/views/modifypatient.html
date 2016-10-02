@@ -164,11 +164,11 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Phone / Alternate Phone</label>
                                 <div class="col-sm-4">
-                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.person.phone" class="form-control" />
+                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.person.phone" class="form-control" />
                                     <span ng-show="form.validateInput('phone', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-3">
-                                    <input type="text" placeholder="Alternate Phone" name="phone2" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.person.phone2" class="form-control" />
+                                    <input type="text" placeholder="Alternate Phone" name="phone2" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.person.phone2" class="form-control" />
                                     <span ng-show="form.validateInput('phone2', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-3 xs-hidden">

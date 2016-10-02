@@ -129,12 +129,9 @@
 
                                     angular.forEach(vm.persons, function (item, index) {
 
-                                        locationSum += Number(item.locations.length) + 1;
+                                        locationSum += Number(item.locations.length);
                                         appointmentSum += Number(item.appointments.length);
                                     });
-
-                                    // console.log("Total locations", locationSum);
-                                    // console.log("Total appointments", appointmentSum);
 
                                     vm.locationSum = locationSum;
                                     vm.appointmentSum = appointmentSum;
@@ -190,7 +187,7 @@
                     prescribersUri = globalUri + 'api/prescribers/list/get-prescribers/' + $rootScope.thisUser;
                     // console.log("normal user", prescribersUri);
                 } else if ($rootScope.role == 'admin') {
-                    // console.log("le admin", prescribersUri);
+                    console.log("le admin", prescribersUri);
                     prescribersUri = globalUri + 'api/prescribers/list/get-all-prescribers/' + $rootScope.thisUser;
                 }
 
@@ -205,11 +202,12 @@
             }).withPaginationType('full_numbers')
                 .withOption('createdRow', createdRow);
             vm.dtColumns = [
-                DTColumnBuilder.newColumn('npi').withTitle('NPI #'),
-                DTColumnBuilder.newColumn('name').withTitle('First name'),
-                DTColumnBuilder.newColumn('lastname').withTitle('Last name'),
-                DTColumnBuilder.newColumn(null).withTitle('Actions').notSortable()
-                    .renderWith(actionsHtml)
+                DTColumnBuilder.newColumn('npi').withTitle('NPI #').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('name').withTitle('First name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('middle').withTitle('Middle name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('lastname').withTitle('Last name').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn('state').withTitle('State').withOption('defaultContent', ''),
+                DTColumnBuilder.newColumn(null).withTitle('Actions').renderWith(actionsHtml)
             ];
 
             function createdRow(row, data, dataIndex) {
@@ -218,6 +216,8 @@
             }
             function actionsHtml(data, type, full, meta) {
                 vm.personsArray[data._id] = data;
+
+                //esta linea imprime cada record
                 // console.log(data);
                 return '<button class="btn btn-info" ui-sref="app.expanddoc({id: \'' + data._id + '\'})">' +
                     '   <i class="fa fa-expand"></i>' +

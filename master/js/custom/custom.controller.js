@@ -22,6 +22,7 @@
     angular.module('app.forms')
         .run(function ($rootScope, User) {
             $rootScope.globalUri = globalUri;
+
             var userData = {};
 
             User.get({})
@@ -74,6 +75,7 @@
                 event.preventDefault();
             }else if ($cookies.get('token')){
                 vm.currentUser = User.get();
+
             }
 
         });

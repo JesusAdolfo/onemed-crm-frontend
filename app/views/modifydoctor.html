@@ -52,7 +52,7 @@
                                 </br>
                                 <label class="col-sm-2 control-label"> &nbsp; </label>
                                 <div class="col-sm-6">
-                                    <input type="text" name="address2" placeholder="Line 2" ng-minlength="0" ng-maxlength="10" ng-model="form.person.address2" class="form-control" />
+                                    <input type="text" name="address2" placeholder="Line 2" ng-minlength="0" ng-maxlength="255" ng-model="form.person.address2" class="form-control" />
                                     <span ng-show="form.validateInput('address2', 'minlength')" class="text-danger">This field requires a min length of 0</span>
                                     <span ng-show="form.validateInput('address2', 'maxlength')" class="text-danger">This field requires a max length of 10</span>
                                 </div>
@@ -143,11 +143,11 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Phone / Fax</label>
                                 <div class="col-sm-3">
-                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.person.phone" class="form-control" />
+                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.person.phone" class="form-control" />
                                     <span ng-show="form.validateInput('phone', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-3">
-                                    <input type="text" placeholder="Fax" name="fax" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.person.fax" class="form-control" />
+                                    <input type="text" placeholder="Fax" name="fax" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.person.fax" class="form-control" />
                                     <span ng-show="form.validateInput('fax', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-4">
@@ -160,7 +160,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label"> NPI # </label>
                                 <div class="col-sm-2">
-                                    <input type="text"  placeholder="Numbers only" name="mpi" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.person.npi" class="form-control" />
+                                    <input type="text"  placeholder="Numbers only" name="mpi" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.person.npi" class="form-control" />
                                     <span ng-show="form.validateInput('mpi', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <label class="col-sm-1 control-label">Consultant</label>
@@ -168,13 +168,14 @@
                                     <div class="input-group mb">
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
-                                        <select chosen=""
+                                        <select chosen
                                                 required=""
                                                 name="consultant"
                                                 ng-model="form.person.consultant"
                                                 ng-options="consultant._id as (consultant.name +' '+ consultant.lastname) for consultant in form.consultants track by consultant._id"
                                                 width="'100%'"
                                                 class="chosen-select input-md">
+                                            <option value=""></option>
                                         </select>
                                     </div>
                                     <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>

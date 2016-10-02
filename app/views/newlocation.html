@@ -134,15 +134,15 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Phone / Fax</label>
                                 <div class="col-sm-3">
-                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newLocation.phone" class="form-control" />
+                                    <input type="text"  placeholder="Phone" name="phone" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newLocation.phone" class="form-control" />
                                     <span ng-show="form.validateInput('phone', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-3">
-                                    <input type="text" placeholder="Fax" name="fax" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newLocation.fax" class="form-control" />
+                                    <input type="text" placeholder="Fax" name="fax" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newLocation.fax" class="form-control" />
                                     <span ng-show="form.validateInput('fax', 'pattern')" class="text-danger">This field must contain only digits</span>
                                 </div>
                                 <div class="col-sm-4">
-                                    <small class="text-muted">ng-pattern="/^[0-9]+$/"</small>
+                                    <small class="text-muted">Numbers and dashes only</small>
                                 </div>
                             </div>
                         </fieldset>
@@ -159,7 +159,7 @@
                                     <!--<span ng-show="form.validateInput('contactPosition', 'optional')" class="text-danger">This field is required</span>-->
                                 </div>
                                 <div class="col-sm-2">
-                                    <input type="text" name="contactNumber" placeholder="Phone of contact" required="" ng-pattern="/^[0-9\-]{1,15}$/" ng-model="form.newLocation.contact_phone" class="form-control" />
+                                    <input type="text" name="contactNumber" placeholder="Phone of contact" required="" ng-pattern="/^[0-9\-\+\ ]{1,15}$/" ng-model="form.newLocation.contact_phone" class="form-control" />
                                     <span ng-show="form.validateInput('contactNumber', 'pattern')" class="text-danger">Digits only</span>
                                 </div>
                                 <div class="col-sm-2">

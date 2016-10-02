@@ -40,9 +40,9 @@
     angular.module('app.forms')
         .factory('User', UserResource);
 
-    LoginController.$inject = ['$scope', '$http', '$cookies',  '$state', 'userService', 'SweetAlert', 'Auth', 'User'];
+    LoginController.$inject = ['$rootScope', '$scope', '$http', '$cookies',  '$state', 'userService', 'SweetAlert', 'Auth', 'User'];
 
-    function LoginController($scope, $http, $cookies, $state, userService, SweetAlert, Auth, User) {
+    function LoginController($rootScope, $scope, $http, $cookies, $state, userService, SweetAlert, Auth, User) {
 
         var vm = this;
         vm.$scope = $scope;
@@ -54,10 +54,10 @@
 
         function activate() {
 
-            console.log("activated");
-
             vm.login.email = "test@example.com";
             vm.login.password = "test";
+            // vm.login.email = "";
+            // vm.login.password = "";
 
             vm.submitted = false;
             vm.validateInput = function (name, type) {
@@ -67,30 +67,29 @@
 
             vm.submitForm = function () {
                 vm.submitted = true;
-                console.log("FU");
-
                 var email = vm.login.email;
                 var password = vm.login.password;
 
                 if (vm.loginForm.$valid) {
-                    console.log("Trying to log in....");
                     $http.post(globalUri + 'auth/local', { email: email, password: password})
                         .then
                         (function(res) {
-                            console.log("res =", res);
-                            // Auth.setUser(res.data.token);
+                            // console.log("res =", res);
                             $cookies.put('token', res.data.token);
                             currentUser = User.get();
+                            console.log("curry", currentUser);
+
+                            // $rootScope.role = User.role;
                             return currentUser.$promise;
                         })
                         .then(function () {
+                            console.log("curry", currentUser.role);
+                            $rootScope.role = currentUser.role;
                             // redirect to dashboard after login
                             $state.go('app.dashboard');
                         })
                         .catch
                         (function (err) {
-                            console.log(err);
-                            console.log(err.statusText);
                             SweetAlert.swal('Error!', err.statusText, 'warning');
 
                         });
