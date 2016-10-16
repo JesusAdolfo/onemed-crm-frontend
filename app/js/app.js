@@ -60,12 +60,6 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.elements', []);
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('app.core', [
             'ngRoute',
             'ngAnimate',
@@ -80,6 +74,24 @@ var globalUri = "http://localhost:9000/";
             'ngResource',
             'ui.utils'
         ]);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.elements', []);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.extras', []);
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.lazyload', []);
 })();
 (function() {
     'use strict';
@@ -129,18 +141,6 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.extras', []);
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.lazyload', []);
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('app.loadingbar', []);
 })();
 (function() {
@@ -153,8 +153,10 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.settings', []);
+        .module('app.preloader', []);
 })();
+
+
 (function() {
     'use strict';
 
@@ -167,10 +169,8 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.preloader', []);
+        .module('app.settings', []);
 })();
-
-
 (function() {
     'use strict';
 
@@ -188,17 +188,17 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
+        .module('app.translate', []);
+})();
+(function() {
+    'use strict';
+
+    angular
         .module('app.utils', [
           'app.colors'
           ]);
 })();
 
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate', []);
-})();
 /**=========================================================
  * Module: demo-datepicker.js
  * Provides a simple demo for bootstrap datepicker
@@ -1162,6 +1162,135 @@ var globalUri = "http://localhost:9000/";
 
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .config(coreConfig);
+
+    coreConfig.$inject = ['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$animateProvider'];
+    function coreConfig($controllerProvider, $compileProvider, $filterProvider, $provide, $animateProvider){
+
+      var core = angular.module('app.core');
+      // registering components after bootstrap
+      core.controller = $controllerProvider.register;
+      core.directive  = $compileProvider.directive;
+      core.filter     = $filterProvider.register;
+      core.factory    = $provide.factory;
+      core.service    = $provide.service;
+      core.constant   = $provide.constant;
+      core.value      = $provide.value;
+
+      // Disables animation on items with class .ng-no-animation
+      $animateProvider.classNameFilter(/^((?!(ng-no-animation)).)*$/);
+
+    }
+
+})();
+    /**=========================================================
+ * Module: constants.js
+ * Define constants to inject across the application
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .constant('APP_MEDIAQUERY', {
+          'desktopLG':             1200,
+          'desktop':                992,
+          'tablet':                 768,
+          'mobile':                 480
+        })
+      ;
+
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .run(appRun);
+
+    angular
+        .module('app.core')
+        .factory('Auth', function(){
+            var user;
+
+            return{
+                setUser : function(aUser){
+                    user = aUser;
+                },
+                isLoggedIn : function(){
+                    return(user)? user : false;
+                }
+            }
+        });
+
+    appRun.$inject = ['$rootScope', '$state', '$stateParams',  '$window', '$templateCache', 'Colors'];
+    
+    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
+
+      // Set reference to access them from any scope
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+      $rootScope.$storage = $window.localStorage;
+
+      // Uncomment this to disable template cache
+      /*$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+          if (typeof(toState) !== 'undefined'){
+            $templateCache.remove(toState.templateUrl);
+          }
+      });*/
+
+      // Allows to use branding color with interpolation
+      // {{ colorByName('primary') }}
+      $rootScope.colorByName = Colors.byName;
+
+      // cancel click event easily
+      $rootScope.cancel = function($event) {
+        $event.stopPropagation();
+      };
+
+      // Hooks Example
+      // ----------------------------------- 
+
+      // Hook not found
+      $rootScope.$on('$stateNotFound',
+        function(event, unfoundState/*, fromState, fromParams*/) {
+            console.log(unfoundState.to); // "lazy.state"
+            console.log(unfoundState.toParams); // {a:1, b:2}
+            console.log(unfoundState.options); // {inherit:false} + default options
+        });
+      // Hook error
+      $rootScope.$on('$stateChangeError',
+        function(event, toState, toParams, fromState, fromParams, error){
+          console.log(error);
+        });
+      // Hook success
+      $rootScope.$on('$stateChangeSuccess',
+        function(/*event, toState, toParams, fromState, fromParams*/) {
+          // display new view from top
+          $window.scrollTo(0, 0);
+          // Save the route title
+          $rootScope.currTitle = $state.current.title;
+        });
+
+      // Load a title dynamically
+      $rootScope.currTitle = $state.current.title;
+      $rootScope.pageTitle = function() {
+        var title = $rootScope.app.name + ' - ' + ($rootScope.currTitle || $rootScope.app.description);
+        document.title = title;
+        return title;
+      };      
+
+    }
+
+})();
+
+
 /**=========================================================
  * Module: demo-dialog.js
  * Demo for multiple ngDialog Usage
@@ -1419,134 +1548,705 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
+/**=========================================================
+ * Module: article.js
+ =========================================================*/
 (function() {
     'use strict';
 
     angular
-        .module('app.core')
-        .config(coreConfig);
+        .module('app.extras')
+        .controller('ArticleController', ArticleController);
 
-    coreConfig.$inject = ['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$animateProvider'];
-    function coreConfig($controllerProvider, $compileProvider, $filterProvider, $provide, $animateProvider){
+    function ArticleController() {
+        var vm = this;
 
-      var core = angular.module('app.core');
-      // registering components after bootstrap
-      core.controller = $controllerProvider.register;
-      core.directive  = $compileProvider.directive;
-      core.filter     = $filterProvider.register;
-      core.factory    = $provide.factory;
-      core.service    = $provide.service;
-      core.constant   = $provide.constant;
-      core.value      = $provide.value;
+        activate();
 
-      // Disables animation on items with class .ng-no-animation
-      $animateProvider.classNameFilter(/^((?!(ng-no-animation)).)*$/);
+        ////////////////
 
+        function activate() {
+          vm.htmlContent = 'Article content...';
+
+          vm.postDemo = {};
+          vm.postDemo.tags = ['coding', 'less'];
+          vm.availableTags = ['coding', 'less', 'sass', 'angularjs', 'node', 'expressJS'];
+          vm.postDemo.categories = ['JAVASCRIPT','WEB'];
+          vm.availableCategories = ['JAVASCRIPT','WEB', 'BOOTSTRAP', 'SERVER', 'HTML5', 'CSS'];
+
+          vm.reviewers = [
+            { name: 'Adam',      email: 'adam@email.com',      age: 10 },
+            { name: 'Amalie',    email: 'amalie@email.com',    age: 12 },
+            { name: 'Wladimir',  email: 'wladimir@email.com',  age: 30 },
+            { name: 'Samantha',  email: 'samantha@email.com',  age: 31 },
+            { name: 'Estefanía', email: 'estefanía@email.com', age: 16 },
+            { name: 'Natasha',   email: 'natasha@email.com',   age: 54 },
+            { name: 'Nicole',    email: 'nicole@email.com',    age: 43 },
+            { name: 'Adrian',    email: 'adrian@email.com',    age: 21 }
+          ];
+
+
+          vm.alerts = [
+            { type: 'info', msg: 'There is an autosaved version of this article that is more recent than the version below. <a href="#" class="text-white">Restore</a>' }
+          ];
+
+          vm.closeAlert = function(index) {
+            vm.alerts.splice(index, 1);
+          };
+        }
     }
-
 })();
-    /**=========================================================
- * Module: constants.js
- * Define constants to inject across the application
+
+/**=========================================================
+ * Module: calendar-ui.js
+ * This script handle the calendar demo with draggable 
+ * events and events creations
  =========================================================*/
 
 (function() {
     'use strict';
 
     angular
-        .module('app.core')
-        .constant('APP_MEDIAQUERY', {
-          'desktopLG':             1200,
-          'desktop':                992,
-          'tablet':                 768,
-          'mobile':                 480
-        })
-      ;
+        .module('app.extras')
+        .directive('calendar', calendar);
 
+    calendar.$inject = ['$rootScope'];
+    function calendar ($rootScope) {
+        var directive = {
+            link: link,
+            restrict: 'EA'
+        };
+        return directive;
+
+        function link(scope, element) {
+          
+          if(!$.fn.fullCalendar) return;
+          
+          // The element that will display the calendar
+          var calendar = element;
+
+          var demoEvents = createDemoEvents();
+
+          initExternalEvents(calendar);
+
+          initCalendar(calendar, demoEvents, $rootScope.app.layout.isRTL);
+        }
+    }
+
+
+    // global shared var to know what we are dragging
+    var draggingEvent = null;
+
+
+    /**
+     * ExternalEvent object
+     * @param jQuery Object elements Set of element as jQuery objects
+     */
+    function ExternalEvent(elements) {
+        
+        if (!elements) return;
+        
+        elements.each(function() {
+            var $this = $(this);
+            // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
+            // it doesn't need to have a start or end
+            var calendarEventObject = {
+                title: $.trim($this.text()) // use the element's text as the event title
+            };
+
+            // store the Event Object in the DOM element so we can get to it later
+            $this.data('calendarEventObject', calendarEventObject);
+
+            // make the event draggable using jQuery UI
+            $this.draggable({
+                zIndex: 1070,
+                revert: true, // will cause the event to go back to its
+                revertDuration: 0  //  original position after the drag
+            });
+
+        });
+    }
+
+    /**
+     * Invoke full calendar plugin and attach behavior
+     * @param  jQuery [calElement] The calendar dom element wrapped into jQuery
+     * @param  EventObject [events] An object with the event list to load when the calendar displays
+     */
+    function initCalendar(calElement, events, isRTL) {
+
+        // check to remove elements from the list
+        var removeAfterDrop = $('#remove-after-drop');
+
+        calElement.fullCalendar({
+            isRTL: isRTL,
+            header: {
+                left:   'prev,next today',
+                center: 'title',
+                right:  'month,agendaWeek,agendaDay'
+            },
+            buttonIcons: { // note the space at the beginning
+                prev:    ' fa fa-caret-left',
+                next:    ' fa fa-caret-right'
+            },
+            buttonText: {
+                today: 'today',
+                month: 'month',
+                week:  'week',
+                day:   'day'
+            },
+            editable: true,
+            droppable: true, // this allows things to be dropped onto the calendar 
+            drop: function(date, allDay) { // this function is called when something is dropped
+                
+                var $this = $(this),
+                    // retrieve the dropped element's stored Event Object
+                    originalEventObject = $this.data('calendarEventObject');
+
+                // if something went wrong, abort
+                if(!originalEventObject) return;
+
+                // clone the object to avoid multiple events with reference to the same object
+                var clonedEventObject = $.extend({}, originalEventObject);
+
+                // assign the reported date
+                clonedEventObject.start = date;
+                clonedEventObject.allDay = allDay;
+                clonedEventObject.backgroundColor = $this.css('background-color');
+                clonedEventObject.borderColor = $this.css('border-color');
+
+                // render the event on the calendar
+                // the last `true` argument determines if the event "sticks" 
+                // (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+                calElement.fullCalendar('renderEvent', clonedEventObject, true);
+                
+                // if necessary remove the element from the list
+                if(removeAfterDrop.is(':checked')) {
+                  $this.remove();
+                }
+            },
+            eventDragStart: function (event/*, js, ui*/) {
+              draggingEvent = event;
+            },
+            // This array is the events sources
+            events: events
+        });
+    }
+
+    /**
+     * Inits the external events panel
+     * @param  jQuery [calElement] The calendar dom element wrapped into jQuery
+     */
+    function initExternalEvents(calElement){
+      // Panel with the external events list
+      var externalEvents = $('.external-events');
+
+      // init the external events in the panel
+      new ExternalEvent(externalEvents.children('div'));
+
+      // External event color is danger-red by default
+      var currColor = '#f6504d';
+      // Color selector button
+      var eventAddBtn = $('.external-event-add-btn');
+      // New external event name input
+      var eventNameInput = $('.external-event-name');
+      // Color switchers
+      var eventColorSelector = $('.external-event-color-selector .circle');
+
+      // Trash events Droparea 
+      $('.external-events-trash').droppable({
+        accept:       '.fc-event',
+        activeClass:  'active',
+        hoverClass:   'hovered',
+        tolerance:    'touch',
+        drop: function(event, ui) {
+          
+          // You can use this function to send an ajax request
+          // to remove the event from the repository
+          
+          if(draggingEvent) {
+            var eid = draggingEvent.id || draggingEvent._id;
+            // Remove the event
+            calElement.fullCalendar('removeEvents', eid);
+            // Remove the dom element
+            ui.draggable.remove();
+            // clear
+            draggingEvent = null;
+          }
+        }
+      });
+
+      eventColorSelector.click(function(e) {
+          e.preventDefault();
+          var $this = $(this);
+
+          // Save color
+          currColor = $this.css('background-color');
+          // De-select all and select the current one
+          eventColorSelector.removeClass('selected');
+          $this.addClass('selected');
+      });
+
+      eventAddBtn.click(function(e) {
+          e.preventDefault();
+          
+          // Get event name from input
+          var val = eventNameInput.val();
+          // Dont allow empty values
+          if ($.trim(val) === '') return;
+          
+          // Create new event element
+          var newEvent = $('<div/>').css({
+                              'background-color': currColor,
+                              'border-color':     currColor,
+                              'color':            '#fff'
+                          })
+                          .html(val);
+
+          // Prepends to the external events list
+          externalEvents.prepend(newEvent);
+          // Initialize the new event element
+          new ExternalEvent(newEvent);
+          // Clear input
+          eventNameInput.val('');
+      });
+    }
+
+    /**
+     * Creates an array of events to display in the first load of the calendar
+     * Wrap into this function a request to a source to get via ajax the stored events
+     * @return Array The array with the events
+     */
+    function createDemoEvents() {
+      // Date for the calendar events (dummy data)
+      var date = new Date();
+      var d = date.getDate(),
+          m = date.getMonth(),
+          y = date.getFullYear();
+
+      return  [
+                {
+                    title: 'All Day Event',
+                    start: new Date(y, m, 1),
+                    backgroundColor: '#f56954', //red 
+                    borderColor: '#f56954' //red
+                },
+                {
+                    title: 'Long Event',
+                    start: new Date(y, m, d - 5),
+                    end: new Date(y, m, d - 2),
+                    backgroundColor: '#f39c12', //yellow
+                    borderColor: '#f39c12' //yellow
+                },
+                {
+                    title: 'Meeting',
+                    start: new Date(y, m, d, 10, 30),
+                    allDay: false,
+                    backgroundColor: '#0073b7', //Blue
+                    borderColor: '#0073b7' //Blue
+                },
+                {
+                    title: 'Lunch',
+                    start: new Date(y, m, d, 12, 0),
+                    end: new Date(y, m, d, 14, 0),
+                    allDay: false,
+                    backgroundColor: '#00c0ef', //Info (aqua)
+                    borderColor: '#00c0ef' //Info (aqua)
+                },
+                {
+                    title: 'Birthday Party',
+                    start: new Date(y, m, d + 1, 19, 0),
+                    end: new Date(y, m, d + 1, 22, 30),
+                    allDay: false,
+                    backgroundColor: '#00a65a', //Success (green)
+                    borderColor: '#00a65a' //Success (green)
+                },
+                {
+                    title: 'Open Google',
+                    start: new Date(y, m, 28),
+                    end: new Date(y, m, 29),
+                    url: '//google.com/',
+                    backgroundColor: '#3c8dbc', //Primary (light-blue)
+                    borderColor: '#3c8dbc' //Primary (light-blue)
+                }
+            ];
+    }
+
+})();
+
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.extras')
+        .service('LoadTreeService', LoadTreeService);
+
+    LoadTreeService.$inject = ['$resource'];
+    function LoadTreeService($resource) {
+        // Loads the list of files to populate the treeview
+        return $resource('server/editor/filetree.json');
+    }
+
+})();
+/**=========================================================
+ * Module: code-editor.js
+ * Codemirror code editor controller
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.extras')
+        .controller('CodeEditorController', CodeEditorController);
+
+    CodeEditorController.$inject = ['$rootScope', '$scope', '$http', '$ocLazyLoad', 'filetree'];
+    function CodeEditorController($rootScope, $scope, $http, $ocLazyLoad, filetree) {
+        var vm = this;
+
+        layout();
+        activate();
+
+        ////////////////
+        /*jshint -W106*/
+        function layout() {
+          // Setup the layout mode 
+          $rootScope.app.useFullLayout = true;
+          $rootScope.app.hiddenFooter = true;
+          $rootScope.app.layout.isCollapsed = true;
+          
+          // Restore layout for demo
+          $scope.$on('$destroy', function(){
+              $rootScope.app.useFullLayout = false;
+              $rootScope.app.hiddenFooter = false;
+          });
+
+        }
+
+        function activate() {
+
+          // Set the tree data into the scope
+          vm.filetree_data = filetree;
+
+          // Available themes
+          vm.editorThemes = ['3024-day','3024-night','ambiance-mobile','ambiance','base16-dark','base16-light','blackboard','cobalt','eclipse','elegant','erlang-dark','lesser-dark','mbo','mdn-like','midnight','monokai','neat','neo','night','paraiso-dark','paraiso-light','pastel-on-dark','rubyblue','solarized','the-matrix','tomorrow-night-eighties','twilight','vibrant-ink','xq-dark','xq-light'];
+
+          vm.editorOpts = {
+            mode: 'javascript',
+            lineNumbers: true,
+            matchBrackets: true,
+            theme: 'mbo',
+            viewportMargin: Infinity
+          };
+
+          vm.refreshEditor = 0;
+
+          // Load dinamically the stylesheet for the selected theme
+          // You can use ozLazyLoad to load also the mode js based 
+          // on the file extension that is loaded (see handle_filetree)
+          vm.loadTheme = function() {
+            var BASE = 'vendor/codemirror/theme/';
+            $ocLazyLoad.load(BASE + vm.editorOpts.theme + '.css');
+            vm.refreshEditor = !vm.refreshEditor;
+          };
+          // load default theme
+          vm.loadTheme(vm.editorOpts.theme);
+          // Add some initial text
+          vm.code = '// Open a file from the left menu \n' +
+                        '// It will be requested to the server and loaded into the editor\n' +
+                        '// Also try adding a New File from the toolbar\n';
+
+
+          // Tree
+
+          var selectedBranch;
+          vm.handle_filetree = function(branch) {
+            
+            selectedBranch = branch;
+
+            var basePath = 'server/editor/';
+            var isFolder = !!branch.children.length;
+
+            console.log('You selected: ' + branch.label + ' - isFolder? ' + isFolder);
+
+            if ( ! isFolder ) {
+
+              $http
+                .get( basePath + branch.path )
+                .success(function(response){
+                  
+                  console.log('Loaded.. ' + branch.path);
+                  // set the new code into the editor
+                  vm.code = response;
+                  
+                  vm.editorOpts.mode = detectMode(branch.path);
+                  console.log( 'Mode is: ' + vm.editorOpts.mode);
+
+                });
+            }
+          };
+
+          function detectMode(file) {
+            var ext = file.split('.');
+            ext = ext ? ext[ext.length - 1] : '';
+            switch (ext) {
+              case 'html':  return 'htmlmixed';
+              case 'css':   return 'css';
+              default:      return 'javascript';
+            }
+          }
+
+          var tree;
+          tree = vm.filetree = {};
+
+          // Adds a new branch to the tree
+          vm.new_filetree = function() {
+            var b;
+            b = tree.get_selected_branch();
+
+            // if we select a leaf -> select the parent folder
+            if ( b && b.children.length === 0 ) {
+              b = tree.get_parent_branch(b);
+            }
+            
+            return tree.add_branch(b, {
+              'label': 'another.html',
+              'path': 'source/another.html'
+            });
+          };
+        }
+    }
+})();
+
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.extras')
+        .controller('TodoController', TodoController);
+
+    TodoController.$inject = ['$filter'];
+    function TodoController($filter) {
+        var vm = this;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+           vm.items = [
+            {
+              todo: {title: 'Meeting with Mark at 7am.', description: 'Pellentesque convallis mauris eu elit imperdiet quis eleifend quam aliquet. '},
+              complete: true
+            },
+            {
+              todo: {title: 'Call Sonya. Talk about the new project.', description: ''},
+              complete: false
+            },
+            {
+              todo: {title: 'Find a new place for vacations', description: ''},
+              complete: false
+            }
+            ];
+          
+          vm.editingTodo = false;
+          vm.todo = {};
+
+          vm.addTodo = function() {
+            
+            if( vm.todo.title === '' ) return;
+            if( !vm.todo.description ) vm.todo.description = '';
+            
+            if( vm.editingTodo ) {
+              vm.todo = {};
+              vm.editingTodo = false;
+            }
+            else {
+              vm.items.push({todo: angular.copy(vm.todo), complete: false});
+              vm.todo.title = '';
+              vm.todo.description = '';
+            }
+          };
+          
+          vm.editTodo = function(index, $event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            vm.todo = vm.items[index].todo;
+            vm.editingTodo = true;
+          };
+
+          vm.removeTodo = function(index/*, $event*/) {
+            vm.items.splice(index, 1);
+          };
+          
+          vm.clearAll = function() {
+            vm.items = [];
+          };
+
+          vm.totalCompleted = function() {
+            return $filter('filter')(vm.items, function(item){
+              return item.complete;
+            }).length;
+          };
+
+          vm.totalPending = function() {
+            return $filter('filter')(vm.items, function(item){
+              return !item.complete;
+            }).length;
+          };
+
+        }
+    }
+})();
+
+/**=========================================================
+ * Module: word-cloud.js
+ * Controller for jqCloud
+ =========================================================*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.extras')
+        .controller('WordCloudController', WordCloudController);
+
+    function WordCloudController() {
+        var vm = this;
+
+        activate();
+
+        ////////////////
+
+        function activate() {
+
+          vm.words = [
+              {
+                text: 'Lorem',
+                weight: 13
+                //link: 'http://themicon.co'
+              }, {
+                text: 'Ipsum',
+                weight: 10.5
+              }, {
+                text: 'Dolor',
+                weight: 9.4
+              }, {
+                text: 'Sit',
+                weight: 8
+              }, {
+                text: 'Amet',
+                weight: 6.2
+              }, {
+                text: 'Consectetur',
+                weight: 5
+              }, {
+                text: 'Adipiscing',
+                weight: 5
+              }, {
+                text: 'Sit',
+                weight: 8
+              }, {
+                text: 'Amet',
+                weight: 6.2
+              }, {
+                text: 'Consectetur',
+                weight: 5
+              }, {
+                text: 'Adipiscing',
+                weight: 5
+              }
+          ];
+        }
+    }
+})();
+
+(function() {
+    'use strict';
+
+    angular
+        .module('app.lazyload')
+        .config(lazyloadConfig);
+
+    lazyloadConfig.$inject = ['$ocLazyLoadProvider', 'APP_REQUIRES'];
+    function lazyloadConfig($ocLazyLoadProvider, APP_REQUIRES){
+
+      // Lazy Load modules configuration
+      $ocLazyLoadProvider.config({
+        debug: false,
+        events: true,
+        modules: APP_REQUIRES.modules
+      });
+
+    }
 })();
 (function() {
     'use strict';
 
     angular
-        .module('app.core')
-        .run(appRun);
-
-    angular
-        .module('app.core')
-        .factory('Auth', function(){
-            var user;
-
-            return{
-                setUser : function(aUser){
-                    user = aUser;
-                },
-                isLoggedIn : function(){
-                    return(user)? user : false;
-                }
-            }
-        });
-
-    appRun.$inject = ['$rootScope', '$state', '$stateParams',  '$window', '$templateCache', 'Colors'];
-    
-    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
-
-      // Set reference to access them from any scope
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-      $rootScope.$storage = $window.localStorage;
-
-      // Uncomment this to disable template cache
-      /*$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-          if (typeof(toState) !== 'undefined'){
-            $templateCache.remove(toState.templateUrl);
-          }
-      });*/
-
-      // Allows to use branding color with interpolation
-      // {{ colorByName('primary') }}
-      $rootScope.colorByName = Colors.byName;
-
-      // cancel click event easily
-      $rootScope.cancel = function($event) {
-        $event.stopPropagation();
-      };
-
-      // Hooks Example
-      // ----------------------------------- 
-
-      // Hook not found
-      $rootScope.$on('$stateNotFound',
-        function(event, unfoundState/*, fromState, fromParams*/) {
-            console.log(unfoundState.to); // "lazy.state"
-            console.log(unfoundState.toParams); // {a:1, b:2}
-            console.log(unfoundState.options); // {inherit:false} + default options
-        });
-      // Hook error
-      $rootScope.$on('$stateChangeError',
-        function(event, toState, toParams, fromState, fromParams, error){
-          console.log(error);
-        });
-      // Hook success
-      $rootScope.$on('$stateChangeSuccess',
-        function(/*event, toState, toParams, fromState, fromParams*/) {
-          // display new view from top
-          $window.scrollTo(0, 0);
-          // Save the route title
-          $rootScope.currTitle = $state.current.title;
-        });
-
-      // Load a title dynamically
-      $rootScope.currTitle = $state.current.title;
-      $rootScope.pageTitle = function() {
-        var title = $rootScope.app.name + ' - ' + ($rootScope.currTitle || $rootScope.app.description);
-        document.title = title;
-        return title;
-      };      
-
-    }
+        .module('app.lazyload')
+        .constant('APP_REQUIRES', {
+          // jQuery based and standalone scripts
+          scripts: {
+            'modernizr':          ['vendor/modernizr/modernizr.custom.js'],
+            'icons':              ['vendor/fontawesome/css/font-awesome.min.css',
+                                   'vendor/simple-line-icons/css/simple-line-icons.css'],
+              // jquery core and widgets
+              'jquery-ui':          ['vendor/jquery-ui/ui/core.js',
+                  'vendor/jquery-ui/ui/widget.js'],
+              // loads only jquery required modules and touch support
+              'jquery-ui-widgets':  ['vendor/jquery-ui/ui/core.js',
+                  'vendor/jquery-ui/ui/widget.js',
+                  'vendor/jquery-ui/ui/mouse.js',
+                  'vendor/jquery-ui/ui/draggable.js',
+                  'vendor/jquery-ui/ui/droppable.js',
+                  'vendor/jquery-ui/ui/sortable.js',
+                  'vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js'],
+              'moment' :            ['vendor/moment/min/moment-with-locales.min.js'],
+              'fullcalendar':       ['vendor/fullcalendar/dist/fullcalendar.min.js',
+                                    'vendor/fullcalendar/dist/fullcalendar.css'],
+              'gcal':               ['vendor/fullcalendar/dist/gcal.js'],
+              'inputmask':          ['vendor/jquery.inputmask/dist/jquery.inputmask.bundle.js'],
+              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js'],
+              'flot-chart':         ['vendor/flot/jquery.flot.js'],
+              'flot-chart-plugins': ['vendor/flot.tooltip/js/jquery.flot.tooltip.min.js',
+                  'vendor/flot/jquery.flot.resize.js',
+                  'vendor/flot/jquery.flot.pie.js',
+                  'vendor/flot/jquery.flot.time.js',
+                  'vendor/flot/jquery.flot.categories.js',
+                  'vendor/flot-spline/js/jquery.flot.spline.min.js'],
+          },
+          // Angular based script (use the right module name)
+          modules: [
+              {name: 'ui.map', files: [
+                  'vendor/angular-ui-map/ui-map.js']},
+             {name: 'datatables', files: [
+                 'vendor/datatables/media/css/jquery.dataTables.css',
+                 'vendor/datatables/media/js/jquery.dataTables.js',
+                 'vendor/angular-datatables/dist/angular-datatables.js'], serie: true},
+              {name: 'localytics.directives', files: [
+                  'vendor/chosen/chosen.jquery.js',
+                  'vendor/chosen/chosen.css',
+                  'vendor/angular-chosen-localytics/dist/angular-chosen.min.js'],
+                  serie: true},
+              {name: 'ui.select',files:
+                  ['vendor/angular-ui-select/dist/select.min.js',
+                  'vendor/angular-ui-select/dist/select.min.css']},
+              {name: 'oitozero.ngSweetAlert',     files: ['vendor/sweetalert/dist/sweetalert.css',
+                  'vendor/sweetalert/dist/sweetalert.min.js',
+                  'vendor/ngSweetAlert/SweetAlert.js']},
+              {name: 'ngDialog',                  files: ['vendor/ng-dialog/js/ngDialog.min.js',
+                  'vendor/ng-dialog/css/ngDialog.min.css',
+                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] },
+              {name: 'angular-upload',
+                  files: ['vendor/angular-file-upload/dist/angular-file-upload.min.js']
+              }
+          ]
+        })
+        ;
 
 })();
-
 
 /**
  * Created by Adolfo on 8/17/2016.
@@ -1807,9 +2507,9 @@ var globalUri = "http://localhost:9000/";
             };
 
             // Disable weekend selection
-            vm.disabled = function(date, mode) {
-                return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-            };
+            // vm.disabled = function(date, mode) {
+            //     return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+            // };
 
             vm.toggleMin = function() {
                 vm.minDate = vm.minDate ? null : new Date();
@@ -3550,7 +4250,8 @@ var globalUri = "http://localhost:9000/";
                                 confirmButtonText: 'Done!',
                                 closeOnConfirm: true
                             },  function(){
-                                $state.go('app.patients');
+                                console.log("Salvo!");
+                                //$state.go('app.patients');
                             });
                         }, function (errResponse) {
                             console.error('error: Washington we got a problem');
@@ -3826,706 +4527,6 @@ var globalUri = "http://localhost:9000/";
 })();
 
 
-/**=========================================================
- * Module: article.js
- =========================================================*/
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .controller('ArticleController', ArticleController);
-
-    function ArticleController() {
-        var vm = this;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-          vm.htmlContent = 'Article content...';
-
-          vm.postDemo = {};
-          vm.postDemo.tags = ['coding', 'less'];
-          vm.availableTags = ['coding', 'less', 'sass', 'angularjs', 'node', 'expressJS'];
-          vm.postDemo.categories = ['JAVASCRIPT','WEB'];
-          vm.availableCategories = ['JAVASCRIPT','WEB', 'BOOTSTRAP', 'SERVER', 'HTML5', 'CSS'];
-
-          vm.reviewers = [
-            { name: 'Adam',      email: 'adam@email.com',      age: 10 },
-            { name: 'Amalie',    email: 'amalie@email.com',    age: 12 },
-            { name: 'Wladimir',  email: 'wladimir@email.com',  age: 30 },
-            { name: 'Samantha',  email: 'samantha@email.com',  age: 31 },
-            { name: 'Estefanía', email: 'estefanía@email.com', age: 16 },
-            { name: 'Natasha',   email: 'natasha@email.com',   age: 54 },
-            { name: 'Nicole',    email: 'nicole@email.com',    age: 43 },
-            { name: 'Adrian',    email: 'adrian@email.com',    age: 21 }
-          ];
-
-
-          vm.alerts = [
-            { type: 'info', msg: 'There is an autosaved version of this article that is more recent than the version below. <a href="#" class="text-white">Restore</a>' }
-          ];
-
-          vm.closeAlert = function(index) {
-            vm.alerts.splice(index, 1);
-          };
-        }
-    }
-})();
-
-/**=========================================================
- * Module: calendar-ui.js
- * This script handle the calendar demo with draggable 
- * events and events creations
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .directive('calendar', calendar);
-
-    calendar.$inject = ['$rootScope'];
-    function calendar ($rootScope) {
-        var directive = {
-            link: link,
-            restrict: 'EA'
-        };
-        return directive;
-
-        function link(scope, element) {
-          
-          if(!$.fn.fullCalendar) return;
-          
-          // The element that will display the calendar
-          var calendar = element;
-
-          var demoEvents = createDemoEvents();
-
-          initExternalEvents(calendar);
-
-          initCalendar(calendar, demoEvents, $rootScope.app.layout.isRTL);
-        }
-    }
-
-
-    // global shared var to know what we are dragging
-    var draggingEvent = null;
-
-
-    /**
-     * ExternalEvent object
-     * @param jQuery Object elements Set of element as jQuery objects
-     */
-    function ExternalEvent(elements) {
-        
-        if (!elements) return;
-        
-        elements.each(function() {
-            var $this = $(this);
-            // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-            // it doesn't need to have a start or end
-            var calendarEventObject = {
-                title: $.trim($this.text()) // use the element's text as the event title
-            };
-
-            // store the Event Object in the DOM element so we can get to it later
-            $this.data('calendarEventObject', calendarEventObject);
-
-            // make the event draggable using jQuery UI
-            $this.draggable({
-                zIndex: 1070,
-                revert: true, // will cause the event to go back to its
-                revertDuration: 0  //  original position after the drag
-            });
-
-        });
-    }
-
-    /**
-     * Invoke full calendar plugin and attach behavior
-     * @param  jQuery [calElement] The calendar dom element wrapped into jQuery
-     * @param  EventObject [events] An object with the event list to load when the calendar displays
-     */
-    function initCalendar(calElement, events, isRTL) {
-
-        // check to remove elements from the list
-        var removeAfterDrop = $('#remove-after-drop');
-
-        calElement.fullCalendar({
-            isRTL: isRTL,
-            header: {
-                left:   'prev,next today',
-                center: 'title',
-                right:  'month,agendaWeek,agendaDay'
-            },
-            buttonIcons: { // note the space at the beginning
-                prev:    ' fa fa-caret-left',
-                next:    ' fa fa-caret-right'
-            },
-            buttonText: {
-                today: 'today',
-                month: 'month',
-                week:  'week',
-                day:   'day'
-            },
-            editable: true,
-            droppable: true, // this allows things to be dropped onto the calendar 
-            drop: function(date, allDay) { // this function is called when something is dropped
-                
-                var $this = $(this),
-                    // retrieve the dropped element's stored Event Object
-                    originalEventObject = $this.data('calendarEventObject');
-
-                // if something went wrong, abort
-                if(!originalEventObject) return;
-
-                // clone the object to avoid multiple events with reference to the same object
-                var clonedEventObject = $.extend({}, originalEventObject);
-
-                // assign the reported date
-                clonedEventObject.start = date;
-                clonedEventObject.allDay = allDay;
-                clonedEventObject.backgroundColor = $this.css('background-color');
-                clonedEventObject.borderColor = $this.css('border-color');
-
-                // render the event on the calendar
-                // the last `true` argument determines if the event "sticks" 
-                // (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-                calElement.fullCalendar('renderEvent', clonedEventObject, true);
-                
-                // if necessary remove the element from the list
-                if(removeAfterDrop.is(':checked')) {
-                  $this.remove();
-                }
-            },
-            eventDragStart: function (event/*, js, ui*/) {
-              draggingEvent = event;
-            },
-            // This array is the events sources
-            events: events
-        });
-    }
-
-    /**
-     * Inits the external events panel
-     * @param  jQuery [calElement] The calendar dom element wrapped into jQuery
-     */
-    function initExternalEvents(calElement){
-      // Panel with the external events list
-      var externalEvents = $('.external-events');
-
-      // init the external events in the panel
-      new ExternalEvent(externalEvents.children('div'));
-
-      // External event color is danger-red by default
-      var currColor = '#f6504d';
-      // Color selector button
-      var eventAddBtn = $('.external-event-add-btn');
-      // New external event name input
-      var eventNameInput = $('.external-event-name');
-      // Color switchers
-      var eventColorSelector = $('.external-event-color-selector .circle');
-
-      // Trash events Droparea 
-      $('.external-events-trash').droppable({
-        accept:       '.fc-event',
-        activeClass:  'active',
-        hoverClass:   'hovered',
-        tolerance:    'touch',
-        drop: function(event, ui) {
-          
-          // You can use this function to send an ajax request
-          // to remove the event from the repository
-          
-          if(draggingEvent) {
-            var eid = draggingEvent.id || draggingEvent._id;
-            // Remove the event
-            calElement.fullCalendar('removeEvents', eid);
-            // Remove the dom element
-            ui.draggable.remove();
-            // clear
-            draggingEvent = null;
-          }
-        }
-      });
-
-      eventColorSelector.click(function(e) {
-          e.preventDefault();
-          var $this = $(this);
-
-          // Save color
-          currColor = $this.css('background-color');
-          // De-select all and select the current one
-          eventColorSelector.removeClass('selected');
-          $this.addClass('selected');
-      });
-
-      eventAddBtn.click(function(e) {
-          e.preventDefault();
-          
-          // Get event name from input
-          var val = eventNameInput.val();
-          // Dont allow empty values
-          if ($.trim(val) === '') return;
-          
-          // Create new event element
-          var newEvent = $('<div/>').css({
-                              'background-color': currColor,
-                              'border-color':     currColor,
-                              'color':            '#fff'
-                          })
-                          .html(val);
-
-          // Prepends to the external events list
-          externalEvents.prepend(newEvent);
-          // Initialize the new event element
-          new ExternalEvent(newEvent);
-          // Clear input
-          eventNameInput.val('');
-      });
-    }
-
-    /**
-     * Creates an array of events to display in the first load of the calendar
-     * Wrap into this function a request to a source to get via ajax the stored events
-     * @return Array The array with the events
-     */
-    function createDemoEvents() {
-      // Date for the calendar events (dummy data)
-      var date = new Date();
-      var d = date.getDate(),
-          m = date.getMonth(),
-          y = date.getFullYear();
-
-      return  [
-                {
-                    title: 'All Day Event',
-                    start: new Date(y, m, 1),
-                    backgroundColor: '#f56954', //red 
-                    borderColor: '#f56954' //red
-                },
-                {
-                    title: 'Long Event',
-                    start: new Date(y, m, d - 5),
-                    end: new Date(y, m, d - 2),
-                    backgroundColor: '#f39c12', //yellow
-                    borderColor: '#f39c12' //yellow
-                },
-                {
-                    title: 'Meeting',
-                    start: new Date(y, m, d, 10, 30),
-                    allDay: false,
-                    backgroundColor: '#0073b7', //Blue
-                    borderColor: '#0073b7' //Blue
-                },
-                {
-                    title: 'Lunch',
-                    start: new Date(y, m, d, 12, 0),
-                    end: new Date(y, m, d, 14, 0),
-                    allDay: false,
-                    backgroundColor: '#00c0ef', //Info (aqua)
-                    borderColor: '#00c0ef' //Info (aqua)
-                },
-                {
-                    title: 'Birthday Party',
-                    start: new Date(y, m, d + 1, 19, 0),
-                    end: new Date(y, m, d + 1, 22, 30),
-                    allDay: false,
-                    backgroundColor: '#00a65a', //Success (green)
-                    borderColor: '#00a65a' //Success (green)
-                },
-                {
-                    title: 'Open Google',
-                    start: new Date(y, m, 28),
-                    end: new Date(y, m, 29),
-                    url: '//google.com/',
-                    backgroundColor: '#3c8dbc', //Primary (light-blue)
-                    borderColor: '#3c8dbc' //Primary (light-blue)
-                }
-            ];
-    }
-
-})();
-
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .service('LoadTreeService', LoadTreeService);
-
-    LoadTreeService.$inject = ['$resource'];
-    function LoadTreeService($resource) {
-        // Loads the list of files to populate the treeview
-        return $resource('server/editor/filetree.json');
-    }
-
-})();
-/**=========================================================
- * Module: code-editor.js
- * Codemirror code editor controller
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .controller('CodeEditorController', CodeEditorController);
-
-    CodeEditorController.$inject = ['$rootScope', '$scope', '$http', '$ocLazyLoad', 'filetree'];
-    function CodeEditorController($rootScope, $scope, $http, $ocLazyLoad, filetree) {
-        var vm = this;
-
-        layout();
-        activate();
-
-        ////////////////
-        /*jshint -W106*/
-        function layout() {
-          // Setup the layout mode 
-          $rootScope.app.useFullLayout = true;
-          $rootScope.app.hiddenFooter = true;
-          $rootScope.app.layout.isCollapsed = true;
-          
-          // Restore layout for demo
-          $scope.$on('$destroy', function(){
-              $rootScope.app.useFullLayout = false;
-              $rootScope.app.hiddenFooter = false;
-          });
-
-        }
-
-        function activate() {
-
-          // Set the tree data into the scope
-          vm.filetree_data = filetree;
-
-          // Available themes
-          vm.editorThemes = ['3024-day','3024-night','ambiance-mobile','ambiance','base16-dark','base16-light','blackboard','cobalt','eclipse','elegant','erlang-dark','lesser-dark','mbo','mdn-like','midnight','monokai','neat','neo','night','paraiso-dark','paraiso-light','pastel-on-dark','rubyblue','solarized','the-matrix','tomorrow-night-eighties','twilight','vibrant-ink','xq-dark','xq-light'];
-
-          vm.editorOpts = {
-            mode: 'javascript',
-            lineNumbers: true,
-            matchBrackets: true,
-            theme: 'mbo',
-            viewportMargin: Infinity
-          };
-
-          vm.refreshEditor = 0;
-
-          // Load dinamically the stylesheet for the selected theme
-          // You can use ozLazyLoad to load also the mode js based 
-          // on the file extension that is loaded (see handle_filetree)
-          vm.loadTheme = function() {
-            var BASE = 'vendor/codemirror/theme/';
-            $ocLazyLoad.load(BASE + vm.editorOpts.theme + '.css');
-            vm.refreshEditor = !vm.refreshEditor;
-          };
-          // load default theme
-          vm.loadTheme(vm.editorOpts.theme);
-          // Add some initial text
-          vm.code = '// Open a file from the left menu \n' +
-                        '// It will be requested to the server and loaded into the editor\n' +
-                        '// Also try adding a New File from the toolbar\n';
-
-
-          // Tree
-
-          var selectedBranch;
-          vm.handle_filetree = function(branch) {
-            
-            selectedBranch = branch;
-
-            var basePath = 'server/editor/';
-            var isFolder = !!branch.children.length;
-
-            console.log('You selected: ' + branch.label + ' - isFolder? ' + isFolder);
-
-            if ( ! isFolder ) {
-
-              $http
-                .get( basePath + branch.path )
-                .success(function(response){
-                  
-                  console.log('Loaded.. ' + branch.path);
-                  // set the new code into the editor
-                  vm.code = response;
-                  
-                  vm.editorOpts.mode = detectMode(branch.path);
-                  console.log( 'Mode is: ' + vm.editorOpts.mode);
-
-                });
-            }
-          };
-
-          function detectMode(file) {
-            var ext = file.split('.');
-            ext = ext ? ext[ext.length - 1] : '';
-            switch (ext) {
-              case 'html':  return 'htmlmixed';
-              case 'css':   return 'css';
-              default:      return 'javascript';
-            }
-          }
-
-          var tree;
-          tree = vm.filetree = {};
-
-          // Adds a new branch to the tree
-          vm.new_filetree = function() {
-            var b;
-            b = tree.get_selected_branch();
-
-            // if we select a leaf -> select the parent folder
-            if ( b && b.children.length === 0 ) {
-              b = tree.get_parent_branch(b);
-            }
-            
-            return tree.add_branch(b, {
-              'label': 'another.html',
-              'path': 'source/another.html'
-            });
-          };
-        }
-    }
-})();
-
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .controller('TodoController', TodoController);
-
-    TodoController.$inject = ['$filter'];
-    function TodoController($filter) {
-        var vm = this;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-           vm.items = [
-            {
-              todo: {title: 'Meeting with Mark at 7am.', description: 'Pellentesque convallis mauris eu elit imperdiet quis eleifend quam aliquet. '},
-              complete: true
-            },
-            {
-              todo: {title: 'Call Sonya. Talk about the new project.', description: ''},
-              complete: false
-            },
-            {
-              todo: {title: 'Find a new place for vacations', description: ''},
-              complete: false
-            }
-            ];
-          
-          vm.editingTodo = false;
-          vm.todo = {};
-
-          vm.addTodo = function() {
-            
-            if( vm.todo.title === '' ) return;
-            if( !vm.todo.description ) vm.todo.description = '';
-            
-            if( vm.editingTodo ) {
-              vm.todo = {};
-              vm.editingTodo = false;
-            }
-            else {
-              vm.items.push({todo: angular.copy(vm.todo), complete: false});
-              vm.todo.title = '';
-              vm.todo.description = '';
-            }
-          };
-          
-          vm.editTodo = function(index, $event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            vm.todo = vm.items[index].todo;
-            vm.editingTodo = true;
-          };
-
-          vm.removeTodo = function(index/*, $event*/) {
-            vm.items.splice(index, 1);
-          };
-          
-          vm.clearAll = function() {
-            vm.items = [];
-          };
-
-          vm.totalCompleted = function() {
-            return $filter('filter')(vm.items, function(item){
-              return item.complete;
-            }).length;
-          };
-
-          vm.totalPending = function() {
-            return $filter('filter')(vm.items, function(item){
-              return !item.complete;
-            }).length;
-          };
-
-        }
-    }
-})();
-
-/**=========================================================
- * Module: word-cloud.js
- * Controller for jqCloud
- =========================================================*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.extras')
-        .controller('WordCloudController', WordCloudController);
-
-    function WordCloudController() {
-        var vm = this;
-
-        activate();
-
-        ////////////////
-
-        function activate() {
-
-          vm.words = [
-              {
-                text: 'Lorem',
-                weight: 13
-                //link: 'http://themicon.co'
-              }, {
-                text: 'Ipsum',
-                weight: 10.5
-              }, {
-                text: 'Dolor',
-                weight: 9.4
-              }, {
-                text: 'Sit',
-                weight: 8
-              }, {
-                text: 'Amet',
-                weight: 6.2
-              }, {
-                text: 'Consectetur',
-                weight: 5
-              }, {
-                text: 'Adipiscing',
-                weight: 5
-              }, {
-                text: 'Sit',
-                weight: 8
-              }, {
-                text: 'Amet',
-                weight: 6.2
-              }, {
-                text: 'Consectetur',
-                weight: 5
-              }, {
-                text: 'Adipiscing',
-                weight: 5
-              }
-          ];
-        }
-    }
-})();
-
-(function() {
-    'use strict';
-
-    angular
-        .module('app.lazyload')
-        .config(lazyloadConfig);
-
-    lazyloadConfig.$inject = ['$ocLazyLoadProvider', 'APP_REQUIRES'];
-    function lazyloadConfig($ocLazyLoadProvider, APP_REQUIRES){
-
-      // Lazy Load modules configuration
-      $ocLazyLoadProvider.config({
-        debug: false,
-        events: true,
-        modules: APP_REQUIRES.modules
-      });
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.lazyload')
-        .constant('APP_REQUIRES', {
-          // jQuery based and standalone scripts
-          scripts: {
-            'modernizr':          ['vendor/modernizr/modernizr.custom.js'],
-            'icons':              ['vendor/fontawesome/css/font-awesome.min.css',
-                                   'vendor/simple-line-icons/css/simple-line-icons.css'],
-              // jquery core and widgets
-              'jquery-ui':          ['vendor/jquery-ui/ui/core.js',
-                  'vendor/jquery-ui/ui/widget.js'],
-              // loads only jquery required modules and touch support
-              'jquery-ui-widgets':  ['vendor/jquery-ui/ui/core.js',
-                  'vendor/jquery-ui/ui/widget.js',
-                  'vendor/jquery-ui/ui/mouse.js',
-                  'vendor/jquery-ui/ui/draggable.js',
-                  'vendor/jquery-ui/ui/droppable.js',
-                  'vendor/jquery-ui/ui/sortable.js',
-                  'vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js'],
-              'moment' :            ['vendor/moment/min/moment-with-locales.min.js'],
-              'fullcalendar':       ['vendor/fullcalendar/dist/fullcalendar.min.js',
-                                    'vendor/fullcalendar/dist/fullcalendar.css'],
-              'gcal':               ['vendor/fullcalendar/dist/gcal.js'],
-              'inputmask':          ['vendor/jquery.inputmask/dist/jquery.inputmask.bundle.js'],
-              'loadGoogleMapsJS':   ['vendor/load-google-maps/load-google-maps.js'],
-              'flot-chart':         ['vendor/flot/jquery.flot.js'],
-              'flot-chart-plugins': ['vendor/flot.tooltip/js/jquery.flot.tooltip.min.js',
-                  'vendor/flot/jquery.flot.resize.js',
-                  'vendor/flot/jquery.flot.pie.js',
-                  'vendor/flot/jquery.flot.time.js',
-                  'vendor/flot/jquery.flot.categories.js',
-                  'vendor/flot-spline/js/jquery.flot.spline.min.js'],
-          },
-          // Angular based script (use the right module name)
-          modules: [
-              {name: 'ui.map', files: [
-                  'vendor/angular-ui-map/ui-map.js']},
-             {name: 'datatables', files: [
-                 'vendor/datatables/media/css/jquery.dataTables.css',
-                 'vendor/datatables/media/js/jquery.dataTables.js',
-                 'vendor/angular-datatables/dist/angular-datatables.js'], serie: true},
-              {name: 'localytics.directives', files: [
-                  'vendor/chosen/chosen.jquery.js',
-                  'vendor/chosen/chosen.css',
-                  'vendor/angular-chosen-localytics/dist/angular-chosen.min.js'],
-                  serie: true},
-              {name: 'ui.select',files:
-                  ['vendor/angular-ui-select/dist/select.min.js',
-                  'vendor/angular-ui-select/dist/select.min.css']},
-              {name: 'oitozero.ngSweetAlert',     files: ['vendor/sweetalert/dist/sweetalert.css',
-                  'vendor/sweetalert/dist/sweetalert.min.js',
-                  'vendor/ngSweetAlert/SweetAlert.js']},
-              {name: 'ngDialog',                  files: ['vendor/ng-dialog/js/ngDialog.min.js',
-                  'vendor/ng-dialog/css/ngDialog.min.css',
-                  'vendor/ng-dialog/css/ngDialog-theme-default.min.css'] },
-              {name: 'angular-upload',
-                  files: ['vendor/angular-file-upload/dist/angular-file-upload.min.js']
-              }
-          ]
-        })
-        ;
-
-})();
-
 (function() {
     'use strict';
 
@@ -4683,61 +4684,95 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.settings')
-        .run(settingsRun);
+        .module('app.preloader')
+        .directive('preloader', preloader);
 
-    settingsRun.$inject = ['$rootScope', '$localStorage'];
+    preloader.$inject = ['$animate', '$timeout', '$q'];
+    function preloader ($animate, $timeout, $q) {
 
-    function settingsRun($rootScope, $localStorage){
+        var directive = {
+            restrict: 'EAC',
+            template: 
+              '<div class="preloader-progress">' +
+                  '<div class="preloader-progress-bar" ' +
+                       'ng-style="{width: loadCounter + \'%\'}"></div>' +
+              '</div>'
+            ,
+            link: link
+        };
+        return directive;
 
-      // Global Settings
-      // -----------------------------------
-      $rootScope.app = {
-        name: 'onemed',
-        description: 'crm',
-        year: ((new Date()).getFullYear()),
-        layout: {
-          isFixed: true,
-          isCollapsed: true,
-          isBoxed: false,
-          isRTL: false,
-          horizontal: false,
-          isFloat: false,
-          asideHover: false,
-          theme: null,
-          asideScrollbar: false
-        },
-        useFullLayout: false,
-        hiddenFooter: false,
-        offsidebarOpen: false,
-        asideToggled: false,
-        viewAnimation: 'ng-fadeInUp',
-        uri: 'http://localhost:9000'
-      };
+        ///////
 
-      // Setup the layout mode
-      $rootScope.app.layout.horizontal = ( $rootScope.$stateParams.layout === 'app-h') ;
+        function link(scope, el) {
 
-      // Restore layout settings [*** UNCOMMENT TO ENABLE ***]
-      // if( angular.isDefined($localStorage.layout) )
-      //   $rootScope.app.layout = $localStorage.layout;
-      // else
-      //   $localStorage.layout = $rootScope.app.layout;
-      //
-      // $rootScope.$watch('app.layout', function () {
-      //   $localStorage.layout = $rootScope.app.layout;
-      // }, true);
+          scope.loadCounter = 0;
 
-      // Close submenu when sidebar change from collapsed to normal
-      $rootScope.$watch('app.layout.isCollapsed', function(newValue) {
-        if( newValue === false )
-          $rootScope.$broadcast('closeSidebarMenu');
-      });
+          var counter  = 0,
+              timeout;
 
+          // disables scrollbar
+          angular.element('body').css('overflow', 'hidden');
+          // ensure class is present for styling
+          el.addClass('preloader');
+
+          appReady().then(endCounter);
+
+          timeout = $timeout(startCounter);
+
+          ///////
+
+          function startCounter() {
+
+            var remaining = 100 - counter;
+            counter = counter + (0.015 * Math.pow(1 - Math.sqrt(remaining), 2));
+
+            scope.loadCounter = parseInt(counter, 10);
+
+            timeout = $timeout(startCounter, 20);
+          }
+
+          function endCounter() {
+
+            $timeout.cancel(timeout);
+
+            scope.loadCounter = 100;
+
+            $timeout(function(){
+              // animate preloader hiding
+              $animate.addClass(el, 'preloader-hidden');
+              // retore scrollbar
+              angular.element('body').css('overflow', '');
+            }, 300);
+          }
+
+          function appReady() {
+            var deferred = $q.defer();
+            var viewsLoaded = 0;
+            // if this doesn't sync with the real app ready
+            // a custom event must be used instead
+            var off = scope.$on('$viewContentLoaded', function () {
+              viewsLoaded ++;
+              // we know there are at least two views to be loaded 
+              // before the app is ready (1-index.html 2-app*.html)
+              if ( viewsLoaded === 2) {
+                // with resolve this fires only once
+                $timeout(function(){
+                  deferred.resolve();
+                }, 3000);
+
+                off();
+              }
+
+            });
+
+            return deferred.promise;
+          }
+
+        } //link
     }
 
 })();
-
 /**=========================================================
  * Module: helpers.js
  * Provides helper functions for routes definition
@@ -5006,6 +5041,13 @@ var globalUri = "http://localhost:9000/";
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
                 authenticate: true
             })
+            .state('app.followups', {
+                url: '/followups',
+                title: 'Follow-ups',
+                templateUrl: helper.basepath('follow-ups.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
+                authenticate: true
+            })
 
 
 
@@ -5039,95 +5081,61 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.preloader')
-        .directive('preloader', preloader);
+        .module('app.settings')
+        .run(settingsRun);
 
-    preloader.$inject = ['$animate', '$timeout', '$q'];
-    function preloader ($animate, $timeout, $q) {
+    settingsRun.$inject = ['$rootScope', '$localStorage'];
 
-        var directive = {
-            restrict: 'EAC',
-            template: 
-              '<div class="preloader-progress">' +
-                  '<div class="preloader-progress-bar" ' +
-                       'ng-style="{width: loadCounter + \'%\'}"></div>' +
-              '</div>'
-            ,
-            link: link
-        };
-        return directive;
+    function settingsRun($rootScope, $localStorage){
 
-        ///////
+      // Global Settings
+      // -----------------------------------
+      $rootScope.app = {
+        name: 'onemed',
+        description: 'crm',
+        year: ((new Date()).getFullYear()),
+        layout: {
+          isFixed: true,
+          isCollapsed: true,
+          isBoxed: false,
+          isRTL: false,
+          horizontal: false,
+          isFloat: false,
+          asideHover: false,
+          theme: null,
+          asideScrollbar: false
+        },
+        useFullLayout: false,
+        hiddenFooter: false,
+        offsidebarOpen: false,
+        asideToggled: false,
+        viewAnimation: 'ng-fadeInUp',
+        uri: 'http://localhost:9000'
+      };
 
-        function link(scope, el) {
+      // Setup the layout mode
+      $rootScope.app.layout.horizontal = ( $rootScope.$stateParams.layout === 'app-h') ;
 
-          scope.loadCounter = 0;
+      // Restore layout settings [*** UNCOMMENT TO ENABLE ***]
+      // if( angular.isDefined($localStorage.layout) )
+      //   $rootScope.app.layout = $localStorage.layout;
+      // else
+      //   $localStorage.layout = $rootScope.app.layout;
+      //
+      // $rootScope.$watch('app.layout', function () {
+      //   $localStorage.layout = $rootScope.app.layout;
+      // }, true);
 
-          var counter  = 0,
-              timeout;
+      // Close submenu when sidebar change from collapsed to normal
+      $rootScope.$watch('app.layout.isCollapsed', function(newValue) {
+        if( newValue === false )
+          $rootScope.$broadcast('closeSidebarMenu');
+      });
 
-          // disables scrollbar
-          angular.element('body').css('overflow', 'hidden');
-          // ensure class is present for styling
-          el.addClass('preloader');
-
-          appReady().then(endCounter);
-
-          timeout = $timeout(startCounter);
-
-          ///////
-
-          function startCounter() {
-
-            var remaining = 100 - counter;
-            counter = counter + (0.015 * Math.pow(1 - Math.sqrt(remaining), 2));
-
-            scope.loadCounter = parseInt(counter, 10);
-
-            timeout = $timeout(startCounter, 20);
-          }
-
-          function endCounter() {
-
-            $timeout.cancel(timeout);
-
-            scope.loadCounter = 100;
-
-            $timeout(function(){
-              // animate preloader hiding
-              $animate.addClass(el, 'preloader-hidden');
-              // retore scrollbar
-              angular.element('body').css('overflow', '');
-            }, 300);
-          }
-
-          function appReady() {
-            var deferred = $q.defer();
-            var viewsLoaded = 0;
-            // if this doesn't sync with the real app ready
-            // a custom event must be used instead
-            var off = scope.$on('$viewContentLoaded', function () {
-              viewsLoaded ++;
-              // we know there are at least two views to be loaded 
-              // before the app is ready (1-index.html 2-app*.html)
-              if ( viewsLoaded === 2) {
-                // with resolve this fires only once
-                $timeout(function(){
-                  deferred.resolve();
-                }, 3000);
-
-                off();
-              }
-
-            });
-
-            return deferred.promise;
-          }
-
-        } //link
     }
 
 })();
+
 /**=========================================================
  * Module: sidebar-menu.js
  * Handle sidebar collapsible elements
@@ -5995,11 +6003,31 @@ var globalUri = "http://localhost:9000/";
                     method: 'PUT'
                 }
             });
-        }]);
+        }]).factory('UpdateFollowUp', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/update-followup/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }]).factory('followUpDateResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/patients/date/:id/:date',
+                {date: '@param1'},
+                {getSomeFolllowUps: { method: 'GET', isArray: true }}
+                );
+    }]).factory('patientsTableResource', ["$resource", function ($resource) {
+        return $resource(globalUri + 'api/patients/list/:action/:id', {}, {
 
-    PatientsFollowDataTableController.$inject = ['$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'FollowUpPrescriberService', 'DeleteFollowUp', '$stateParams'];
+            getSomeUsers: { method: 'GET', params: { id: '@param1', action: "get-users"}, isArray: true },
+            getAllUsers: { method: 'GET', params: { id: '@param1', action: "get-all-users"}, isArray: true }
 
-    function PatientsFollowDataTableController($rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, FollowUpPrescriberService, DeleteFollowUp, $stateParams) {
+        });
+    }]);
+
+    PatientsFollowDataTableController.$inject = ['$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'FollowUpPrescriberService', 'DeleteFollowUp', 'UpdateFollowUp', '$stateParams', 'followUpDateResource', 'patientsTableResource'];
+
+    function PatientsFollowDataTableController($rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, FollowUpPrescriberService, DeleteFollowUp, UpdateFollowUp, $stateParams, followUpDateResource, patientsTableResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -6010,42 +6038,25 @@ var globalUri = "http://localhost:9000/";
         function activate() {
 
             // Ajax
-
-            $resource(globalUri + 'api/patients').query()
+            patientsTableResource.getSomeUsers({ id: $rootScope.thisUser })
                 .$promise
                 .then(function (persons) {
 
                     var appointmentSum = 0;
                     var noteSum = 0;
-
-
-                    angular.forEach(persons, function (value, index) {
-
-                        FollowUpPrescriberService.get({id: value.prescriber})
-                            .$promise
-                            .then(function (person) {
-                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
-                            });
-
-                        vm.appointmentSum += Number(value.appointments.length);
-                        noteSum += Number(value.notes.length);
-
-                    });
-
+                    console.log(persons);
                     vm.followUps = [];
                     angular.forEach(persons, function (value, index) {
-
+                        console.log(value);
                         var patientName = value.name + " " + value.lastname;
                         var patiendId = value._id;
-
 
                         if(value.followUp.length > 0){
 
                             angular.forEach(value.followUp, function (valor, indice) {
 
-                                console.log(value.followUp);
-
                                 var newObject = {
+                                    id: value.followUp[indice]._id,
                                     patientId: patiendId,
                                     name: patientName,
                                     text: value.followUp[indice].text,
@@ -6055,13 +6066,7 @@ var globalUri = "http://localhost:9000/";
                                 vm.followUps.push(newObject);
 
                             });
-
-
-                            //console.log(value.followUp);
-
                         }
-
-
                     });
 
                     vm.persons = persons;
@@ -6071,7 +6076,102 @@ var globalUri = "http://localhost:9000/";
 
                 });
 
-            vm.deleteFollowUps = function (patientId, followUpId, index) {
+            function followUpByDates(selectedDate){
+                console.log("getting follow by date");
+                followUpDateResource.getSomeFolllowUps({date: selectedDate, id: $rootScope.thisUser})
+                    .$promise
+                    .then(function (persons) {
+
+
+
+                        vm.followUps = [];
+                        angular.forEach(persons, function (value, index) {
+
+
+                            var patientName = value.name + " " + value.lastname;
+                            var patiendId = value._id;
+                            // console.log(patientName);
+
+
+
+                                    // console.log(value.followUp);
+
+                                    var newObject = {
+                                        id: value.followUp._id,
+                                        patientId: patiendId,
+                                        name: patientName,
+                                        text: value.followUp.text,
+                                        date: value.followUp.date,
+                                        status: value.followUp.status
+                                    };
+                                    vm.followUps.push(newObject);
+
+
+
+                        });
+
+                    });
+            }
+
+
+
+            vm.todayOnly = function(){
+                followUpByDates("today");
+            };
+            vm.weekOnly = function(){
+                followUpByDates("week");
+            };
+            vm.monthOnly = function(){
+                followUpByDates("month");
+            };
+            vm.all = function(){
+                followUpByDates("all");
+            };
+
+
+            vm.processFollowUp = function (item) {
+                SweetAlert.swal({
+                    title: 'Follow-up finished?',
+                    text: 'Do you want to finalize this follow-up?',
+                    type: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#A1D490',
+                    confirmButtonText: 'Yes, confirm!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        SweetAlert.swal('Confirmed!', 'This follow up has been processed', 'success');
+                        updateFollowUp(item);
+                    }
+                });
+            };
+
+            function updateFollowUp(item) {
+
+                UpdateFollowUp.update({ personId: item.patientId }, {followUpId: item.id})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        //$rootScope.followUpSum -= 1;
+                        SweetAlert.swal('Confirmed!', 'This follow up has been processed', 'success');
+
+                        if(vm.followUps[vm.followUps.indexOf(item)].status == "PENDING"){
+                            vm.followUps[vm.followUps.indexOf(item)].status = "PROCESSED";
+                        }else if(vm.followUps[vm.followUps.indexOf(item)].status == "PROCESSED"){
+                            vm.followUps[vm.followUps.indexOf(item)].status = "PENDING";
+                        }
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating this follow up!', 'warning');
+                        console.error('error: Chicago we got a problem', errResponse);
+                    });
+
+            }
+
+            vm.deleteFollowUps = function (item) {
                 SweetAlert.swal({
                     title: 'Confirm follow up deletion?',
                     text: 'You will not be able to recover this record!',
@@ -6085,7 +6185,7 @@ var globalUri = "http://localhost:9000/";
                 }, function (isConfirm) {
                     if (isConfirm) {
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removeFollowUp(patientId, followUpId, index);
+                        removeFollowUp(item);
                     }
                 });
             };
@@ -6098,13 +6198,12 @@ var globalUri = "http://localhost:9000/";
                 .withOption("lengthMenu", [ [5], ["5"] ]);
 
 
-            function removeFollowUp(personId, followUpId, index) {
+            function removeFollowUp(item) {
 
-                vm.followUps.splice(index, 1);
+                vm.followUps.splice(vm.followUps.indexOf(item), 1);
 
-                console.log($stateParams.id);
-
-                DeleteFollowUp.update({ personId: personId }, {followUpId: followUpId})
+                console.log(item);
+                DeleteFollowUp.update({ personId: item.patientId }, {followUpId: item.id})
                     .$promise
                     .then
                     (function(response) {
@@ -6515,7 +6614,7 @@ var globalUri = "http://localhost:9000/";
         function activate() {
 
 
-            console.log("this doctors id is", $stateParams.id);
+            // console.log("this doctors id is", $stateParams.id);
 
 
             patientsPerDoctorTableResource.getThisDoctorPatients({id: $rootScope.thisUser, docid: $stateParams.id})
@@ -6783,6 +6882,70 @@ var globalUri = "http://localhost:9000/";
     }
 })();
 
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .config(translateConfig)
+        ;
+    translateConfig.$inject = ['$translateProvider'];
+    function translateConfig($translateProvider){
+
+      $translateProvider.useStaticFilesLoader({
+          prefix : 'app/i18n/',
+          suffix : '.json'
+      });
+
+      $translateProvider.preferredLanguage('en');
+      $translateProvider.useLocalStorage();
+      $translateProvider.usePostCompiling(true);
+      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
+
+    }
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module('app.translate')
+        .run(translateRun)
+        ;
+    translateRun.$inject = ['$rootScope', '$translate'];
+    
+    function translateRun($rootScope, $translate){
+
+      // Internationalization
+      // ----------------------
+
+      $rootScope.language = {
+        // Handles language dropdown
+        listIsOpen: false,
+        // list of available languages
+        available: {
+          'en':       'English',
+          'es_AR':    'Español'
+        },
+        // display always the current ui language
+        init: function () {
+          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
+          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
+          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
+        },
+        set: function (localeId) {
+          // Set the new idiom
+          $translate.use(localeId);
+          // save a reference for the current language
+          $rootScope.language.selected = $rootScope.language.available[localeId];
+          // finally toggle dropdown
+          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
+        }
+      };
+
+      $rootScope.language.init();
+
+    }
+})();
 /**=========================================================
  * Module: animate-enabled.js
  * Enable or disables ngAnimate for element with directive
@@ -7217,70 +7380,6 @@ var globalUri = "http://localhost:9000/";
     'use strict';
 
     angular
-        .module('app.translate')
-        .config(translateConfig)
-        ;
-    translateConfig.$inject = ['$translateProvider'];
-    function translateConfig($translateProvider){
-
-      $translateProvider.useStaticFilesLoader({
-          prefix : 'app/i18n/',
-          suffix : '.json'
-      });
-
-      $translateProvider.preferredLanguage('en');
-      $translateProvider.useLocalStorage();
-      $translateProvider.usePostCompiling(true);
-      $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module('app.translate')
-        .run(translateRun)
-        ;
-    translateRun.$inject = ['$rootScope', '$translate'];
-    
-    function translateRun($rootScope, $translate){
-
-      // Internationalization
-      // ----------------------
-
-      $rootScope.language = {
-        // Handles language dropdown
-        listIsOpen: false,
-        // list of available languages
-        available: {
-          'en':       'English',
-          'es_AR':    'Español'
-        },
-        // display always the current ui language
-        init: function () {
-          var proposedLanguage = $translate.proposedLanguage() || $translate.use();
-          var preferredLanguage = $translate.preferredLanguage(); // we know we have set a preferred one in app.config
-          $rootScope.language.selected = $rootScope.language.available[ (proposedLanguage || preferredLanguage) ];
-        },
-        set: function (localeId) {
-          // Set the new idiom
-          $translate.use(localeId);
-          // save a reference for the current language
-          $rootScope.language.selected = $rootScope.language.available[localeId];
-          // finally toggle dropdown
-          $rootScope.language.listIsOpen = ! $rootScope.language.listIsOpen;
-        }
-      };
-
-      $rootScope.language.init();
-
-    }
-})();
-(function() {
-    'use strict';
-
-    angular
         .module('custom', [
             // request the the entire framework
             //'angle',
@@ -7290,32 +7389,63 @@ var globalUri = "http://localhost:9000/";
             ///*...*/
         ]);
 })();
-
 // To run this code, edit file index.html or index.jade and change
 // html data-ng-app attribute from angle to myAppName
 // ----------------------------------------------------------------------
 
-(function() {
+(function () {
     'use strict';
 
     angular
         .module('custom')
         .controller('UserController', UserController);
 
-
     angular.module('app.forms')
         .factory('userStatsResource', ["$resource", function ($resource) {
             return $resource(globalUri + 'api/patients/stats/:action/:id', {}, {
 
-                getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
+                getStats: {method: 'GET', params: {id: '@param1', action: "get-stats"}, isArray: true}
 
             });
-        }]);
+        }])
+        .factory('configsResource', ["$resource", function ($resource) {
+            return $resource(globalUri + 'api/configs', {}, {
+
+                getConfigs: {method: 'GET',  isArray: true}
+
+            });
+        }])
+        .filter('greet', function() {
+        return function(input) {
+            if (input < 12) {
+                return 'Good morning';
+            } else if (input >= 12 && input <= 17) {
+                return 'Good afternoon';
+            } else if (input > 17 && input <= 24) {
+                return 'Good evening';
+            } else {
+                return 'Good evening';
+            }
+        };
+    });
     angular.module('app.forms')
-        .run(["$rootScope", "User", function ($rootScope, User) {
+        .run(["$rootScope", "User", "configsResource", function ($rootScope, User, configsResource) {
             $rootScope.globalUri = globalUri;
 
             var userData = {};
+
+            //current time for greeting
+            $rootScope.currentTime = new Date();
+
+            configsResource.getConfigs()
+                .$promise
+                .then(function (response) {
+
+                    $rootScope.adminMessage = response[0].text;
+                }, function (errResponse) {
+                    //fail
+                    console.error('error: houston we got a problem', errResponse);
+                });
 
             User.get({})
                 .$promise
@@ -7325,17 +7455,9 @@ var globalUri = "http://localhost:9000/";
                         userData = successResponse;
                         $rootScope.thisUser = userData._id;
                         $rootScope.role = userData.role;
-                        // userStatsResource.getStats({ id: userData._id })
-                        //     .$promise
-                        //     .then(function (response) {
-                        //
-                        //
-                        //
-                        //
-                        //     }, function (errResponse) {
-                        //         //fail
-                        //         console.error('error: houston we got a problem', errResponse);
-                        //     });
+
+
+                        $rootScope.thisUserName = userData.name;
 
                     },
                     function (errorResponse) {
@@ -7360,12 +7482,11 @@ var globalUri = "http://localhost:9000/";
         $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
 
 
-
-            if(toState.authenticate && !$cookies.get('token')){
+            if (toState.authenticate && !$cookies.get('token')) {
                 console.log("ROUTE DENIED");
                 $state.transitionTo('account.login');
                 event.preventDefault();
-            }else if ($cookies.get('token')){
+            } else if ($cookies.get('token')) {
                 vm.currentUser = User.get();
 
             }
@@ -7385,15 +7506,14 @@ var globalUri = "http://localhost:9000/";
                     vm.userData = successResponse;
 
 
-
-                    userStatsResource.getStats({ id: userData._id })
+                    userStatsResource.getStats({id: userData._id})
                         .$promise
                         .then(function (response) {
 
-                            if (angular.isDefined(response[0])){
+                            if (angular.isDefined(response[0])) {
                                 $rootScope.money = response[0].total;
                                 $rootScope.sales = response[0].qty;
-                            }else{
+                            } else {
                                 $rootScope.money = 0;
                                 $rootScope.sales = 0;
                             }
@@ -7439,16 +7559,6 @@ var globalUri = "http://localhost:9000/";
         // }
 
 
-
-
-
-
-
-
-
-
-
-
         activate();
 
         ////////////////
@@ -7468,15 +7578,15 @@ var globalUri = "http://localhost:9000/";
             };
 
 
-            vm.getToken = function() {
+            vm.getToken = function () {
                 return $cookies.get('token');
             };
 
             vm.loggedIn = function () {
-                if ( $cookies.get('token') && $location.path() !== '/app/login' ){
+                if ($cookies.get('token') && $location.path() !== '/app/login') {
                     // console.log("Si estas logeado");
                     return true;
-                } else{
+                } else {
                     // console.log("No estas logeado");
                     return false;
                 }

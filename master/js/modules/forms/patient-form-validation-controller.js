@@ -94,7 +94,8 @@
                                 confirmButtonText: 'Done!',
                                 closeOnConfirm: true
                             },  function(){
-                                $state.go('app.patients');
+                                console.log("Salvo!");
+                                //$state.go('app.patients');
                             });
                         }, function (errResponse) {
                             console.error('error: Washington we got a problem');

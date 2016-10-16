@@ -265,7 +265,7 @@
                                         <span class="input-group-addon"></span>
                                         <!-- this uses fixed width to avoid expand outside the group container-->
                                         <select chosen=""
-                                                name="consultant"
+                                                name="prescriber"
                                                 ng-model="form.newPatient.prescriber"
                                                 width="'100%'"
                                                 class="chosen-select input-md"
@@ -275,7 +275,7 @@
 
                                         </select>
                                     </div>
-                                    <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>
+                                    <span ng-show="form.validateInput('prescriber', 'required')" class="text-danger">This field is required</span>
                                 </div>
                                 <label class="col-sm-1 control-label">Consultant</label>
                                 <div class="col-sm-3">
@@ -289,7 +289,8 @@
                                                 ng-options="(consultant.name +' '+ consultant.lastname) for consultant in form.consultants"
                                                 width="'100%'"
                                                 class="chosen-select input-md">
-
+                                            <option></option>
+    
                                         </select>
                                     </div>
                                     <span ng-show="form.validateInput('consultant', 'required')" class="text-danger">This field is required</span>

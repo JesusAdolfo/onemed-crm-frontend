@@ -182,6 +182,13 @@
                 resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
                 authenticate: true
             })
+            .state('app.followups', {
+                url: '/followups',
+                title: 'Follow-ups',
+                templateUrl: helper.basepath('follow-ups.html'),
+                resolve: helper.resolveFor('ui.select','inputmask','localytics.directives', 'oitozero.ngSweetAlert', 'angular-upload'),
+                authenticate: true
+            })
 
 
 

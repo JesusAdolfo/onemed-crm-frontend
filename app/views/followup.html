@@ -25,14 +25,14 @@
                                     <span ng-show="form.validateInput('name', 'required')" class="text-danger">This field is required</span>
                                 </div>
                             </div>
-                            <label class="col-sm-1 control-label">Datepicker</label>
-                            <div class="form-group col-sm-2">
+                            <label class="col-sm-2 control-label">Datepicker</label>
+                            <div class="form-group col-sm-3">
                                 <div class="">
                                     <p class="input-group">
                                         <input type="text" name="date" required=""
                                                uib-datepicker-popup="{{form.format}}"
                                                ng-model="form.newFollowUp.date" is-open="form.opened"
-                                               min-date="form.minDate" max-date="'2019-12-22'"
+                                                max-date="'2019-12-22'"
                                                uib-datepicker-options="form.dateOptions"
                                                date-disabled="form.disabled(date, mode)"
                                                close-text="Close" class="form-control"/>
@@ -45,7 +45,7 @@
                                         <span ng-show="form.validateInput('date', 'required')" class="text-danger">This field is required</span>
                                 </div>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 <small class="text-muted">
                                     Required
                                 </small>

@@ -1,29 +1,60 @@
-
 // To run this code, edit file index.html or index.jade and change
 // html data-ng-app attribute from angle to myAppName
 // ----------------------------------------------------------------------
 
-(function() {
+(function () {
     'use strict';
 
     angular
         .module('custom')
         .controller('UserController', UserController);
 
-
     angular.module('app.forms')
         .factory('userStatsResource', function ($resource) {
             return $resource(globalUri + 'api/patients/stats/:action/:id', {}, {
 
-                getStats: { method: 'GET', params: { id: '@param1', action: "get-stats" }, isArray: true }
+                getStats: {method: 'GET', params: {id: '@param1', action: "get-stats"}, isArray: true}
 
             });
-        });
+        })
+        .factory('configsResource', function ($resource) {
+            return $resource(globalUri + 'api/configs', {}, {
+
+                getConfigs: {method: 'GET',  isArray: true}
+
+            });
+        })
+        .filter('greet', function() {
+        return function(input) {
+            if (input < 12) {
+                return 'Good morning';
+            } else if (input >= 12 && input <= 17) {
+                return 'Good afternoon';
+            } else if (input > 17 && input <= 24) {
+                return 'Good evening';
+            } else {
+                return 'Good evening';
+            }
+        };
+    });
     angular.module('app.forms')
-        .run(function ($rootScope, User) {
+        .run(function ($rootScope, User, configsResource) {
             $rootScope.globalUri = globalUri;
 
             var userData = {};
+
+            //current time for greeting
+            $rootScope.currentTime = new Date();
+
+            configsResource.getConfigs()
+                .$promise
+                .then(function (response) {
+
+                    $rootScope.adminMessage = response[0].text;
+                }, function (errResponse) {
+                    //fail
+                    console.error('error: houston we got a problem', errResponse);
+                });
 
             User.get({})
                 .$promise
@@ -33,17 +64,9 @@
                         userData = successResponse;
                         $rootScope.thisUser = userData._id;
                         $rootScope.role = userData.role;
-                        // userStatsResource.getStats({ id: userData._id })
-                        //     .$promise
-                        //     .then(function (response) {
-                        //
-                        //
-                        //
-                        //
-                        //     }, function (errResponse) {
-                        //         //fail
-                        //         console.error('error: houston we got a problem', errResponse);
-                        //     });
+
+
+                        $rootScope.thisUserName = userData.name;
 
                     },
                     function (errorResponse) {
@@ -68,12 +91,11 @@
         $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
 
 
-
-            if(toState.authenticate && !$cookies.get('token')){
+            if (toState.authenticate && !$cookies.get('token')) {
                 console.log("ROUTE DENIED");
                 $state.transitionTo('account.login');
                 event.preventDefault();
-            }else if ($cookies.get('token')){
+            } else if ($cookies.get('token')) {
                 vm.currentUser = User.get();
 
             }
@@ -93,15 +115,14 @@
                     vm.userData = successResponse;
 
 
-
-                    userStatsResource.getStats({ id: userData._id })
+                    userStatsResource.getStats({id: userData._id})
                         .$promise
                         .then(function (response) {
 
-                            if (angular.isDefined(response[0])){
+                            if (angular.isDefined(response[0])) {
                                 $rootScope.money = response[0].total;
                                 $rootScope.sales = response[0].qty;
-                            }else{
+                            } else {
                                 $rootScope.money = 0;
                                 $rootScope.sales = 0;
                             }
@@ -147,16 +168,6 @@
         // }
 
 
-
-
-
-
-
-
-
-
-
-
         activate();
 
         ////////////////
@@ -176,15 +187,15 @@
             };
 
 
-            vm.getToken = function() {
+            vm.getToken = function () {
                 return $cookies.get('token');
             };
 
             vm.loggedIn = function () {
-                if ( $cookies.get('token') && $location.path() !== '/app/login' ){
+                if ($cookies.get('token') && $location.path() !== '/app/login') {
                     // console.log("Si estas logeado");
                     return true;
-                } else{
+                } else {
                     // console.log("No estas logeado");
                     return false;
                 }

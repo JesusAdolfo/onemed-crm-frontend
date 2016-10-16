@@ -33,7 +33,7 @@
         function activate() {
 
 
-            console.log("this doctors id is", $stateParams.id);
+            // console.log("this doctors id is", $stateParams.id);
 
 
             patientsPerDoctorTableResource.getThisDoctorPatients({id: $rootScope.thisUser, docid: $stateParams.id})

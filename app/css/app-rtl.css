@@ -6034,6 +6034,9 @@ h3 > .breadcrumb.pull-left,
   padding: 0 !important;
   margin: 0 !important;
 }
+.mb10 {
+  margin-bottom: 10px;
+}
 .alert-warning {
   background-color: rgba(118, 144, 159, 0.27) !important;
   color: #444 !important;

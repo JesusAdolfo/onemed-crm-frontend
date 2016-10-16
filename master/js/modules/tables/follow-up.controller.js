@@ -32,11 +32,31 @@
                     method: 'PUT'
                 }
             });
+        }).factory('UpdateFollowUp', function ($resource) {
+            return $resource(globalUri + 'api/patients/update-followup/:personId', {
+                personId: '@param1'
+            }, {
+                update: {
+                    method: 'PUT'
+                }
+            });
+        }).factory('followUpDateResource', function ($resource) {
+            return $resource(globalUri + 'api/patients/date/:id/:date',
+                {date: '@param1'},
+                {getSomeFolllowUps: { method: 'GET', isArray: true }}
+                );
+    }).factory('patientsTableResource', function ($resource) {
+        return $resource(globalUri + 'api/patients/list/:action/:id', {}, {
+
+            getSomeUsers: { method: 'GET', params: { id: '@param1', action: "get-users"}, isArray: true },
+            getAllUsers: { method: 'GET', params: { id: '@param1', action: "get-all-users"}, isArray: true }
+
         });
+    });
 
-    PatientsFollowDataTableController.$inject = ['$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'FollowUpPrescriberService', 'DeleteFollowUp', '$stateParams'];
+    PatientsFollowDataTableController.$inject = ['$rootScope', '$scope', '$resource', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'SweetAlert', 'FollowUpPrescriberService', 'DeleteFollowUp', 'UpdateFollowUp', '$stateParams', 'followUpDateResource', 'patientsTableResource'];
 
-    function PatientsFollowDataTableController($rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, FollowUpPrescriberService, DeleteFollowUp, $stateParams) {
+    function PatientsFollowDataTableController($rootScope, $scope, $resource, DTOptionsBuilder, DTColumnDefBuilder, SweetAlert, FollowUpPrescriberService, DeleteFollowUp, UpdateFollowUp, $stateParams, followUpDateResource, patientsTableResource) {
         var vm = this;
         vm.$scope = $scope;
 
@@ -47,42 +67,25 @@
         function activate() {
 
             // Ajax
-
-            $resource(globalUri + 'api/patients').query()
+            patientsTableResource.getSomeUsers({ id: $rootScope.thisUser })
                 .$promise
                 .then(function (persons) {
 
                     var appointmentSum = 0;
                     var noteSum = 0;
-
-
-                    angular.forEach(persons, function (value, index) {
-
-                        FollowUpPrescriberService.get({id: value.prescriber})
-                            .$promise
-                            .then(function (person) {
-                                vm.persons[index].prescriberName = person.name + " " + person.lastname;
-                            });
-
-                        vm.appointmentSum += Number(value.appointments.length);
-                        noteSum += Number(value.notes.length);
-
-                    });
-
+                    console.log(persons);
                     vm.followUps = [];
                     angular.forEach(persons, function (value, index) {
-
+                        console.log(value);
                         var patientName = value.name + " " + value.lastname;
                         var patiendId = value._id;
-
 
                         if(value.followUp.length > 0){
 
                             angular.forEach(value.followUp, function (valor, indice) {
 
-                                console.log(value.followUp);
-
                                 var newObject = {
+                                    id: value.followUp[indice]._id,
                                     patientId: patiendId,
                                     name: patientName,
                                     text: value.followUp[indice].text,
@@ -92,13 +95,7 @@
                                 vm.followUps.push(newObject);
 
                             });
-
-
-                            //console.log(value.followUp);
-
                         }
-
-
                     });
 
                     vm.persons = persons;
@@ -108,7 +105,102 @@
 
                 });
 
-            vm.deleteFollowUps = function (patientId, followUpId, index) {
+            function followUpByDates(selectedDate){
+                console.log("getting follow by date");
+                followUpDateResource.getSomeFolllowUps({date: selectedDate, id: $rootScope.thisUser})
+                    .$promise
+                    .then(function (persons) {
+
+
+
+                        vm.followUps = [];
+                        angular.forEach(persons, function (value, index) {
+
+
+                            var patientName = value.name + " " + value.lastname;
+                            var patiendId = value._id;
+                            // console.log(patientName);
+
+
+
+                                    // console.log(value.followUp);
+
+                                    var newObject = {
+                                        id: value.followUp._id,
+                                        patientId: patiendId,
+                                        name: patientName,
+                                        text: value.followUp.text,
+                                        date: value.followUp.date,
+                                        status: value.followUp.status
+                                    };
+                                    vm.followUps.push(newObject);
+
+
+
+                        });
+
+                    });
+            }
+
+
+
+            vm.todayOnly = function(){
+                followUpByDates("today");
+            };
+            vm.weekOnly = function(){
+                followUpByDates("week");
+            };
+            vm.monthOnly = function(){
+                followUpByDates("month");
+            };
+            vm.all = function(){
+                followUpByDates("all");
+            };
+
+
+            vm.processFollowUp = function (item) {
+                SweetAlert.swal({
+                    title: 'Follow-up finished?',
+                    text: 'Do you want to finalize this follow-up?',
+                    type: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#A1D490',
+                    confirmButtonText: 'Yes, confirm!',
+                    cancelButtonText: 'Cancel',
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        SweetAlert.swal('Confirmed!', 'This follow up has been processed', 'success');
+                        updateFollowUp(item);
+                    }
+                });
+            };
+
+            function updateFollowUp(item) {
+
+                UpdateFollowUp.update({ personId: item.patientId }, {followUpId: item.id})
+                    .$promise
+                    .then
+                    (function(response) {
+                        //all good
+                        //$rootScope.followUpSum -= 1;
+                        SweetAlert.swal('Confirmed!', 'This follow up has been processed', 'success');
+
+                        if(vm.followUps[vm.followUps.indexOf(item)].status == "PENDING"){
+                            vm.followUps[vm.followUps.indexOf(item)].status = "PROCESSED";
+                        }else if(vm.followUps[vm.followUps.indexOf(item)].status == "PROCESSED"){
+                            vm.followUps[vm.followUps.indexOf(item)].status = "PENDING";
+                        }
+                    }, function(errResponse){
+                        //fail
+                        SweetAlert.swal('Error!', 'Something went wrong while updating this follow up!', 'warning');
+                        console.error('error: Chicago we got a problem', errResponse);
+                    });
+
+            }
+
+            vm.deleteFollowUps = function (item) {
                 SweetAlert.swal({
                     title: 'Confirm follow up deletion?',
                     text: 'You will not be able to recover this record!',
@@ -122,7 +214,7 @@
                 }, function (isConfirm) {
                     if (isConfirm) {
                         SweetAlert.swal('Deleted!', 'This record has been deleted', 'success');
-                        removeFollowUp(patientId, followUpId, index);
+                        removeFollowUp(item);
                     }
                 });
             };
@@ -135,13 +227,12 @@
                 .withOption("lengthMenu", [ [5], ["5"] ]);
 
 
-            function removeFollowUp(personId, followUpId, index) {
+            function removeFollowUp(item) {
 
-                vm.followUps.splice(index, 1);
+                vm.followUps.splice(vm.followUps.indexOf(item), 1);
 
-                console.log($stateParams.id);
-
-                DeleteFollowUp.update({ personId: personId }, {followUpId: followUpId})
+                console.log(item);
+                DeleteFollowUp.update({ personId: item.patientId }, {followUpId: item.id})
                     .$promise
                     .then
                     (function(response) {

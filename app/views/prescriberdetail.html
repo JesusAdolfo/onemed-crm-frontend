@@ -78,10 +78,31 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <fieldset class="b0">
-                                <legend>{{form.person.name | uppercase}} {{form.person.middle}} {{form.person.lastname | uppercase}} {{form.target}}
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <small> <b>NPI #:</b> {{form.person.npi}}</small>
-                                </legend>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h4 class="text-normal">
+                                                {{form.person.name | uppercase}} {{form.person.middle}} {{form.person.lastname | uppercase}} {{form.target}}
+                                                &nbsp;&nbsp;
+                                                <span>
+                                                    <b >NPI #:</b> {{form.person.npi}}
+                                                </span>
+                                            </h4>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-right mb10">
+                                                <button class="btn btn-warning" ui-sref="app.moddoc({id: target})">
+                                                    <i class="fa fa-edit"> </i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <legend>
+                                        </legend>
+                                    </div>
                             </fieldset>
                             <fieldset>
                                 <div class="col-md-8">

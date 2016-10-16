@@ -51,7 +51,7 @@
         </a>
         <a ui-sref="app.followup({ id: '{{ target }}' })" href="">
             <div class="col-lg-3 col-md-6 col-sm-12"><!-- START date widget-->
-                <div class="panel widget">
+                <div class="panel widget onemed-green-bg">
                     <div class="row row-table">
                         <div class="col-xs-4 text-center onemed-dark-green-bg pv-lg">
                             <em class="fa fa-calendar-times-o fa-3x" aria-hidden="true"></em>
@@ -79,14 +79,27 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <fieldset class="b0">
-                                <legend>
-                                    {{form.person.name | uppercase}} {{form.person.lastname | uppercase}}
-                                    {{form.target}}
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <small><b>Ref #:</b> {{ form.person.date | date:'MMddyy' }}{{ form.person.birth |
-                                        date:'MMddyy'}}
-                                    </small>
-                                </legend>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h4 class="text-normal">
+                                            {{form.person.name | uppercase}} {{form.person.middle}} {{form.person.lastname | uppercase}} {{form.target}}
+                                            &nbsp;&nbsp;
+                                        </h4>
+
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="text-right mb10">
+                                            <button type="button" ui-sref="app.modpat({id: target})" class="btn btn-sm btn-warning">
+                                                <em class="fa fa-edit"></em>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <legend>
+                                    </legend>
+                                </div>
                             </fieldset>
                             <div>
                                 <div class="col-md-8">
@@ -319,8 +332,8 @@
                                                 <span>Contact person: </span><h4>{{form.person.dmePerson}}</h4>
                                             </div>
                                             <div class="col-md-6">
-                                                <span>Email: </span><h4>{{form.person.dmeEmail}}</h4>
-                                                <span>Tlf: </span> <h4> {{form.person.dmePhone}} </h4>
+                                                <span>Email: </span><p>{{form.person.dmeEmail}}</p>
+                                                <span>Tlf: </span> <p> {{form.person.dmePhone}} </p>
                                             </div>
                                         </fieldset>
                                     </div>
@@ -328,7 +341,7 @@
 
 
                             </div>
-                            <div class="row">
+                            <div class="">
                                 <div class="col-md-12 panel panel-default" ng-if="form.person.sales" >
                                     <br>
                                     <legend><b>Systems</b></legend>
